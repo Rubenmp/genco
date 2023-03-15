@@ -1,7 +1,7 @@
 extern crate core;
 
+use crate::cli::custom::inditex::event::quality_control::request_qc_db_snowflake::itx_request_qc_db_snowflake::request_quality_controls;
 use std::path::Path;
-use crate::cli::custom::inditex::event::quality_control::request_quality_controls_db_snowflake::request_qc::request_quality_controls;
 
 mod cli;
 mod domain;

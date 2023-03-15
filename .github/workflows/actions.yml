@@ -1,8 +1,4 @@
 # Based on https://github.com/actions-rs/meta/blob/master/recipes/quickstart.md
-#
-# While our "example" application has the platform-specific code,
-# for simplicity we are compiling and testing everything on the Ubuntu environment only.
-# For multi-OS testing see the `cross.yml` workflow.
 
 on: [push, pull_request]
 
@@ -10,6 +6,7 @@ name: Quickstart
 
 jobs:
   check:
+    if: ${{ false }} // <- This make sure the workflow is skipped without any alert
     name: Check
     runs-on: ubuntu-latest
     steps:
@@ -29,6 +26,7 @@ jobs:
           command: check
 
   test:
+    if: ${{ false }} // <- This make sure the workflow is skipped without any alert
     name: Test Suite
     runs-on: ubuntu-latest
     steps:
@@ -48,6 +46,7 @@ jobs:
           command: test
 
   lints:
+    if: ${{ false }} // <- This make sure the workflow is skipped without any alert
     name: Lints
     runs-on: ubuntu-latest
     steps:

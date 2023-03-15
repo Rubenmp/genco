@@ -65,23 +65,33 @@ impl UserInput {
 }
 
 struct UserInputVariable {
-    content_pattern: String,
+    content_pattern: Vec<u8>,
     bytes: Vec<(usize, usize)>,
     value: Option<String>,
 }
 
 impl UserInputVariable {
-    pub fn new(byte_indexes: (usize, usize)) -> Self {
+    pub fn new(content_pattern: Vec<u8>, byte_indexes: (usize, usize)) -> Self {
         let bytes = vec![byte_indexes];
 
         UserInputVariable {
-            content_pattern: "".to_string(),
+            content_pattern,
             bytes,
-            value: None, //Some("test_topic".to_string()),
+            value: None,
         }
     }
 
+    pub fn get_variable_id(&self) -> Vec<u8> {
+        let start_index = get_start_variable_pattern().as_bytes().len();
+        let end_index =
+            self.content_pattern.clone().len() - get_end_variable_pattern().as_bytes().len();
+        self.content_pattern.clone()[start_index..end_index].to_owned()
+    }
+
     pub fn add_bytes_indexes(&mut self, byte_indexes: (usize, usize)) {
+        if byte_indexes.0 >= byte_indexes.1 {
+            panic!("Bytes added to user input must have start_byte less than end_byte");
+        }
         self.bytes.push(byte_indexes);
     }
 
@@ -98,23 +108,6 @@ impl UserInputVariable {
     }
 }
 
-struct FileInputVariable {
-    content_pattern: Vec<u8>,
-}
-
-impl FileInputVariable {
-    pub fn new(content_pattern: Vec<u8>) -> Self {
-        FileInputVariable { content_pattern }
-    }
-
-    pub fn get_variable_id(&self) -> Vec<u8> {
-        let start_index = get_start_variable_pattern().as_bytes().len();
-        let end_index =
-            self.content_pattern.clone().len() - get_end_variable_pattern().as_bytes().len();
-        self.content_pattern.clone()[start_index..end_index].to_owned()
-    }
-}
-
 fn get_variables(file: &PathBuf) -> HashMap<Vec<u8>, UserInputVariable> {
     let mut result: HashMap<Vec<u8>, UserInputVariable> = HashMap::new();
     let file_content = fs::read_to_string(file)
@@ -122,12 +115,12 @@ fn get_variables(file: &PathBuf) -> HashMap<Vec<u8>, UserInputVariable> {
 
     let mut start_index = 0;
     while let Some(next_indexes) = find_next_variable(&file_content, start_index) {
-        let var_identifier = get_var_identifier(file, next_indexes).get_variable_id();
-        if let Some(input_variable) = result.get_mut(&var_identifier) {
+        let user_input_var = get_user_input_variable(file, next_indexes);
+        let user_input_var_id = user_input_var.get_variable_id();
+        if let Some(input_variable) = result.get_mut(&user_input_var_id) {
             input_variable.add_bytes_indexes(next_indexes);
         } else {
-            let new_input_variable = UserInputVariable::new(next_indexes);
-            result.insert(var_identifier, new_input_variable);
+            result.insert(user_input_var_id, user_input_var);
         }
 
         start_index = next_indexes.1;
@@ -136,9 +129,9 @@ fn get_variables(file: &PathBuf) -> HashMap<Vec<u8>, UserInputVariable> {
     result
 }
 
-fn get_var_identifier(file: &PathBuf, var_def_bytes: (usize, usize)) -> FileInputVariable {
+fn get_user_input_variable(file: &PathBuf, var_def_bytes: (usize, usize)) -> UserInputVariable {
     let bytes = read_bytes(file, var_def_bytes.0, var_def_bytes.1);
-    FileInputVariable::new(bytes)
+    UserInputVariable::new(bytes, var_def_bytes)
 }
 
 fn find_next_variable(file_content: &String, initial_index: usize) -> Option<(usize, usize)> {
@@ -164,4 +157,18 @@ fn get_start_variable_pattern<'a>() -> &'a str {
 
 fn get_end_variable_pattern<'a>() -> &'a str {
     "}#"
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::domain::core::user_input::user_input_handler::UserInputVariable;
+
+    #[test]
+    fn user_input_variable_new_test() {
+        let variable = "#{input_var_id}#";
+
+        let user_var = UserInputVariable::new(Vec::from(variable), (0, 1));
+
+        assert_eq!(user_var.get_variable_id(), Vec::from("input_var_id"))
+    }
 }
