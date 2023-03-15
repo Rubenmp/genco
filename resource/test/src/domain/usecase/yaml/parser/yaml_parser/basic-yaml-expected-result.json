@@ -1,0 +1,138 @@
+{
+  "1. Stream": {
+    "1. Document": {
+      "1. ThreeHyphen": "---",
+      "2. Comment": "# An employee record",
+      "3. Comment": "# Source: https://docs.ansible.com/ansible/latest/reference_appendices/YAMLSyntax.html",
+      "4. BlockNode": {
+        "1. BlockMapping": {
+          "1. BlockMappingPair": {
+            "1. FlowNode": {
+              "1. PlainScalar": {
+                "1. StringScalar": "name"
+              }
+            },
+            "2. Colon": ":",
+            "3. FlowNode": {
+              "1. PlainScalar": {
+                "1. StringScalar": "Martin D'vloper"
+              }
+            }
+          },
+          "2. BlockMappingPair": {
+            "1. FlowNode": {
+              "1. PlainScalar": {
+                "1. StringScalar": "job"
+              }
+            },
+            "2. Colon": ":",
+            "3. FlowNode": {
+              "1. SingleQuoteScalar": "'Developer'"
+            }
+          },
+          "3. BlockMappingPair": {
+            "1. FlowNode": {
+              "1. PlainScalar": {
+                "1. StringScalar": "skill"
+              }
+            },
+            "2. Colon": ":",
+            "3. FlowNode": {
+              "1. DoubleQuoteScalar": "\"Elite\""
+            }
+          },
+          "4. BlockMappingPair": {
+            "1. FlowNode": {
+              "1. PlainScalar": {
+                "1. StringScalar": "employed"
+              }
+            },
+            "2. Colon": ":",
+            "3. FlowNode": {
+              "1. PlainScalar": {
+                "1. BooleanScalar": "True"
+              }
+            }
+          },
+          "5. BlockMappingPair": {
+            "1. FlowNode": {
+              "1. PlainScalar": {
+                "1. StringScalar": "foods"
+              }
+            },
+            "2. Colon": ":",
+            "3. BlockNode": {
+              "1. BlockSequence": {
+                "1. BlockSequenceItem": {
+                  "1. Hyphen": "-",
+                  "2. FlowNode": {
+                    "1. PlainScalar": {
+                      "1. StringScalar": "Apple"
+                    }
+                  }
+                },
+                "2. BlockSequenceItem": {
+                  "1. Hyphen": "-",
+                  "2. FlowNode": {
+                    "1. PlainScalar": {
+                      "1. StringScalar": "Orange"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "6. BlockMappingPair": {
+            "1. FlowNode": {
+              "1. PlainScalar": {
+                "1. StringScalar": "languages"
+              }
+            },
+            "2. Colon": ":",
+            "3. BlockNode": {
+              "1. BlockMapping": {
+                "1. BlockMappingPair": {
+                  "1. FlowNode": {
+                    "1. PlainScalar": {
+                      "1. StringScalar": "perl"
+                    }
+                  },
+                  "2. Colon": ":",
+                  "3. FlowNode": {
+                    "1. PlainScalar": {
+                      "1. StringScalar": "Elite"
+                    }
+                  }
+                },
+                "2. BlockMappingPair": {
+                  "1. FlowNode": {
+                    "1. PlainScalar": {
+                      "1. StringScalar": "pascal"
+                    }
+                  },
+                  "2. Colon": ":",
+                  "3. FlowNode": {
+                    "1. PlainScalar": {
+                      "1. StringScalar": "Lame"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "7. BlockMappingPair": {
+            "1. FlowNode": {
+              "1. PlainScalar": {
+                "1. StringScalar": "education"
+              }
+            },
+            "2. Colon": ":",
+            "3. BlockNode": {
+              "1. BlockScalar": "[\"|\",\"  4 GCSEs\",\"  3 A-Levels\"]"
+            }
+          }
+        }
+      }
+    }
+  }
+}

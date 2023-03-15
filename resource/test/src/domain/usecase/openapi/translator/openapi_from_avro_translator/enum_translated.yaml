@@ -1,0 +1,6 @@
+EnumExample:
+  description: Enum example for avro
+  type: string
+  enum:
+    - EnumValue1
+    - EnumValue2

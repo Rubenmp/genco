@@ -1,0 +1,12 @@
+[
+  {
+    "name": "EnumExample",
+    "namespace": "com.parser",
+    "doc": "Enum example for avro",
+    "type": "enum",
+    "symbols": [
+      "EnumValue1",
+      "EnumValue2"
+    ]
+  }
+]

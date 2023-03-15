@@ -1,0 +1,11 @@
+ComplexFields:
+  description: Docs
+  type: object
+  required:
+    - "1FieldRequiredStringArray"
+  properties:
+    1FieldRequiredStringArray:
+      description: Required string array
+      type: array
+      items:
+        type: integer

@@ -1,0 +1,6 @@
+[submodule "tree-sitter-java"]
+	path = tree-sitter-java
+	url = https://github.com/tree-sitter/tree-sitter-java
+[submodule "src/domain/usecase/java/parser/tree-sitter-java"]
+	path = src/domain/usecase/java/parser/tree-sitter-java
+	url = https://github.com/tree-sitter/tree-sitter-java

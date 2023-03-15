@@ -1,0 +1,16 @@
+[
+  {
+    "name": "ComplexFields",
+    "namespace": "com.parser",
+    "doc": "Docs",
+    "type": "record",
+    "fields": [
+      {
+        "name": "1FieldRequiredStringArray",
+        "doc": "Required string array",
+        "type": "array",
+        "items": "string"
+      }
+    ]
+  }
+]

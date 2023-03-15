@@ -1,0 +1,45 @@
+[
+  {
+    "name": "EnumExample",
+    "namespace": "com.parser",
+    "doc": "Enum example for avro",
+    "type": "enum",
+    "symbols": [
+      "EnumValue1",
+      "EnumValue2"
+    ]
+  },
+  {
+    "name": "ComplexFields",
+    "namespace": "com.parser",
+    "doc": "Docs",
+    "type": "record",
+    "fields": [
+      {
+        "name": "field1",
+        "doc": "Field 1",
+        "type": [
+          "null",
+          "int",
+          "long",
+          "float",
+          "double",
+          "string",
+          "bytes",
+          "boolean",
+          "map",
+          {
+            "type": "array",
+            "items": "string"
+          }
+        ],
+        "default": null
+      },
+      {
+        "name": "enum_example",
+        "doc": "Enum example",
+        "type": "EnumExample"
+      }
+    ]
+  }
+]

@@ -1,0 +1,7 @@
+foods:
+  - Apple
+  - NewFood
+languages:
+  pascal: newPascalValue
+  newLanguage: newLanguageValue
+newType: value

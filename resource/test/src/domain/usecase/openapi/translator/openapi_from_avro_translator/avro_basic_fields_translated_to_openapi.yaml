@@ -1,0 +1,33 @@
+AvroBasicFields:
+  description: Docs
+  type: object
+  required:
+    - "2FieldRequiredBoolean"
+    - "3FieldRequiredInt32"
+    - "5FieldRequiredFloat"
+  properties:
+    1FieldNullableString:
+      description: Nullable string
+      type: string
+    2FieldRequiredBoolean:
+      description: Required boolean
+      type: boolean
+    3FieldRequiredInt32:
+      description: Required integer 32
+      type: integer
+      format: int32
+    4FieldNullableInt64:
+      description: Nullable integer 64
+      type: integer
+      format: int64
+    5FieldRequiredFloat:
+      description: Required float
+      type: number
+      format: float
+    6FieldNullableDouble:
+      description: Nullable double
+      type: number
+      format: double
+    7FieldNullableBytes:
+      description: Nullable bytes
+      type: bytes
