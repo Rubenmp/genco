@@ -1,19 +1,21 @@
-use std::{fs, io};
+use crate::domain::core::file_system::file_reader::get_number_of_bytes_of;
 use std::fs::{File, OpenOptions};
 use std::io::{BufReader, Read, Seek, SeekFrom, Write};
 use std::path::PathBuf;
-use crate::domain::core::file_system::file_reader::get_number_of_bytes_of;
+use std::{fs, io};
 
 pub struct FileOverwriting {
     file_path: PathBuf,
     content_nodes: Vec<FileOverwritingItem>,
 }
 
-
 impl FileOverwriting {
     pub fn new(file_path: &PathBuf) -> FileOverwriting {
         if !file_path.exists() || !file_path.is_file() {
-            panic!("Error creating FileOverwriting with invalid file \"{}\"", file_path.to_string_lossy());
+            panic!(
+                "Error creating FileOverwriting with invalid file \"{}\"",
+                file_path.to_string_lossy()
+            );
         }
 
         FileOverwriting {
@@ -27,11 +29,23 @@ impl FileOverwriting {
     }
 
     pub fn insert_content_with_previous_newline_at(&mut self, byte: usize, content: String) {
-        self.add_item(FileOverwritingItem::new(Some(byte), Some(byte), true, false, content));
+        self.add_item(FileOverwritingItem::new(
+            Some(byte),
+            Some(byte),
+            true,
+            false,
+            content,
+        ));
     }
 
     pub fn replace(&mut self, start_byte: usize, end_byte: usize, content: String) {
-        self.add_item(FileOverwritingItem::new(Some(start_byte), Some(end_byte), false, false, content));
+        self.add_item(FileOverwritingItem::new(
+            Some(start_byte),
+            Some(end_byte),
+            false,
+            false,
+            content,
+        ));
     }
 
     fn add_item(&mut self, item: FileOverwritingItem) {
@@ -53,13 +67,19 @@ impl FileOverwriting {
         let file = self.open_file(input_file);
         let mut reader = BufReader::new(file);
         let mut file_byte_index: usize = 0;
-        let mut buffer = vec![0; self.get_required_bytes_to_write(input_file, &internal_items, &items_to_append)];
+        let mut buffer =
+            vec![
+                0;
+                self.get_required_bytes_to_write(input_file, &internal_items, &items_to_append)
+            ];
         let mut buffer_index = 0;
         let initial_file_number_of_bytes = get_number_of_bytes_of(input_file);
 
         for item in internal_items {
-            if let (Some(start_byte), Some(end_byte)) = (item.get_start_byte(), item.get_end_byte()) {
-                let temporal_buffer = Self::read_to_buffer(&mut reader, start_byte - file_byte_index);
+            if let (Some(start_byte), Some(end_byte)) = (item.get_start_byte(), item.get_end_byte())
+            {
+                let temporal_buffer =
+                    Self::read_to_buffer(&mut reader, start_byte - file_byte_index);
                 file_byte_index = Self::skip_until_end_byte(&mut reader, end_byte);
 
                 let buffer_index_end = buffer_index + temporal_buffer.len();
@@ -73,18 +93,28 @@ impl FileOverwriting {
             }
         }
 
-        let buffer_until_end = self.read_until_end_to_buffer(&mut reader, &file_byte_index, &initial_file_number_of_bytes);
-        buffer[buffer_index..(buffer_index + buffer_until_end.len())].clone_from_slice(&buffer_until_end);
+        let buffer_until_end = self.read_until_end_to_buffer(
+            &mut reader,
+            &file_byte_index,
+            &initial_file_number_of_bytes,
+        );
+        buffer[buffer_index..(buffer_index + buffer_until_end.len())]
+            .clone_from_slice(&buffer_until_end);
         buffer_index += buffer_until_end.len();
 
         Self::clone_items_to_append_into_buffer(&mut buffer, buffer_index, items_to_append);
 
         let mut file = self.open_file(output_file);
-        file.seek(io::SeekFrom::Start(0)).expect("Seek file to the beginning");
+        file.seek(io::SeekFrom::Start(0))
+            .expect("Seek file to the beginning");
         file.write_all(&buffer).expect("Write file failed.");
     }
 
-    fn clone_items_to_append_into_buffer(buffer: &mut [u8], buffer_index: usize, items_to_append: Vec<FileOverwritingItem>) {
+    fn clone_items_to_append_into_buffer(
+        buffer: &mut [u8],
+        buffer_index: usize,
+        items_to_append: Vec<FileOverwritingItem>,
+    ) {
         let mut current_buffer_index = buffer_index;
         for item in items_to_append {
             let content_bytes = item.get_content_as_bytes();
@@ -96,28 +126,40 @@ impl FileOverwriting {
         }
     }
 
-    fn read_until_end_to_buffer(&mut self, reader: &mut BufReader<File>, file_byte_index: &usize, file_number_of_bytes: &usize) -> Vec<u8> {
+    fn read_until_end_to_buffer(
+        &mut self,
+        reader: &mut BufReader<File>,
+        file_byte_index: &usize,
+        file_number_of_bytes: &usize,
+    ) -> Vec<u8> {
         let remaining_bytes = file_number_of_bytes - file_byte_index;
         let mut buffer: Vec<u8> = Vec::with_capacity(remaining_bytes);
-        reader.read_to_end(&mut buffer).expect("File read_to_end failed");
+        reader
+            .read_to_end(&mut buffer)
+            .expect("File read_to_end failed");
 
         buffer
     }
 
     fn skip_until_end_byte(reader: &mut BufReader<File>, end_byte: usize) -> usize {
-        reader.seek(SeekFrom::Start(end_byte as u64)).expect("Try to seek parser node offset to file");
+        reader
+            .seek(SeekFrom::Start(end_byte as u64))
+            .expect("Try to seek parser node offset to file");
         end_byte
     }
 
     fn read_to_buffer(reader: &mut BufReader<File>, size: usize) -> Vec<u8> {
         let mut temporal_buffer = vec![0; size];
-        reader.read_exact(&mut temporal_buffer).expect("File read_exact failed");
+        reader
+            .read_exact(&mut temporal_buffer)
+            .expect("File read_exact failed");
         temporal_buffer
     }
 
     fn open_file(&mut self, output_file: &PathBuf) -> File {
         OpenOptions::new()
-            .read(true).write(true)
+            .read(true)
+            .write(true)
             .open(output_file)
             .expect("File can not be opened to write")
     }
@@ -126,7 +168,10 @@ impl FileOverwriting {
         let to_write = self.get_sorted_intermediate_writes();
         self.check_replacements(&to_write);
 
-        let to_append = self.content_nodes.clone().into_iter()
+        let to_append = self
+            .content_nodes
+            .clone()
+            .into_iter()
             .filter(|node| node.is_to_append())
             .collect::<Vec<FileOverwritingItem>>();
 
@@ -138,8 +183,13 @@ impl FileOverwriting {
     }
 
     fn get_sorted_intermediate_writes(&mut self) -> Vec<FileOverwritingItem> {
-        let mut to_write = self.content_nodes.clone().into_iter()
-            .filter(|node| !node.is_to_append() && node.start_byte.is_some() && node.end_byte.is_some())
+        let mut to_write = self
+            .content_nodes
+            .clone()
+            .into_iter()
+            .filter(|node| {
+                !node.is_to_append() && node.start_byte.is_some() && node.end_byte.is_some()
+            })
             .collect::<Vec<FileOverwritingItem>>();
         to_write.sort_by(|x, y| x.start_byte.unwrap().cmp(&y.start_byte.unwrap()));
 
@@ -154,7 +204,12 @@ impl FileOverwriting {
         let bytes_in_file = self.get_file_number_of_bytes();
         let max_end_byte = get_max_end_byte(items);
         if max_end_byte > bytes_in_file as usize {
-            panic!("Invalid FileOverwritingItem with end_byte {} to file with {} bytes: \"{}\"", max_end_byte, bytes_in_file, self.get_file_path().to_string_lossy());
+            panic!(
+                "Invalid FileOverwritingItem with end_byte {} to file with {} bytes: \"{}\"",
+                max_end_byte,
+                bytes_in_file,
+                self.get_file_path().to_string_lossy()
+            );
         }
 
         if !items.is_empty() {
@@ -172,7 +227,12 @@ impl FileOverwriting {
         }
     }
 
-    fn get_required_bytes_to_write(&self, file: &PathBuf, internal_items: &Vec<FileOverwritingItem>, to_append_items: &Vec<FileOverwritingItem>) -> usize {
+    fn get_required_bytes_to_write(
+        &self,
+        file: &PathBuf,
+        internal_items: &Vec<FileOverwritingItem>,
+        to_append_items: &Vec<FileOverwritingItem>,
+    ) -> usize {
         let mut file_bytes: i64 = get_number_of_bytes_of(file) as i64;
         file_bytes += get_bytes_required(internal_items);
         file_bytes += get_bytes_required(to_append_items);
@@ -181,7 +241,9 @@ impl FileOverwriting {
     }
 
     fn get_file_number_of_bytes(&self) -> usize {
-        fs::metadata(self.get_file_path()).expect("File to override not opened").len() as usize
+        fs::metadata(self.get_file_path())
+            .expect("File to override not opened")
+            .len() as usize
     }
 }
 
@@ -197,9 +259,12 @@ fn get_bytes_required(items: &Vec<FileOverwritingItem>) -> i64 {
 }
 
 fn get_max_end_byte(items: &Vec<FileOverwritingItem>) -> usize {
-    items.iter().map(|item| item.get_end_byte().unwrap_or(0)).max().unwrap_or(0)
+    items
+        .iter()
+        .map(|item| item.get_end_byte().unwrap_or(0))
+        .max()
+        .unwrap_or(0)
 }
-
 
 #[derive(Debug, Clone)]
 struct FileOverwritingItem {
@@ -216,11 +281,13 @@ struct FileOverwritingItem {
 }
 
 impl FileOverwritingItem {
-    pub fn new(start_byte: Option<usize>,
-               end_byte: Option<usize>,
-               previous_new_line: bool,
-               to_append: bool,
-               content: String) -> Self {
+    pub fn new(
+        start_byte: Option<usize>,
+        end_byte: Option<usize>,
+        previous_new_line: bool,
+        to_append: bool,
+        content: String,
+    ) -> Self {
         check_valid_bytes_to_overwrite(start_byte, end_byte, to_append, &content);
         FileOverwritingItem {
             start_byte,
@@ -249,7 +316,8 @@ impl FileOverwritingItem {
         let mut buffer: Vec<u8> = vec![0; content_bytes.len() + new_line_bytes];
 
         write_initial_new_line(&mut buffer);
-        buffer[new_line_bytes..new_line_bytes + content_bytes.len()].clone_from_slice(&content_bytes);
+        buffer[new_line_bytes..new_line_bytes + content_bytes.len()]
+            .clone_from_slice(&content_bytes);
 
         buffer
     }
@@ -271,7 +339,12 @@ fn get_new_line_number_of_bytes() -> usize {
     get_new_line_as_bytes().len()
 }
 
-fn check_valid_bytes_to_overwrite(start_byte_opt: Option<usize>, end_byte_opt: Option<usize>, to_append: bool, content: &String) {
+fn check_valid_bytes_to_overwrite(
+    start_byte_opt: Option<usize>,
+    end_byte_opt: Option<usize>,
+    to_append: bool,
+    content: &String,
+) {
     if to_append && (start_byte_opt.is_some() || end_byte_opt.is_some()) {
         panic!("Can not create FileOverwritingItem type 'to_append' and set intermediate bytes at the same time.");
     } else if !to_append {
@@ -291,11 +364,10 @@ fn check_valid_bytes_to_overwrite(start_byte_opt: Option<usize>, end_byte_opt: O
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use std::path::{Path, PathBuf};
     use crate::domain::core::file_system::file_creator::create_file_with_content;
+    use std::path::{Path, PathBuf};
 
     use crate::domain::core::file_system::file_overwriting::FileOverwriting;
     use crate::domain::core::test::test_assert::assert_same_file;
@@ -323,7 +395,9 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "Error: can not overwrite file, bytes [15, 50] intersect with [10, 20] at file")]
+    #[should_panic(
+        expected = "Error: can not overwrite file, bytes [15, 50] intersect with [10, 20] at file"
+    )]
     fn file_overwriting_error_writing_overlapping_intervals() {
         let mut file_path = get_test_folder_path(get_current_file_path());
         file_path.push("non_empty_file.txt");

@@ -75,11 +75,12 @@ fn get_item_type(type_node_opt: Option<&JsonNode>) -> AvroItemType {
                 "\"bytes\"" => AvroItemType::Bytes,
                 "\"boolean\"" => AvroItemType::Boolean,
                 "\"map\"" => AvroItemType::Map,
-                _ => AvroItemType::RecordName(trim_quotation_marks(content))
+                _ => AvroItemType::RecordName(trim_quotation_marks(content)),
             };
         } else if let Some(JsonNodeType::Array) = json_node_type {
             let object_nodes = filter_types_in_array(type_node);
-            let array_item_types = object_nodes.iter()
+            let array_item_types = object_nodes
+                .iter()
                 .map(|item| get_item_type(Some(item)))
                 .collect();
             return AvroItemType::Array(array_item_types);
@@ -95,14 +96,17 @@ fn get_item_type(type_node_opt: Option<&JsonNode>) -> AvroItemType {
 }
 
 fn get_content(key_to_value: &HashMap<String, JsonNode>, key: String) -> Option<String> {
-    key_to_value.get(key.as_str()).map(|node| trim_quotation_marks(node.get_content()))
+    key_to_value
+        .get(key.as_str())
+        .map(|node| trim_quotation_marks(node.get_content()))
 }
-
 
 fn get_avro_symbols(symbols: &HashMap<String, JsonNode>) -> Option<Vec<String>> {
     if let Some(json_node) = symbols.get("\"symbols\"") {
         let node_contents = filter_json_nodes_first_level(json_node, &JsonNodeType::String)
-            .iter().map(|json_node| trim_quotation_marks(json_node.get_content())).collect();
+            .iter()
+            .map(|json_node| trim_quotation_marks(json_node.get_content()))
+            .collect();
         return Some(node_contents);
     }
 
@@ -140,8 +144,17 @@ fn filter_json_nodes_first_level(root: &JsonNode, json_node_type: &JsonNodeType)
 fn filter_types_in_array(array_node: &JsonNode) -> Vec<JsonNode> {
     let mut result_nodes: Vec<JsonNode> = Vec::new();
     if let Some(node_type) = array_node.get_node_type() {
-        if !matches!(node_type, JsonNodeType::Array | JsonNodeType::Comma | JsonNodeType::LBrace | JsonNodeType::RBrace
-            | JsonNodeType::Colon | JsonNodeType::LBracket | JsonNodeType::RBracket | JsonNodeType::Null) {
+        if !matches!(
+            node_type,
+            JsonNodeType::Array
+                | JsonNodeType::Comma
+                | JsonNodeType::LBrace
+                | JsonNodeType::RBrace
+                | JsonNodeType::Colon
+                | JsonNodeType::LBracket
+                | JsonNodeType::RBracket
+                | JsonNodeType::Null
+        ) {
             result_nodes.push(array_node.clone());
             if !result_nodes.is_empty() {
                 return result_nodes;
@@ -157,7 +170,6 @@ fn filter_types_in_array(array_node: &JsonNode) -> Vec<JsonNode> {
 
     result_nodes
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -179,9 +191,18 @@ mod tests {
         let avro_item = avro_items.get(0).unwrap();
         assert_eq!(Some("EnumExample".to_string()), avro_item.get_name());
         assert_eq!(Some("com.parser".to_string()), avro_item.get_namespace());
-        assert_eq!(Some("Enum example for avro".to_string()), avro_item.get_doc());
+        assert_eq!(
+            Some("Enum example for avro".to_string()),
+            avro_item.get_doc()
+        );
         assert_eq!(&AvroItemType::Enum, avro_item.get_item_type());
-        assert_eq!(Some(Vec::from(["EnumValue1".to_string(), "EnumValue2".to_string()])), avro_item.get_symbols());
+        assert_eq!(
+            Some(Vec::from([
+                "EnumValue1".to_string(),
+                "EnumValue2".to_string()
+            ])),
+            avro_item.get_symbols()
+        );
         assert_eq!(None, avro_item.get_default());
         assert_eq!(None, avro_item.get_default());
 
@@ -199,19 +220,41 @@ mod tests {
         assert_eq!(None, first_field.get_namespace());
         assert_eq!(Some("Field 1".to_string()), first_field.get_doc());
         let array_strings_avro_item = AvroItem::new(
-            None, None, None, AvroItemType::ArraySimple, None, None, None);
+            None,
+            None,
+            None,
+            AvroItemType::ArraySimple,
+            None,
+            None,
+            None,
+        );
         let array_strings_item_type = AvroItemType::Record(Box::new(array_strings_avro_item));
-        let item_types = Vec::from([AvroItemType::Null, AvroItemType::Int,
-            AvroItemType::Long, AvroItemType::Float, AvroItemType::Double, AvroItemType::String,
-            AvroItemType::Bytes, AvroItemType::Boolean, AvroItemType::Map, array_strings_item_type]);
-        assert_eq!(&AvroItemType::Array(item_types), first_field.get_item_type());
+        let item_types = Vec::from([
+            AvroItemType::Null,
+            AvroItemType::Int,
+            AvroItemType::Long,
+            AvroItemType::Float,
+            AvroItemType::Double,
+            AvroItemType::String,
+            AvroItemType::Bytes,
+            AvroItemType::Boolean,
+            AvroItemType::Map,
+            array_strings_item_type,
+        ]);
+        assert_eq!(
+            &AvroItemType::Array(item_types),
+            first_field.get_item_type()
+        );
         assert_eq!(None, first_field.get_symbols());
         assert_eq!(Some("null".to_string()), first_field.get_default());
         let second_field = fields.get(1).unwrap();
         assert_eq!(Some("enum_example".to_string()), second_field.get_name());
         assert_eq!(None, second_field.get_namespace());
         assert_eq!(Some("Enum example".to_string()), second_field.get_doc());
-        assert_eq!(&AvroItemType::RecordName("EnumExample".to_string()), second_field.get_item_type());
+        assert_eq!(
+            &AvroItemType::RecordName("EnumExample".to_string()),
+            second_field.get_item_type()
+        );
         assert_eq!(None, second_field.get_symbols());
         assert_eq!(None, second_field.get_default());
         assert_eq!(None, second_field.get_default());

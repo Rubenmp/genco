@@ -1,9 +1,9 @@
-use std::{fs, io};
+use crate::domain::core::file_system::file_reader::get_number_of_bytes_of;
 use std::fs::{File, OpenOptions};
 use std::io::{Seek, Write};
 use std::path::PathBuf;
 use std::vec::Vec;
-use crate::domain::core::file_system::file_reader::get_number_of_bytes_of;
+use std::{fs, io};
 
 #[allow(unused)]
 pub fn create_file_if_not_exist(file_path: &PathBuf) {
@@ -30,21 +30,22 @@ pub fn create_file_if_not_exist(file_path: &PathBuf) {
     }
 }
 
-
 pub fn create_file_with_content(output_file: &PathBuf, content_path: &PathBuf) {
     let data = fs::read(content_path).expect("Error reading file to get content from");
     remove_file_if_exists(output_file);
     create_file_if_not_exist(output_file);
 
     let mut file = OpenOptions::new()
-        .read(true).write(true)
+        .read(true)
+        .write(true)
         .open(output_file)
         .expect("File can not be opened to write");
     let number_of_bytes = get_number_of_bytes_of(content_path);
     let mut buffer = vec![0; number_of_bytes];
     buffer[0..number_of_bytes].clone_from_slice(&data.to_vec());
 
-    file.seek(io::SeekFrom::Start(0)).expect("Seek file to the beginning");
+    file.seek(io::SeekFrom::Start(0))
+        .expect("Seek file to the beginning");
     file.write_all(&buffer).expect("Write file failed.");
 }
 
@@ -54,14 +55,15 @@ fn remove_file_if_exists(file_path: &PathBuf) {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
+    use crate::domain::core::file_system::file_creator::{
+        create_file_if_not_exist, create_file_with_content, remove_file_if_exists,
+    };
+    use crate::domain::core::test::test_assert::assert_same_file;
+    use crate::domain::core::test::test_path::get_test_folder_path;
     use std::fs;
     use std::path::{Path, PathBuf};
-    use crate::domain::core::file_system::file_creator::{create_file_if_not_exist, create_file_with_content, remove_file_if_exists};
-    use crate::domain::core::test::test_assert::assert_same_file;
-    use crate::domain::core::test::test_path::{get_test_folder_path};
 
     #[test]
     fn create_if_not_exists_test() {
@@ -73,7 +75,8 @@ mod tests {
         create_file_if_not_exist(&file_path);
 
         assert!(file_path.exists());
-        fs::remove_dir_all(file_path_copy.as_path()).expect("Test must remove the created files & folders");
+        fs::remove_dir_all(file_path_copy.as_path())
+            .expect("Test must remove the created files & folders");
     }
 
     #[test]

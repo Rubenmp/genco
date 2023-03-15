@@ -14,7 +14,6 @@ pub struct OpenapiSchema {
     properties: Option<Vec<OpenapiSchema>>,
 }
 
-
 impl OpenapiSchema {
     pub fn new_enum(name: String, description: Option<String>, enum_values: Vec<String>) -> Self {
         OpenapiSchema {
@@ -28,7 +27,11 @@ impl OpenapiSchema {
         }
     }
 
-    pub fn new_record(name: String, description: Option<String>, fields: Vec<OpenapiSchema>) -> Self {
+    pub fn new_record(
+        name: String,
+        description: Option<String>,
+        fields: Vec<OpenapiSchema>,
+    ) -> Self {
         OpenapiSchema {
             name,
             schema_type: Some(OpenapiDataType::ObjectSimple),
@@ -52,7 +55,11 @@ impl OpenapiSchema {
         }
     }
 
-    pub fn new_basic_type(name: String, description: Option<String>, data_type: OpenapiDataType) -> Self {
+    pub fn new_basic_type(
+        name: String,
+        description: Option<String>,
+        data_type: OpenapiDataType,
+    ) -> Self {
         OpenapiSchema {
             name,
             schema_type: Some(data_type),
@@ -129,21 +136,34 @@ impl OpenapiSchema {
     }
 }
 
-
 fn write_openapi_schema(fmt: &mut Formatter, depth: usize, schema: &OpenapiSchema) {
-    fmt.write_str(format!("{}{}:\n", get_indentation(depth), schema.get_name().clone()).as_str()).expect("Error writing OpenapiSchema name");
+    fmt.write_str(format!("{}{}:\n", get_indentation(depth), schema.get_name().clone()).as_str())
+        .expect("Error writing OpenapiSchema name");
     if let Some(description) = &schema.get_description() {
-        fmt.write_str(format!("{}description: {}\n", get_indentation(depth + 1), description).as_str()).expect("Error writing OpenapiSchema description");
+        fmt.write_str(
+            format!(
+                "{}description: {}\n",
+                get_indentation(depth + 1),
+                description
+            )
+            .as_str(),
+        )
+        .expect("Error writing OpenapiSchema description");
     }
     if let Some(example) = &schema.example {
-        fmt.write_str(format!("{}example: {}\n", get_indentation(depth + 1), example).as_str()).expect("Error writing OpenapiSchema example");
+        fmt.write_str(format!("{}example: {}\n", get_indentation(depth + 1), example).as_str())
+            .expect("Error writing OpenapiSchema example");
     }
     if let Some(schema_type) = &schema.get_schema_type() {
         let schema_type_str = get_str(schema_type);
-        fmt.write_str(format!("{}type: {}\n", get_indentation(depth + 1), schema_type_str).as_str()).expect("Error writing OpenapiSchema type");
+        fmt.write_str(
+            format!("{}type: {}\n", get_indentation(depth + 1), schema_type_str).as_str(),
+        )
+        .expect("Error writing OpenapiSchema type");
     }
     if let Some(format) = &schema.get_format() {
-        fmt.write_str(format!("{}format: {}\n", get_indentation(depth + 1), format).as_str()).expect("Error writing OpenapiSchema type");
+        fmt.write_str(format!("{}format: {}\n", get_indentation(depth + 1), format).as_str())
+            .expect("Error writing OpenapiSchema type");
     }
 
     if let Some(enum_values) = schema.get_enum_values() {
@@ -160,7 +180,8 @@ fn write_openapi_schema(fmt: &mut Formatter, depth: usize, schema: &OpenapiSchem
         }
     }
     if let Some(dollar_ref) = &schema.dollar_ref {
-        fmt.write_str(format!("{}$ref: {}\n", get_indentation(depth + 1), dollar_ref).as_str()).expect("Error writing OpenapiSchema $ref");
+        fmt.write_str(format!("{}$ref: {}\n", get_indentation(depth + 1), dollar_ref).as_str())
+            .expect("Error writing OpenapiSchema $ref");
     }
     if let Some(properties) = &schema.get_properties() {
         fmt.write_str(format!("{}properties:\n", get_indentation(depth + 1)).as_str());
@@ -169,7 +190,6 @@ fn write_openapi_schema(fmt: &mut Formatter, depth: usize, schema: &OpenapiSchem
         }
     }
 }
-
 
 fn get_str(data_type: &OpenapiDataType) -> String {
     if let OpenapiDataType::ObjectSimple = data_type {
@@ -195,7 +215,8 @@ fn get_str(data_type: &OpenapiDataType) -> String {
 fn get_sub_types_without_null(subtypes: &Vec<OpenapiDataType>) -> Vec<&OpenapiDataType> {
     let mut subtypes_without_null = Vec::new();
     for subtype in subtypes {
-        if let OpenapiDataType::Null = subtype {} else {
+        if let OpenapiDataType::Null = subtype {
+        } else {
             subtypes_without_null.push(subtype);
         }
     }

@@ -1,4 +1,3 @@
-
 pub fn escape_str_for_json(input_string: String) -> String {
     let mut return_value = "".to_string();
 
@@ -29,8 +28,8 @@ pub fn trim_quotation_marks(string: String) -> String {
         return string;
     }
 
-    let initial_offset = if string.starts_with('\"') {1} else {0};
-    let last_offset = if string.ends_with('\"') {1} else {0};
+    let initial_offset = if string.starts_with('\"') { 1 } else { 0 };
+    let last_offset = if string.ends_with('\"') { 1 } else { 0 };
     let range_last = string.len() - last_offset;
     string[initial_offset..range_last].to_string()
 }
@@ -42,8 +41,6 @@ fn escape_str_line_internal(line: &str) -> String {
 fn escape_str_line_with_quotes(line: &str) -> String {
     format!("\\\"{}\\\"", escape_str_line_internal(line))
 }
-
-
 
 #[cfg(test)]
 mod tests {

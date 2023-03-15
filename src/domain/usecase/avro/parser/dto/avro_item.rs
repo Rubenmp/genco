@@ -11,15 +11,16 @@ pub struct AvroItem {
     fields: Option<Vec<AvroItem>>,
 }
 
-
 impl AvroItem {
-    pub fn new(name: Option<String>,
-               namespace: Option<String>,
-               doc: Option<String>,
-               item_type: AvroItemType,
-               symbols: Option<Vec<String>>,
-               default: Option<String>,
-               fields: Option<Vec<AvroItem>>) -> AvroItem {
+    pub fn new(
+        name: Option<String>,
+        namespace: Option<String>,
+        doc: Option<String>,
+        item_type: AvroItemType,
+        symbols: Option<Vec<String>>,
+        default: Option<String>,
+        fields: Option<Vec<AvroItem>>,
+    ) -> AvroItem {
         AvroItem {
             name,
             namespace,

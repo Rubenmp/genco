@@ -16,5 +16,5 @@ pub enum AvroItemType {
     String,
     Bytes,
     Boolean,
-    Map
+    Map,
 }

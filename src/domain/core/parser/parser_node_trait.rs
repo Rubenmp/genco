@@ -18,7 +18,12 @@ pub trait ParserNode {
         self.get_tree_str_internal(0, 1, false)
     }
 
-    fn get_tree_str_internal(&self, depth: usize, current_child_index: usize, show_bytes: bool) -> String {
+    fn get_tree_str_internal(
+        &self,
+        depth: usize,
+        current_child_index: usize,
+        show_bytes: bool,
+    ) -> String {
         let mut tree_str: String = "".to_string();
         if depth == 0 {
             tree_str.push('{');
@@ -34,7 +39,15 @@ pub trait ParserNode {
         }
 
         if show_bytes {
-            write!(tree_str, "\"{}. {} [{}, {}]\"", current_child_index, type_str, self.get_start_byte(), self.get_end_byte()).unwrap();
+            write!(
+                tree_str,
+                "\"{}. {} [{}, {}]\"",
+                current_child_index,
+                type_str,
+                self.get_start_byte(),
+                self.get_end_byte()
+            )
+            .unwrap();
         } else {
             write!(tree_str, "\"{}. {}\"", current_child_index, type_str).unwrap();
         }
@@ -42,13 +55,20 @@ pub trait ParserNode {
         let children = self.get_children_boxes();
         if self.is_printable() {
             tree_str.push_str(": ");
-            tree_str.push_str(&format!("\"{}\"", escape_str_for_json(self.get_content()).as_str()));
+            tree_str.push_str(&format!(
+                "\"{}\"",
+                escape_str_for_json(self.get_content()).as_str()
+            ));
         } else if !children.is_empty() {
             tree_str.push_str(": {");
             writeln!(&mut tree_str).expect("Error in method ParserNode.get_tree_str");
 
             for (index, child) in children.iter().enumerate() {
-                tree_str.push_str(child.get_tree_str_internal(depth + 1, index + 1, show_bytes).as_str());
+                tree_str.push_str(
+                    child
+                        .get_tree_str_internal(depth + 1, index + 1, show_bytes)
+                        .as_str(),
+                );
                 if index != (children.len() - 1) {
                     tree_str.push(',');
                 }
@@ -84,7 +104,9 @@ pub trait ParserNode {
 
         let mut buf = String::new();
         while let Ok(n) = reader.read_line(&mut buf) {
-            if n == 0 { break; } // eof
+            if n == 0 {
+                break;
+            } // eof
             let next_current_byte = current_start_byte + n;
             if next_current_byte > self.get_start_byte() {
                 break;
@@ -104,9 +126,11 @@ pub trait ParserNode {
 }
 
 fn get_content_from(mut f: File, start_byte: usize, end_byte: usize) -> Vec<u8> {
-    f.seek(SeekFrom::Start(start_byte as u64)).expect("Parser node file can not be read.");
+    f.seek(SeekFrom::Start(start_byte as u64))
+        .expect("Parser node file can not be read.");
     let mut buf = vec![0; end_byte - start_byte];
-    f.read_exact(&mut buf).expect("Parser node file read can not be finished.");
+    f.read_exact(&mut buf)
+        .expect("Parser node file read can not be finished.");
 
     buf
 }

@@ -1,9 +1,9 @@
 #![allow(unused)]
 
 use std::fmt::{format, Write};
-use std::{fmt, fs};
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
+use std::{fmt, fs};
 
 use tree_sitter::{Node, Tree};
 
@@ -19,10 +19,10 @@ pub struct YamlNode {
     node_type: Option<YamlNodeType>,
 }
 
-
 impl YamlNode {
     fn new_internal(node: Node, file_path: &Path) -> Self {
-        let children = node.children(&mut node.walk())
+        let children = node
+            .children(&mut node.walk())
             .map(|child| YamlNode::new_internal(child, file_path))
             .collect();
 
@@ -54,8 +54,12 @@ impl YamlNode {
 impl ParserNode for YamlNode {
     fn new(file_path: &Path) -> Self {
         let file_path_str = file_path.to_str().unwrap();
-        let file_content = fs::read_to_string(file_path_str)
-            .unwrap_or_else(|_| panic!("File path \"{}\" should exists to parse yaml node", file_path_str));
+        let file_content = fs::read_to_string(file_path_str).unwrap_or_else(|_| {
+            panic!(
+                "File path \"{}\" should exists to parse yaml node",
+                file_path_str
+            )
+        });
 
         let _tree = parse_yaml(file_content.as_str());
         YamlNode::new_internal(_tree.root_node(), file_path)
@@ -98,20 +102,20 @@ impl ParserNode for YamlNode {
         }
 
         if let Some(node_type) = self.get_node_type() {
-            matches!(node_type,
-                YamlNodeType::SingleQuoteScalar |
-                YamlNodeType::DoubleQuoteScalar |
-                YamlNodeType::StringScalar |
-                YamlNodeType::BooleanScalar |
-                YamlNodeType::BlockScalar)
+            matches!(
+                node_type,
+                YamlNodeType::SingleQuoteScalar
+                    | YamlNodeType::DoubleQuoteScalar
+                    | YamlNodeType::StringScalar
+                    | YamlNodeType::BooleanScalar
+                    | YamlNodeType::BlockScalar
+            )
         } else {
             false
         }
     }
 }
 
-
 fn parse_yaml(code: &str) -> Tree {
     tree_sitter_parsers::parse(code, "yaml")
 }
-

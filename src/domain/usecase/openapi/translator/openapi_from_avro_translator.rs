@@ -3,7 +3,6 @@ use crate::domain::usecase::avro::parser::dto::avro_item_type::AvroItemType;
 use crate::domain::usecase::openapi::parser::dto::openapi_data_type::OpenapiDataType;
 use crate::domain::usecase::openapi::parser::dto::openapi_schema::OpenapiSchema;
 
-
 pub fn avro_to_openapi_str(schemas: &[AvroItem]) -> String {
     let schemas = to_component_schemas(schemas);
 
@@ -22,7 +21,11 @@ fn to_openapi_str(schemas: &Vec<OpenapiSchema>) -> String {
 pub fn to_component_schema(avro_item: &AvroItem) -> OpenapiSchema {
     if let AvroItemType::Enum = avro_item.get_item_type() {
         if let Some(symbols) = avro_item.get_symbols() {
-            return OpenapiSchema::new_enum(avro_item.get_name().unwrap(), avro_item.get_doc(), symbols);
+            return OpenapiSchema::new_enum(
+                avro_item.get_name().unwrap(),
+                avro_item.get_doc(),
+                symbols,
+            );
         }
     } else if let AvroItemType::RecordSimple = avro_item.get_item_type() {
         let mut properties_result = Vec::new();
@@ -32,23 +35,38 @@ pub fn to_component_schema(avro_item: &AvroItem) -> OpenapiSchema {
             }
         }
 
-        return OpenapiSchema::new_record(avro_item.get_name().unwrap(), avro_item.get_doc(), properties_result);
+        return OpenapiSchema::new_record(
+            avro_item.get_name().unwrap(),
+            avro_item.get_doc(),
+            properties_result,
+        );
     } else if let AvroItemType::Array(subtypes) = avro_item.get_item_type() {
         let mut subtypes_result = Vec::new();
         for subtype in subtypes {
             subtypes_result.push(to_data_type(subtype))
         }
 
-        return OpenapiSchema::new_basic_type(avro_item.get_name().unwrap(), avro_item.get_doc(), OpenapiDataType::Array(subtypes_result));
+        return OpenapiSchema::new_basic_type(
+            avro_item.get_name().unwrap(),
+            avro_item.get_doc(),
+            OpenapiDataType::Array(subtypes_result),
+        );
     } else if let AvroItemType::Record(_) = avro_item.get_item_type() {
         let _a = 0;
     } else {
-        return OpenapiSchema::new_basic_type(avro_item.get_name().unwrap(), avro_item.get_doc(), to_data_type(avro_item.get_item_type()));
+        return OpenapiSchema::new_basic_type(
+            avro_item.get_name().unwrap(),
+            avro_item.get_doc(),
+            to_data_type(avro_item.get_item_type()),
+        );
     }
 
-    panic!("Error translating avro item {} (doc: {})", avro_item.get_name().unwrap(), avro_item.get_doc().unwrap());
+    panic!(
+        "Error translating avro item {} (doc: {})",
+        avro_item.get_name().unwrap(),
+        avro_item.get_doc().unwrap()
+    );
 }
-
 
 pub fn to_data_type(avro_item_type: &AvroItemType) -> OpenapiDataType {
     if let AvroItemType::Int = avro_item_type {
@@ -72,7 +90,6 @@ pub fn to_data_type(avro_item_type: &AvroItemType) -> OpenapiDataType {
     panic!("Error translating avro item type");
 }
 
-
 #[cfg(test)]
 mod tests {
     use std::path::{Path, PathBuf};
@@ -80,7 +97,7 @@ mod tests {
     use crate::domain::core::test::test_assert::assert_same_as_file;
     use crate::domain::core::test::test_path::get_test_file_path;
     use crate::domain::usecase::avro::parser::avro_parser;
-    use crate::domain::usecase::openapi::translator::openapi_from_avro_translator::{avro_to_openapi_str};
+    use crate::domain::usecase::openapi::translator::openapi_from_avro_translator::avro_to_openapi_str;
 
     #[test]
     fn avro_to_openapi_str_enum() {
@@ -90,7 +107,8 @@ mod tests {
 
         let openapi_str = avro_to_openapi_str(&avro_items);
 
-        let expect_result_file_path = get_test_file_path(get_current_file_path(), "enum_translated.yaml");
+        let expect_result_file_path =
+            get_test_file_path(get_current_file_path(), "enum_translated.yaml");
         assert_same_as_file(expect_result_file_path, openapi_str)
     }
 
@@ -102,7 +120,10 @@ mod tests {
 
         let openapi_str = avro_to_openapi_str(&avro_items);
 
-        let expect_result_file_path = get_test_file_path(get_current_file_path(), "avro_basic_fields_translated_to_openapi.yaml");
+        let expect_result_file_path = get_test_file_path(
+            get_current_file_path(),
+            "avro_basic_fields_translated_to_openapi.yaml",
+        );
         assert_same_as_file(expect_result_file_path, openapi_str)
     }
 
@@ -114,7 +135,10 @@ mod tests {
 
         let openapi_str = avro_to_openapi_str(&avro_items);
 
-        let expect_result_file_path = get_test_file_path(get_current_file_path(), "avro_array_fields_translated_to_openapi.yaml");
+        let expect_result_file_path = get_test_file_path(
+            get_current_file_path(),
+            "avro_array_fields_translated_to_openapi.yaml",
+        );
         assert_same_as_file(expect_result_file_path, openapi_str)
     }
 

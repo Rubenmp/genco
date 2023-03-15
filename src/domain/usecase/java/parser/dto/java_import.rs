@@ -7,8 +7,6 @@ pub struct JavaImport {
 
 impl<'a> JavaImport {
     pub fn new(node: &JavaNode) -> JavaImport {
-        JavaImport {
-            node: node.clone()
-        }
+        JavaImport { node: node.clone() }
     }
 }

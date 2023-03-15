@@ -1,3 +1,1 @@
-pub struct JavaAnnotation {
-
-}
+pub struct JavaAnnotation {}

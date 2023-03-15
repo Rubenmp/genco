@@ -555,11 +555,10 @@ impl FromStr for JavaNodeType {
             "<" => Ok(JavaNodeType::LessThan),
             ">" => Ok(JavaNodeType::GreaterThan),
 
-            _ => Err(())
+            _ => Err(()),
         }
     }
 }
-
 
 impl fmt::Display for JavaNodeType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

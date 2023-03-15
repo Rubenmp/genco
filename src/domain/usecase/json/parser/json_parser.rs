@@ -1,6 +1,6 @@
-use std::path::PathBuf;
 use crate::domain::core::parser::parser_node_trait::ParserNode;
 use crate::domain::usecase::json::parser::dto::json_node::JsonNode;
+use std::path::PathBuf;
 
 pub fn parse(yaml_file_path: &PathBuf) -> JsonNode {
     JsonNode::new(yaml_file_path.as_ref())
@@ -8,9 +8,9 @@ pub fn parse(yaml_file_path: &PathBuf) -> JsonNode {
 
 #[cfg(test)]
 mod tests {
-    use std::path::{Path, PathBuf};
     use crate::domain::core::parser::parser_node_trait::ParserNode;
     use crate::domain::core::test::test_assert::assert_same_as_file;
+    use std::path::{Path, PathBuf};
 
     use crate::domain::core::test::test_path::get_test_file_path;
     use crate::domain::usecase::json::parser::json_parser::parse;
@@ -23,7 +23,8 @@ mod tests {
         let root_node = parse(&file_path);
 
         let tree_str = root_node.get_tree_str();
-        let expect_result_file_path = get_test_file_path(get_current_file_path(), "basic-json-expected-result.json");
+        let expect_result_file_path =
+            get_test_file_path(get_current_file_path(), "basic-json-expected-result.json");
         assert_same_as_file(expect_result_file_path, tree_str)
     }
 

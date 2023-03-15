@@ -5,11 +5,11 @@ use std::str::FromStr;
 pub enum JsonNodeType {
     Document,
     Object,
-    LBrace, // {
-    RBrace, // }
+    LBrace,   // {
+    RBrace,   // }
     LBracket, // [
     RBracket, // ]
-    Pair, // "name": "John"
+    Pair,     // "name": "John"
     String,
     StringContent,
     QuotationMark, // "
@@ -43,11 +43,10 @@ impl FromStr for JsonNodeType {
             "null" => Ok(JsonNodeType::Null),
             "escape_sequence" => Ok(JsonNodeType::EscapeSequence),
 
-            _ => Err(())
+            _ => Err(()),
         }
     }
 }
-
 
 impl fmt::Display for JsonNodeType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

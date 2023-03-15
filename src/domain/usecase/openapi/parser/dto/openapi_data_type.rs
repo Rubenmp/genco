@@ -1,15 +1,23 @@
-use std::fmt;
 use crate::domain::usecase::openapi::parser::dto::openapi_schema::OpenapiSchema;
+use std::fmt;
 
 #[derive(Debug, Clone)]
 pub enum OpenapiDataType {
-    Integer(IntegerFormat), String, Null, Boolean, Number(NumberFormat), Bytes,
-    ObjectSimple, Object(Box<OpenapiSchema>), Array(Vec<OpenapiDataType>)
+    Integer(IntegerFormat),
+    String,
+    Null,
+    Boolean,
+    Number(NumberFormat),
+    Bytes,
+    ObjectSimple,
+    Object(Box<OpenapiSchema>),
+    Array(Vec<OpenapiDataType>),
 }
 
 #[derive(Debug, Clone)]
 pub enum IntegerFormat {
-    Int32, Int64
+    Int32,
+    Int64,
 }
 
 impl fmt::Display for IntegerFormat {
@@ -21,7 +29,8 @@ impl fmt::Display for IntegerFormat {
 
 #[derive(Debug, Clone)]
 pub enum NumberFormat {
-    Float, Double
+    Float,
+    Double,
 }
 
 impl fmt::Display for NumberFormat {
@@ -50,7 +59,8 @@ impl OpenapiDataType {
 
 impl fmt::Display for OpenapiDataType {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        write!(fmt, "{}", format!("{:?}", self).to_lowercase()).expect("Panicked writing OpenapiDataType");
+        write!(fmt, "{}", format!("{:?}", self).to_lowercase())
+            .expect("Panicked writing OpenapiDataType");
         Ok(())
     }
 }

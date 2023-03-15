@@ -2,11 +2,10 @@
 // These methods are used just in test mode.
 // The warnings are removed to prevent pollution of stderr in normal executions.
 
-use std::path::{PathBuf};
+use std::path::PathBuf;
 
 fn get_base_test_resource_path() -> PathBuf {
-    let mut rsrc_dir = std::env::current_exe()
-        .expect("Can't find path to executable");
+    let mut rsrc_dir = std::env::current_exe().expect("Can't find path to executable");
     rsrc_dir.pop();
     rsrc_dir.pop();
     rsrc_dir.pop();
@@ -32,7 +31,6 @@ pub fn get_test_folder_path(current_dir: PathBuf) -> PathBuf {
     path
 }
 
-
 // Java
 pub fn get_java_test_file_path(current_dir: PathBuf, test_name: &str) -> PathBuf {
     let mut path = get_test_folder_path(current_dir);
@@ -50,7 +48,6 @@ fn include_path_to_main_java_file(test_name: &str, path: &mut PathBuf) {
     path.push("gencotest");
     path.push("Main.java");
 }
-
 
 pub fn get_test_file_path(current_dir: PathBuf, test_name: &str) -> PathBuf {
     let mut path = get_test_folder_path(current_dir);

@@ -1,10 +1,9 @@
 #![allow(unused)]
 
-use std::path::Path;
+use super::dto::java_node;
 use crate::domain::core::parser::parser_node_trait::ParserNode;
 use crate::domain::usecase::java::parser::dto::java_file::JavaFile;
-use super::dto::java_node;
-
+use std::path::Path;
 
 pub fn parse(java_file_path: &Path) -> JavaFile {
     let _java_node = java_node::JavaNode::new(java_file_path);
@@ -12,12 +11,11 @@ pub fn parse(java_file_path: &Path) -> JavaFile {
     JavaFile::new(_java_node)
 }
 
-
 #[cfg(test)]
 mod tests {
-    use std::path::{Path, PathBuf};
     use crate::domain::core::test::test_path::get_java_test_file_path;
     use crate::domain::usecase::java::parser::java_parser::parse;
+    use std::path::{Path, PathBuf};
 
     #[test]
     fn parse_single_file_recognizes_all_tokens() {

@@ -16,10 +16,10 @@ pub struct JavaNode {
     node_type: Option<JavaNodeType>,
 }
 
-
 impl JavaNode {
     fn new_internal(node: Node, file_path: &Path) -> Self {
-        let children = node.children(&mut node.walk())
+        let children = node
+            .children(&mut node.walk())
             .map(|child| JavaNode::new_internal(child, file_path))
             .collect();
 
@@ -75,8 +75,12 @@ impl ParserNode for JavaNode {
         let mut parser = build_parser();
 
         let file_path_str = file_path.to_str().unwrap();
-        let file_content = fs::read_to_string(file_path_str)
-            .unwrap_or_else(|_| panic!("File path \"{}\" should exists to parse java node", file_path_str));
+        let file_content = fs::read_to_string(file_path_str).unwrap_or_else(|_| {
+            panic!(
+                "File path \"{}\" should exists to parse java node",
+                file_path_str
+            )
+        });
         let _tree = parser.parse(file_content, None).unwrap();
         JavaNode::new_internal(_tree.root_node(), file_path)
     }
@@ -112,6 +116,8 @@ impl ParserNode for JavaNode {
 
 fn build_parser() -> Parser {
     let mut parser = Parser::new();
-    parser.set_language(tree_sitter_java::language()).expect("Error loading Java grammar");
+    parser
+        .set_language(tree_sitter_java::language())
+        .expect("Error loading Java grammar");
     parser
 }

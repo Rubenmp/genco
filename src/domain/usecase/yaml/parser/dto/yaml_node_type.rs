@@ -53,11 +53,10 @@ impl FromStr for YamlNodeType {
             "\"" => Ok(YamlNodeType::QuotationMark),
             "double_quote_scalar" => Ok(YamlNodeType::DoubleQuoteScalar),
 
-            _ => Err(())
+            _ => Err(()),
         }
     }
 }
-
 
 impl fmt::Display for YamlNodeType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
