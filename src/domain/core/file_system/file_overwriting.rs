@@ -1,3 +1,6 @@
+use crate::domain::core::file_system::file_creator::{
+    create_file_if_not_exist, remove_file_if_exists,
+};
 use crate::domain::core::file_system::file_reader::get_number_of_bytes_of;
 use std::fs::{File, OpenOptions};
 use std::io::{BufReader, Read, Seek, SeekFrom, Write};
@@ -104,6 +107,8 @@ impl FileOverwriting {
 
         Self::clone_items_to_append_into_buffer(&mut buffer, buffer_index, items_to_append);
 
+        remove_file_if_exists(output_file);
+        create_file_if_not_exist(output_file);
         let mut file = self.open_file(output_file);
         file.seek(io::SeekFrom::Start(0))
             .expect("Seek file to the beginning");
@@ -360,13 +365,15 @@ fn check_valid_bytes_to_overwrite(
     }
 
     if content.is_empty() {
-        panic!("Can not create FileOverwritingItem with empty content.");
+        //panic!("Can not create FileOverwritingItem with empty content.");
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::domain::core::file_system::file_creator::create_file_with_content;
+    use crate::domain::core::file_system::file_creator::{
+        create_file_with_content, remove_file_if_exists,
+    };
     use std::path::{Path, PathBuf};
 
     use crate::domain::core::file_system::file_overwriting::FileOverwriting;
@@ -410,13 +417,14 @@ mod tests {
     }
 
     #[test]
-    fn file_overwriting_valid_scenario() {
+    fn file_overwriting_valid_scenario_non_empty_file() {
         let mut file_path = get_test_folder_path(get_current_file_path());
         let mut file_path_copy = file_path.clone();
         let mut expected_file_path = file_path.clone();
         file_path.push("non_empty_file.txt");
         file_path_copy.push("non_empty_file_copy.txt");
-        expected_file_path.push("expected_non_empty_file.txt");
+        expected_file_path.push("non_empty_file_expected.txt");
+        create_file_with_content(&file_path_copy, &file_path);
 
         let mut overwriting = FileOverwriting::new(&file_path);
         overwriting.insert_content_with_previous_newline_at(5, "content1".to_string());
@@ -427,6 +435,30 @@ mod tests {
         overwriting.write_all();
         assert_same_file(&expected_file_path, &file_path);
         create_file_with_content(&file_path, &file_path_copy);
+        remove_file_if_exists(&file_path_copy);
+    }
+
+    #[test]
+    fn file_overwriting_valid_scenario_file_reduction() {
+        let mut file_path = get_test_folder_path(get_current_file_path());
+        let mut file_path_output = file_path.clone();
+        let mut expected_file_path = file_path.clone();
+        file_path.push("file_reduction.txt");
+        file_path_output.push("file_reduction_output.txt");
+        expected_file_path.push("file_reduction_expected.txt");
+
+        let mut overwriting = FileOverwriting::new(&file_path);
+        overwriting.replace(41, 52, "<>".to_string());
+
+        println!(
+            "first part: {}",
+            "The file overwriting process will remove ".as_bytes().len()
+        );
+        println!("second part: {}", "<this part>".as_bytes().len());
+        println!("File length: {}", "The file overwriting process will remove <this part> file without trash at the end of the file.".as_bytes().len());
+        overwriting.write_all_to_file(&file_path_output);
+        assert_same_file(&expected_file_path, &file_path_output);
+        remove_file_if_exists(&file_path_output);
     }
 
     fn get_current_file_path() -> PathBuf {

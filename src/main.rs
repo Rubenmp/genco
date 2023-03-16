@@ -1,13 +1,12 @@
 extern crate core;
 
-use crate::cli::custom::inditex::event::quality_control::request_qc_db_snowflake::itx_request_qc_db_snowflake::request_quality_controls;
-use std::path::Path;
+use crate::cli::custom::inditex::event::quality_control::endpoint_event_publish_qc::itx_endpoint_event_publish_qc::create_endpoint_event_publish;
 
 mod cli;
 mod domain;
 
 fn main() {
-    request_quality_controls();
+    create_endpoint_event_publish();
     /*
         let java_file_path = Path::new(r"C:\Users\Ruben Morales\MCA\Projects\Personal\genco\genco\resource\test\src\domain\usecase\java\parser\java_parser\Java_17_Maven_JavaParser_Parse_BasicTest\src\main\java\org\gencotest\Main.java");
 

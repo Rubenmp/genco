@@ -2,6 +2,15 @@ use std::fs;
 use std::fs::OpenOptions;
 use std::io::{BufReader, Read, Seek, SeekFrom};
 use std::path::PathBuf;
+use std::str;
+
+pub fn read_string(file: &PathBuf, start_byte: usize, end_byte: usize) -> String {
+    let bytes = read_bytes(file, start_byte, end_byte);
+    return match str::from_utf8(&bytes) {
+        Ok(str) => str.to_string(),
+        Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
+    };
+}
 
 pub fn read_bytes(file: &PathBuf, start_byte: usize, end_byte: usize) -> Vec<u8> {
     let file = OpenOptions::new()

@@ -49,7 +49,7 @@ pub fn create_file_with_content(output_file: &PathBuf, content_path: &PathBuf) {
     file.write_all(&buffer).expect("Write file failed.");
 }
 
-fn remove_file_if_exists(file_path: &PathBuf) {
+pub fn remove_file_if_exists(file_path: &PathBuf) {
     if file_path.exists() && file_path.is_file() {
         fs::remove_file(file_path).expect("Error removing file");
     }

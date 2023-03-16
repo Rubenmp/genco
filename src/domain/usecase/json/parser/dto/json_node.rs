@@ -1,14 +1,14 @@
-use std::fmt::{Debug, Formatter};
+use std::fmt::Debug;
+use std::fs;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
-use std::{fmt, fs};
 
 use tree_sitter::{Node, Tree};
 
 use crate::domain::core::parser::parser_node_trait::ParserNode;
 use crate::domain::usecase::json::parser::dto::json_node_type::JsonNodeType;
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct JsonNode {
     file_path: PathBuf,
     start_byte: usize,
@@ -16,13 +16,6 @@ pub struct JsonNode {
     children: Vec<JsonNode>,
     _type_str: String,
     node_type: Option<JsonNodeType>,
-}
-
-impl Debug for JsonNode {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        println!("test");
-        Ok(())
-    }
 }
 
 impl JsonNode {
