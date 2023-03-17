@@ -14,5 +14,9 @@ Cargo.lock
 .idea
 *.iml
 
+# Operating system trash
+## Windows
+desktop.ini
+
 # Custom scripts
 /src/cli/custom

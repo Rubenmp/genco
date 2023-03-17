@@ -167,16 +167,20 @@ fn write_openapi_schema(fmt: &mut Formatter, depth: usize, schema: &OpenapiSchem
     }
 
     if let Some(enum_values) = schema.get_enum_values() {
-        fmt.write_str(format!("{}enum:\n", get_indentation(depth + 1)).as_str());
+        fmt.write_str(format!("{}enum:\n", get_indentation(depth + 1)).as_str())
+            .expect("Error writing enum for openapi schema");
         for enum_value in enum_values {
-            fmt.write_str(format!("{}- {}\n", get_indentation(depth + 2), enum_value).as_str());
+            fmt.write_str(format!("{}- {}\n", get_indentation(depth + 2), enum_value).as_str())
+                .expect("Error writing enum value for openapi schema");
         }
     }
     let required_properties = schema.get_required_properties();
     if !required_properties.is_empty() {
-        fmt.write_str(format!("{}required:\n", get_indentation(depth + 1)).as_str());
+        fmt.write_str(format!("{}required:\n", get_indentation(depth + 1)).as_str())
+            .expect("Error writing required properties for openapi schema");
         for property in required_properties {
-            fmt.write_str(format!("{}- \"{}\"\n", get_indentation(depth + 2), property).as_str());
+            fmt.write_str(format!("{}- \"{}\"\n", get_indentation(depth + 2), property).as_str())
+                .expect("Error writing required property for openapi schema");
         }
     }
     if let Some(dollar_ref) = &schema.dollar_ref {
@@ -184,7 +188,8 @@ fn write_openapi_schema(fmt: &mut Formatter, depth: usize, schema: &OpenapiSchem
             .expect("Error writing OpenapiSchema $ref");
     }
     if let Some(properties) = &schema.get_properties() {
-        fmt.write_str(format!("{}properties:\n", get_indentation(depth + 1)).as_str());
+        fmt.write_str(format!("{}properties:\n", get_indentation(depth + 1)).as_str())
+            .expect("Error writing properties for openapi schema");
         for property in properties {
             write_openapi_schema(fmt, depth + 2, property);
         }

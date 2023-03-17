@@ -39,8 +39,8 @@ impl JavaNode {
         self.node_type.clone()
     }
 
-    pub fn get_children(self) -> Vec<JavaNode> {
-        self.children
+    pub fn get_children(&self) -> &Vec<JavaNode> {
+        &self.children
     }
 
     fn get_node_type_str(&self) -> String {
@@ -54,7 +54,7 @@ impl JavaNode {
     fn get_tree_str(&self, depth: usize) -> String {
         let mut tree_str: String = "  ".repeat(depth);
         tree_str.push_str(self.get_node_type_str().as_str());
-        let children = self.clone().get_children();
+        let children = self.get_children();
         if !children.is_empty() {
             tree_str.push_str(" {\n");
 
@@ -98,19 +98,22 @@ impl ParserNode for JavaNode {
     }
 
     fn get_children_boxes(&self) -> Vec<Box<Self>> {
-        todo!()
+        let mut node_refs = Vec::new();
+        for child in self.children.clone() {
+            node_refs.push(Box::new(child.clone()));
+        }
+        node_refs
     }
 
     fn get_node_type_str(&self) -> Option<String> {
-        todo!()
-    }
-
-    fn get_tree_str(&self) -> String {
-        self.get_tree_str(0)
+        if let Some(node_type) = &self.node_type {
+            return Some(node_type.to_string());
+        }
+        None
     }
 
     fn is_printable(&self) -> bool {
-        todo!()
+        false
     }
 }
 

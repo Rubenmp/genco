@@ -183,7 +183,7 @@ fn get_variables(file: &PathBuf) -> HashMap<String, Vec<VariableUsage>> {
 
     let mut start_index = 0;
     while let Some(next_indexes) = find_next_variable(&file_content, start_index) {
-        let mut user_input_var = get_user_input_variable(file, next_indexes);
+        let user_input_var = get_user_input_variable(file, next_indexes);
         let user_input_var_id = user_input_var.get_variable_id();
         if let Some(usages) = result.get_mut(&user_input_var_id) {
             usages.push(user_input_var);

@@ -7,6 +7,7 @@ use std::path::Path;
 
 pub fn parse(java_file_path: &Path) -> JavaFile {
     let _java_node = java_node::JavaNode::new(java_file_path);
+    let _tree = _java_node.get_tree_str();
 
     JavaFile::new(_java_node)
 }
@@ -22,7 +23,7 @@ mod tests {
         let test_name = "Java_17_Maven_JavaParser_Parse_BasicTest";
         let file_path = get_java_test_file_path(get_current_file_path(), test_name);
 
-        parse(file_path.as_path());
+        parse(&file_path);
     }
 
     fn get_current_file_path() -> PathBuf {
