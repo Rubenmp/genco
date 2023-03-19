@@ -15,9 +15,9 @@ pub struct OpenapiSchema {
 }
 
 impl OpenapiSchema {
-    pub fn new_enum(name: String, description: Option<String>, enum_values: Vec<String>) -> Self {
+    pub fn new_enum(name: &str, description: Option<String>, enum_values: Vec<String>) -> Self {
         OpenapiSchema {
-            name,
+            name: name.to_string(),
             schema_type: Some(OpenapiDataType::String),
             description,
             enum_values: Some(enum_values),

@@ -1,5 +1,6 @@
 extern crate core;
 
+use crate::domain::usecase::java::parser::java_parser::java_parser;
 use std::env;
 use std::path::{Path, PathBuf};
 
@@ -9,7 +10,8 @@ mod domain;
 fn main() {
     let java_file_path = get_java_file_path();
 
-    let _java_file = domain::usecase::java::parser::java_parser::parse(&java_file_path);
+    let _java_file = java_parser::parse(&java_file_path);
+
     println!("Finish")
 }
 

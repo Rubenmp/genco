@@ -2,8 +2,8 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
 
-use crate::domain::core::file_system::file_creator::create_file_with_content;
-use crate::domain::core::file_system::file_overwriting::FileOverwriting;
+use crate::domain::core::file_system::file_creator::file_creator::create_file_with_content;
+use crate::domain::core::file_system::file_overwriting::file_overwriting::FileOverwriting;
 use crate::domain::core::file_system::file_reader::read_string;
 use crate::domain::core::user_input::cli_query;
 use crate::domain::core::user_input::user_input_function::UserInputFunction;
@@ -50,7 +50,7 @@ impl UserInput {
                 let bytes_array = usage.get_bytes_array();
                 if let Some(value) = usage.get_value() {
                     for &bytes in bytes_array {
-                        result.replace(bytes.0, bytes.1, value.to_string());
+                        result.replace(bytes.0, bytes.1, &value);
                     }
                 }
             }

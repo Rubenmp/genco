@@ -41,7 +41,7 @@ pub enum JavaNodeType {
     LambdaArrow,
     // ->
     ObjectCreationExpression,
-    // Ex: "new File("filename.txt")"
+    // Ex: "file_overwriting File("filename.txt")"
     New,
     AssignmentExpression,
     // Ex: "boolVarCompound |= boolVarNameInit"
@@ -59,14 +59,14 @@ pub enum JavaNodeType {
     // Ex: "try { int a = 0; } catch (Exception ignored) {}"
     Try,
     CatchClause,
-    // Ex: "catch (Exception e) { throw new RuntimeException(e); }"
+    // Ex: "catch (Exception e) { throw file_overwriting RuntimeException(e); }"
     Catch,
     CatchFormalParameter,
     // Ex: "Exception e"
     CatchType,
     // Ex: "Exception"
     ThrowStatement,
-    // Ex: "throw new RuntimeException(e);"
+    // Ex: "throw file_overwriting RuntimeException(e);"
     Throw,
     FinallyClause,
     // "finally { // Ignore }"
@@ -362,7 +362,7 @@ impl FromStr for JavaNodeType {
             "lambda_expression" => Ok(JavaNodeType::LambdaExpression),
             "->" => Ok(JavaNodeType::LambdaArrow),
             "object_creation_expression" => Ok(JavaNodeType::ObjectCreationExpression),
-            "new" => Ok(JavaNodeType::New),
+            "file_overwriting" => Ok(JavaNodeType::New),
             "assignment_expression" => Ok(JavaNodeType::AssignmentExpression),
             "ternary_expression" => Ok(JavaNodeType::TernaryExpression),
             "instanceof_expression" => Ok(JavaNodeType::InstanceofExpression),
