@@ -1,5 +1,6 @@
 pub mod java_annotation;
-pub mod java_class;
+pub mod java_expression;
+mod java_field_declaration;
 pub mod java_file;
 pub mod java_import;
 mod java_method;

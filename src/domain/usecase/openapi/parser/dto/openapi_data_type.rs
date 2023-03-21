@@ -11,6 +11,7 @@ pub enum OpenapiDataType {
     Bytes,
     ObjectSimple,
     Object(Box<OpenapiSchema>),
+    ObjectName(String),
     Array(Vec<OpenapiDataType>),
 }
 

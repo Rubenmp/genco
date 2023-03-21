@@ -8,5 +8,18 @@
       "EnumValue1",
       "EnumValue2"
     ]
+  },
+  {
+    "name": "Item",
+    "doc": "Object that stores information",
+    "type": "record",
+    "fields": [
+      {
+        "name": "custom_enum",
+        "doc": "Custom enum",
+        "type": ["null", "EnumExample"],
+        "default": null
+      }
+    ]
   }
 ]

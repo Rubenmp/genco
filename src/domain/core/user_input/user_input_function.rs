@@ -1,5 +1,8 @@
-use regex::{Match, Regex};
 use std::string::ParseError;
+
+use regex::{Match, Regex};
+
+use crate::domain::core::parser::string_helper;
 
 #[derive(Debug)]
 pub struct UserInputFunction {
@@ -11,19 +14,15 @@ pub struct UserInputFunction {
 
 /// Available public UserInputFunctions
 pub fn to_lowercase_with_hyphens(upper_camel_case_str: String) -> String {
-    to_lowercase_with_hyphens_internal(upper_camel_case_str)
+    string_helper::to_lowercase_with_hyphens(upper_camel_case_str)
 }
 
 pub fn to_lowercase_space_separated(upper_camel_case_str: String) -> String {
-    to_lowercase_space_separated_internal(upper_camel_case_str)
+    string_helper::to_lowercase_space_separated(upper_camel_case_str)
 }
 
 pub fn to_medial_case(upper_camel_case_str: String) -> String {
-    let mut chars = upper_camel_case_str.chars();
-    match chars.next() {
-        None => String::new(),
-        Some(f) => f.to_lowercase().collect::<String>() + chars.as_str(),
-    }
+    string_helper::to_medial_case(&upper_camel_case_str)
 }
 
 ///

@@ -69,7 +69,7 @@ pub trait ParserNode {
                         .get_tree_str_internal(depth + 1, index + 1, show_bytes)
                         .as_str(),
                 );
-                if index != (children.len() - 1) {
+                if index < (children.len() - 1) {
                     tree_str.push(',');
                 }
                 writeln!(&mut tree_str).expect("Error in method ParserNode.get_tree_str");

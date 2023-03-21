@@ -4,3 +4,10 @@ EnumExample:
   enum:
     - EnumValue1
     - EnumValue2
+
+Item:
+  description: Object that stores information
+  type: object
+  properties:
+    custom_enum:
+      $ref: '#/components/schemas/EnumExample'

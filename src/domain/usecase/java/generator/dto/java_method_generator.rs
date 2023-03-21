@@ -1,7 +1,7 @@
 use typed_builder::TypedBuilder;
 
 use crate::domain::usecase::java::generator::dto::java_annotation_generator::JavaAnnotationGenerator;
-use crate::domain::usecase::java::generator::dto::java_data_type_generator::JavaDataTypeGenerator;
+use crate::domain::usecase::java::generator::dto::java_data_type::JavaDataType;
 use crate::domain::usecase::java::generator::dto::java_steps_generator::JavaStepsGenerator;
 use crate::domain::usecase::java::generator::dto::java_variable_generator::JavaVariableGenerator;
 use crate::domain::usecase::java::generator::dto::java_visibility::JavaVisibility;
@@ -13,10 +13,10 @@ pub struct JavaMethodGenerator<'a> {
     #[builder(default = JavaVisibility::Private)]
     visibility: JavaVisibility,
     #[builder(default = None, setter(strip_option))]
-    return_type: Option<JavaDataTypeGenerator>,
-    name: String,
+    return_type: Option<JavaDataType>,
+    name: &'a str,
     #[builder(default = Vec::new())]
-    parameters: Vec<JavaVariableGenerator>,
+    parameters: Vec<JavaVariableGenerator<'a>>,
     #[builder(default = None, setter(strip_option))]
     body: Option<JavaStepsGenerator>,
 }
@@ -30,8 +30,20 @@ impl<'a> JavaMethodGenerator<'a> {
         &self.visibility
     }
 
+    pub fn get_return_type(&self) -> &Option<JavaDataType> {
+        &self.return_type
+    }
+
     pub fn get_name(&self) -> &str {
         &self.name
+    }
+
+    pub fn get_parameters(&self) -> &Vec<JavaVariableGenerator> {
+        &self.parameters
+    }
+
+    pub fn get_body(&self) -> &Option<JavaStepsGenerator> {
+        &self.body
     }
 }
 

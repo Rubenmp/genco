@@ -14,8 +14,15 @@ fn to_component_schemas(avro_items: &[AvroItem]) -> Vec<OpenapiSchema> {
 }
 
 fn to_openapi_str(schemas: &Vec<OpenapiSchema>) -> String {
-    let schema = schemas.get(0).unwrap(); // TODO check
-    schema.to_string()
+    let mut result = String::new();
+    let schemas_len = schemas.len();
+    for (index, schema) in schemas.iter().enumerate() {
+        result += schema.to_string().as_str();
+        if index < (schemas_len - 1) {
+            result += "\n"
+        }
+    }
+    result
 }
 
 pub fn to_component_schema(avro_item: &AvroItem) -> OpenapiSchema {
@@ -85,6 +92,8 @@ pub fn to_data_type(avro_item_type: &AvroItemType) -> OpenapiDataType {
         return OpenapiDataType::Boolean;
     } else if let AvroItemType::Bytes = avro_item_type {
         return OpenapiDataType::Bytes;
+    } else if let AvroItemType::RecordName(record_name) = avro_item_type {
+        return OpenapiDataType::ObjectName(record_name.to_owned());
     }
 
     panic!("Error translating avro item type");
@@ -95,7 +104,7 @@ mod tests {
     use std::path::PathBuf;
 
     use crate::domain::core::testing::test_assert::assert_same_as_file;
-    use crate::domain::core::testing::test_path::{get_test_file};
+    use crate::domain::core::testing::test_path::get_test_file;
     use crate::domain::usecase::avro::parser::avro_parser::avro_parser;
     use crate::domain::usecase::openapi::translator::openapi_from_avro_translator::openapi_from_avro_translator::avro_to_openapi_str;
 

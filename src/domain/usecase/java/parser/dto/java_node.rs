@@ -113,6 +113,29 @@ impl ParserNode for JavaNode {
     }
 
     fn is_printable(&self) -> bool {
+        if let Some(node_type) = self.node_type.to_owned() {
+            return matches!(
+                node_type,
+                JavaNodeType::Id
+                    | JavaNodeType::Package
+                    | JavaNodeType::Import
+                    | JavaNodeType::Public
+                    | JavaNodeType::Protected
+                    | JavaNodeType::Private
+                    | JavaNodeType::Class
+                    | JavaNodeType::TypeIdentifier
+                    | JavaNodeType::Dot
+                    | JavaNodeType::Semicolon
+                    | JavaNodeType::LParentheses
+                    | JavaNodeType::RParentheses
+                    | JavaNodeType::LBrace
+                    | JavaNodeType::RBrace
+                    | JavaNodeType::Equals
+                    | JavaNodeType::StringLiteral
+                    | JavaNodeType::At
+                    | JavaNodeType::VoidType
+            );
+        }
         false
     }
 }

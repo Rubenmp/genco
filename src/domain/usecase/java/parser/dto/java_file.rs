@@ -28,7 +28,6 @@ impl JavaFile {
                     || JavaNodeType::EnumDeclaration == node_type
                 {
                     structure = Some(JavaStructure::new(&child));
-                    break;
                 }
             }
         }

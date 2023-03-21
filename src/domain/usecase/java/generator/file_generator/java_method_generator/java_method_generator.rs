@@ -4,21 +4,34 @@ use crate::domain::core::file_system::directory_browser::directory_browser::chec
 use crate::domain::core::file_system::file_creator::file_creator;
 use crate::domain::core::file_system::file_overwriting::file_overwriting::FileOverwriting;
 use crate::domain::usecase::java::generator::dto::java_method_generator::JavaMethodGenerator;
-use crate::domain::usecase::java::scanner::java_package_scanner::java_package_scanner;
 
-pub fn generate(dir: &Path, skeleton: JavaMethodGenerator) {
+pub fn generate(dir: &Path, skeleton: &JavaMethodGenerator) {
     check_exists(dir);
 
-    let mut result = "package ".to_string();
-    result += java_package_scanner::get_package(dir).as_str();
-    result += ";\n\n";
-
+    let mut result = "".to_string();
     write_annotations(&mut result, &skeleton);
     write_visibility(&mut result, &skeleton);
     write_return_type(&mut result, &skeleton);
     result += skeleton.get_name();
+    write_parameters(&mut result, &skeleton);
     result += " {\n}";
 
+    write_to_file(dir, &skeleton, &mut result);
+}
+
+fn write_parameters(result: &mut String, skeleton: &&JavaMethodGenerator) {
+    let parameters = skeleton.get_parameters();
+    *result += "(";
+    for (index, parameter) in parameters.iter().enumerate() {
+        if index > 0 {
+            *result += ", ";
+        }
+        *result += parameter.to_string().as_str();
+    }
+    *result += ")";
+}
+
+fn write_to_file(dir: &Path, skeleton: &&JavaMethodGenerator, result: &mut String) {
     let mut file_path = dir.to_path_buf();
     file_path.push(format!("{}.java", &skeleton.get_name()));
     file_creator::create_file_if_not_exist(&file_path);
@@ -28,7 +41,11 @@ pub fn generate(dir: &Path, skeleton: JavaMethodGenerator) {
 }
 
 fn write_return_type(result: &mut String, skeleton: &JavaMethodGenerator) {
-    todo!()
+    if let Some(return_type) = skeleton.get_return_type() {
+        *result += format!("{} ", return_type.to_string()).as_str();
+    } else {
+        *result += "void ";
+    }
 }
 
 fn write_annotations(result: &mut String, skeleton: &JavaMethodGenerator) {
@@ -42,7 +59,6 @@ fn write_visibility(result: &mut String, skeleton: &JavaMethodGenerator) {
     if !(visibility == "package") {
         *result += format!("{} ", visibility).as_str();
     }
-    *result += "class "
 }
 
 fn check_exists(dir: &Path) {
@@ -60,28 +76,36 @@ mod tests {
     use crate::domain::core::testing::test_assert::assert_same_file;
     use crate::domain::core::testing::test_path::get_test_dir;
     use crate::domain::usecase::java::generator::dto::java_annotation_generator::JavaAnnotationGenerator;
-    use crate::domain::usecase::java::generator::dto::java_class_skeleton::JavaClassSkeleton;
-    use crate::domain::usecase::java::generator::dto::java_visibility::JavaVisibility::{Package, Protected, Public};
-    use crate::domain::usecase::java::generator::file_generator::java_class_skeleton_generator::java_class_skeleton_generator::generate;
+    use crate::domain::usecase::java::generator::dto::java_method_generator::JavaMethodGenerator;
+    use crate::domain::usecase::java::generator::dto::java_variable_generator::JavaVariableGenerator;
+    use crate::domain::usecase::java::generator::dto::java_visibility::JavaVisibility::{
+        Protected, Public,
+    };
+    use crate::domain::usecase::java::generator::file_generator::java_method_generator::java_method_generator;
 
     #[test]
-    fn generate_public_abstract_class_with_interface() {
-        let mut folder_path = get_test_dir(get_current_file_path(), "generate_java_class_skeleton");
+    fn generate_java_method() {
+        let mut folder_path = get_test_dir(get_current_file_path(), "generate_java_method");
         let mut expected_file_content = folder_path.clone();
-        expected_file_content.push("ExpectedPublicAbstractClassWithInterface.java");
+        expected_file_content.push("ExpectedTestMethodWithParameters.java");
         folder_path.push("src/main/java/com/org/demo");
         let mut file_path = folder_path.clone();
-        file_path.push("JavaServiceAbstract.java");
+        file_path.push("new_method.java");
         remove_file_if_exists(&file_path);
 
-        let skeleton = JavaClassSkeleton::builder()
+        let mut annotations = Vec::new();
+        annotations.push(JavaAnnotationGenerator::builder().name("Test").build());
+        let mut parameters = Vec::new();
+        parameters.push(JavaVariableGenerator::new_final_int("id"));
+        parameters.push(JavaVariableGenerator::new_final_string("name"));
+        let skeleton = JavaMethodGenerator::builder()
+            .annotations(annotations)
             .visibility(Public)
-            .is_abstract(true)
-            .name("JavaServiceAbstract")
-            .implemented_interface("JavaInterface")
+            .name("new_method")
+            .parameters(parameters)
             .build();
 
-        generate(&folder_path, skeleton);
+        java_method_generator::generate(&folder_path, &skeleton);
 
         assert!(file_path.exists());
         assert!(file_path.is_file());

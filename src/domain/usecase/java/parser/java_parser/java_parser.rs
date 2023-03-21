@@ -10,6 +10,7 @@ pub fn parse(java_file_path: &Path) -> JavaFile {
     let _java_node = JavaNode::new(java_file_path);
     let _tree = _java_node.get_tree_str();
 
+    let _a = 0;
     JavaFile::new(_java_node)
 }
 
@@ -17,7 +18,9 @@ pub fn parse(java_file_path: &Path) -> JavaFile {
 mod tests {
     use std::path::{Path, PathBuf};
 
-    use crate::domain::core::testing::test_path::get_java_test_file;
+    use crate::domain::core::testing::test_path::{
+        get_java_test_file, get_test_dir, get_test_file,
+    };
     use crate::domain::usecase::java::parser::java_parser::java_parser;
 
     #[test]
@@ -26,6 +29,13 @@ mod tests {
             get_current_file_path(),
             "Java_17_Maven_JavaParser_Parse_BasicTest",
         );
+
+        java_parser::parse(&file_path);
+    }
+
+    #[test]
+    fn parse_database_entity() {
+        let mut file_path = get_test_file(get_current_file_path(), "DatabaseEntity.java");
 
         java_parser::parse(&file_path);
     }

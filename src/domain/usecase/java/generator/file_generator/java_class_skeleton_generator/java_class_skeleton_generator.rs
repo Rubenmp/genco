@@ -19,6 +19,10 @@ pub fn generate(dir: &Path, skeleton: JavaClassSkeleton) {
     write_extensions_and_implementations(&mut result, &skeleton);
     result += " {\n}";
 
+    write_to_file(dir, &skeleton, &mut result);
+}
+
+fn write_to_file(dir: &Path, skeleton: &JavaClassSkeleton, result: &mut String) {
     let mut file_path = dir.to_path_buf();
     file_path.push(format!("{}.java", &skeleton.get_name()));
     file_creator::create_file_if_not_exist(&file_path);
@@ -83,7 +87,7 @@ mod tests {
 
     #[test]
     fn generate_public_abstract_class_with_interface() {
-        let mut folder_path = get_test_dir(get_current_file_path(), "generate_java_class_skeleton");
+        let mut folder_path = get_test_dir(get_current_file_path(), "generate_java_method");
         let mut expected_file_content = folder_path.clone();
         expected_file_content.push("ExpectedPublicAbstractClassWithInterface.java");
         folder_path.push("src/main/java/com/org/demo");
@@ -107,7 +111,7 @@ mod tests {
 
     #[test]
     fn generate_package_class_with_interfaces_and_extension() {
-        let mut folder_path = get_test_dir(get_current_file_path(), "generate_java_class_skeleton");
+        let mut folder_path = get_test_dir(get_current_file_path(), "generate_java_method");
         let mut expected_file_content = folder_path.clone();
         expected_file_content.push("ExpectedPackageClassWithInterfacesAndExtension.java");
         folder_path.push("src/main/java/com/org/demo");
@@ -134,9 +138,9 @@ mod tests {
 
     #[test]
     fn generate_class_with_annotations() {
-        let mut folder_path = get_test_dir(get_current_file_path(), "generate_java_class_skeleton");
+        let mut folder_path = get_test_dir(get_current_file_path(), "generate_java_method");
         let mut expected_file_content = folder_path.clone();
-        expected_file_content.push("ExpectedClassWithAnnotations.java");
+        expected_file_content.push("ExpectedTestMethodWithParameters.java");
         folder_path.push("src/main/java/com/org/demo");
         let mut file_path = folder_path.clone();
         file_path.push("JavaServiceBean.java");

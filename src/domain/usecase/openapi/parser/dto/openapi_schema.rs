@@ -43,7 +43,7 @@ impl OpenapiSchema {
         }
     }
 
-    pub fn new_ref(name: String, dollar_ref: String) -> Self {
+    pub fn new_dollar_ref(name: String, dollar_ref: String) -> Self {
         OpenapiSchema {
             name,
             schema_type: Some(OpenapiDataType::ObjectSimple),
@@ -139,7 +139,27 @@ impl OpenapiSchema {
 fn write_openapi_schema(fmt: &mut Formatter, depth: usize, schema: &OpenapiSchema) {
     fmt.write_str(format!("{}{}:\n", get_indentation(depth), schema.get_name().clone()).as_str())
         .expect("Error writing OpenapiSchema name");
+    if let Some(schema_type) = get_object_name_schema(schema) {
+        if let OpenapiDataType::ObjectName(object_name) = schema_type {
+            fmt.write_str(
+                format!(
+                    "{}$ref: '#/components/schemas/{}'\n",
+                    get_indentation(depth + 1),
+                    object_name
+                )
+                .as_str(),
+            )
+            .expect("Error writing OpenapiSchema type");
+            return;
+        }
+    }
+
     if let Some(description) = &schema.get_description() {
+        let description = if description.contains(":") {
+            format!("\"{}\"", description)
+        } else {
+            description.to_string()
+        };
         fmt.write_str(
             format!(
                 "{}description: {}\n",
@@ -196,6 +216,25 @@ fn write_openapi_schema(fmt: &mut Formatter, depth: usize, schema: &OpenapiSchem
     }
 }
 
+fn get_object_name_schema(schema: &OpenapiSchema) -> Option<OpenapiDataType> {
+    if let Some(schema_type) = &schema.get_schema_type() {
+        if let OpenapiDataType::ObjectName(_) = schema_type {
+            return Some(schema_type.to_owned());
+        } else if let OpenapiDataType::Array(subtypes) = schema_type {
+            let subtypes_without_null = get_sub_types_without_null(subtypes);
+            if subtypes_without_null.len() == 1 {
+                if let Some(&subtype) = subtypes_without_null.get(0) {
+                    return Some(subtype.to_owned());
+                }
+            }
+
+            return None;
+        }
+    }
+
+    None
+}
+
 fn get_str(data_type: &OpenapiDataType) -> String {
     if let OpenapiDataType::ObjectSimple = data_type {
         return "object".to_string();
@@ -239,7 +278,7 @@ fn contains_null_type(data_types: &Vec<OpenapiDataType>) -> bool {
 }
 
 impl fmt::Display for OpenapiSchema {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, fmt: &mut Formatter) -> fmt::Result {
         write_openapi_schema(fmt, 0, self);
         Ok(())
     }

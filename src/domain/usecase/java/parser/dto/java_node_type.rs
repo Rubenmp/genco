@@ -140,6 +140,7 @@ pub enum JavaNodeType {
     Annotation,
     // Ex: "@Retention(RetentionPolicy.RUNTIME)"
     AnnotationArgumentList,
+    ElementValuePair,
     // Ex: "(RetentionPolicy.RUNTIME)"
     AnnotationTypeBody, // Ex: "{}" in "public @interface Init {}"
 
@@ -430,6 +431,7 @@ impl FromStr for JavaNodeType {
             "annotation_type_declaration" => Ok(JavaNodeType::AnnotationTypeDeclaration),
             "annotation" => Ok(JavaNodeType::Annotation),
             "annotation_argument_list" => Ok(JavaNodeType::AnnotationArgumentList),
+            "element_value_pair" => Ok(JavaNodeType::ElementValuePair),
             "annotation_type_body" => Ok(JavaNodeType::AnnotationTypeBody),
 
             // Method
@@ -564,4 +566,10 @@ impl fmt::Display for JavaNodeType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{:?}", self)
     }
+}
+
+pub fn is_visibility(node_type: &JavaNodeType) -> bool {
+    &JavaNodeType::Private == node_type
+        || &JavaNodeType::Public == node_type
+        || &JavaNodeType::Protected == node_type
 }
