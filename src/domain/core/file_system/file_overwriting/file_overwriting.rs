@@ -29,10 +29,18 @@ impl FileOverwriting {
     }
 
     pub fn append(&mut self, content: &str) {
+        self.append_internal(content, false);
+    }
+
+    pub fn append_with_previous_newline(&mut self, content: &str) {
+        self.append_internal(content, true);
+    }
+
+    fn append_internal(&mut self, content: &str, previous_new_line: bool) {
         self.add_item(FileOverwritingItem::new(
             None,
             None,
-            true,
+            previous_new_line,
             true,
             content.to_string(),
         ));
@@ -433,7 +441,7 @@ mod tests {
         overwriting.insert_content_with_previous_newline_at(5, "content1");
         overwriting.replace(10, 20, "content2");
         overwriting.replace(30, 50, "content3");
-        overwriting.append("content4");
+        overwriting.append_with_previous_newline("content4");
 
         overwriting.write_all();
         assert_same_file(&expected_file_path, &file_path);

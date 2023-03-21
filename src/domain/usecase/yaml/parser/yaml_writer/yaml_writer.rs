@@ -195,7 +195,7 @@ fn include_new_nodes_to_overwrite(
 ) {
     for new_node in new_nodes {
         if depth == 0 {
-            result.append(&new_node.get_content());
+            result.append_with_previous_newline(&new_node.get_content());
         } else if is_required_a_newline_before(&new_node) {
             let content = new_node.get_content_bytes_with_previous_empty_space();
             result.insert_content_with_previous_newline_at(original_node.get_end_byte(), &content);

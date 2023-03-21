@@ -92,7 +92,7 @@ pub fn to_data_type(avro_item_type: &AvroItemType) -> OpenapiDataType {
 
 #[cfg(test)]
 mod tests {
-    use std::path::{Path, PathBuf};
+    use std::path::PathBuf;
 
     use crate::domain::core::testing::test_assert::assert_same_as_file;
     use crate::domain::core::testing::test_path::{get_test_file};

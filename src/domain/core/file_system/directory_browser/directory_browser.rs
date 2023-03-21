@@ -66,10 +66,16 @@ pub fn read_dir(path: &Path) -> Vec<PathBuf> {
     result
 }
 
+pub fn check_dir(input_dir: &Path, start_error_message: &str) {
+    if !input_dir.exists() || !input_dir.is_dir() {
+        panic!("{}: {:?}", start_error_message, input_dir)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::domain::core::file_system::directory_browser::directory_browser::{
-        get_dir, get_dir_ending_with, get_dir_map,
+        check_dir, get_dir, get_dir_ending_with, get_dir_map,
     };
     use crate::domain::core::testing::test_assert::assert_dir_is;
     use crate::domain::core::testing::test_path::get_test_dir;
@@ -124,6 +130,13 @@ mod tests {
         } else {
             assert!(false, "Expected dir_map entry \"second_dir\" not found.");
         }
+    }
+
+    #[test]
+    fn check_dir_test() {
+        let test_dir = get_test_dir(get_current_file_path(), "get_dir_map");
+
+        check_dir(&test_dir, "Error");
     }
 
     fn get_current_file_path() -> PathBuf {

@@ -9,7 +9,7 @@ pub fn parse(yaml_file_path: &PathBuf) -> JsonNode {
 
 #[cfg(test)]
 mod tests {
-    use std::path::{Path, PathBuf};
+    use std::path::PathBuf;
 
     use crate::domain::core::parser::parser_node_trait::ParserNode;
     use crate::domain::core::testing::test_assert::assert_same_as_file;

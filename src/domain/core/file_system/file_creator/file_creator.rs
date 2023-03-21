@@ -1,6 +1,6 @@
 use std::fs::{File, OpenOptions};
 use std::io::{Seek, Write};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::vec::Vec;
 use std::{fs, io};
 
@@ -31,6 +31,22 @@ pub fn create_file_if_not_exist(file_path: &PathBuf) {
     }
 }
 
+pub fn create_file_if_not_exists_with_content(output_file: &Path, content: &str) {
+    if !output_file.exists() {
+        let mut file = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .open(output_file)
+            .expect("File can not be opened to write");
+        let content_vec_u8 = content.as_bytes();
+        let number_of_bytes = content_vec_u8.len();
+        let mut buffer = vec![0; number_of_bytes];
+        buffer[0..number_of_bytes].clone_from_slice(&content_vec_u8.to_vec());
+
+        write_buffer(&mut file, &mut buffer);
+    }
+}
+
 pub fn create_file_with_content(output_file: &PathBuf, content_path: &PathBuf) {
     let _a = 0;
     let data = fs::read(content_path)
@@ -47,6 +63,10 @@ pub fn create_file_with_content(output_file: &PathBuf, content_path: &PathBuf) {
     let mut buffer = vec![0; number_of_bytes];
     buffer[0..number_of_bytes].clone_from_slice(&data.to_vec());
 
+    write_buffer(&mut file, &mut buffer);
+}
+
+fn write_buffer(file: &mut File, buffer: &mut Vec<u8>) {
     file.seek(io::SeekFrom::Start(0))
         .expect("Seek file to the beginning");
     file.write_all(&buffer).expect("Write file failed.");
