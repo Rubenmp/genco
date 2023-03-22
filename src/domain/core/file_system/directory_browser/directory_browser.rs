@@ -74,12 +74,13 @@ pub fn check_dir(input_dir: &Path, start_error_message: &str) {
 
 #[cfg(test)]
 mod tests {
+    use std::path::PathBuf;
+
     use crate::domain::core::file_system::directory_browser::directory_browser::{
         check_dir, get_dir, get_dir_ending_with, get_dir_map,
     };
     use crate::domain::core::testing::test_assert::assert_dir_is;
     use crate::domain::core::testing::test_path::get_test_dir;
-    use std::path::PathBuf;
 
     #[test]
     fn get_dir_ending_in_boot() {

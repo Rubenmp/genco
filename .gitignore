@@ -20,3 +20,5 @@ desktop.ini
 
 # Custom scripts
 /src/cli/custom
+
+src/liblib.rlib # Generated library
