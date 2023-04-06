@@ -6,11 +6,10 @@ use crate::core::file_system::file_creator::file_creator::create_file_with_conte
 use crate::core::file_system::file_overwriting::file_overwriting::FileOverwriting;
 use crate::core::file_system::file_reader::read_string;
 use crate::core::user_input::cli_query;
-use crate::core::user_input::user_input_function::UserInputFunction;
 
 pub struct UserInput {
     file: PathBuf,
-    variables: HashMap<String, Vec<VariableInstantiation>>,
+    variables: HashMap<String, VariableUsage>,
 }
 
 impl UserInput {
@@ -22,7 +21,7 @@ impl UserInput {
     }
 
     pub fn request_missing_user_input(&mut self) {
-        for (variable_id, variable_usages) in self.get_variables_mut() {
+        for (variable_id, variable_usage) in self.get_variable_usages_mut() {
             let user_input = cli_query::ask_input(
                 format!(
                     "Please, insert the content for variable \"{}\":",
@@ -31,9 +30,7 @@ impl UserInput {
                 .as_str(),
             );
 
-            for variable_usage in variable_usages {
-                variable_usage.set_raw_user_input_value(user_input.to_string());
-            }
+            variable_usage.set_raw_user_input_value(user_input.to_string());
         }
     }
 
@@ -45,13 +42,11 @@ impl UserInput {
     fn generate_file_overwriting(&self, output_file: &PathBuf) -> FileOverwriting {
         create_file_with_content(output_file, self.get_file());
         let mut result = FileOverwriting::new(output_file);
-        for variable_usages in self.get_variables().values() {
-            for usage in variable_usages {
-                let bytes_array = usage.get_bytes_array();
-                if let Some(value) = usage.get_value() {
-                    for &bytes in bytes_array {
-                        result.replace(bytes.0, bytes.1, &value);
-                    }
+        for variable_usage in self.get_variables().values() {
+            for instantiation in variable_usage.get_instantiations() {
+                let bytes = instantiation.get_bytes();
+                if let Some(value) = variable_usage.get_value() {
+                    result.replace(bytes.0, bytes.1, &value);
                 }
             }
         }
@@ -60,18 +55,20 @@ impl UserInput {
     }
 
     pub fn override_value(&mut self, variable_id: &str, variable_value: &str) {
-        if let Some(variables) = self.variables.get_mut(variable_id) {
-            for variable in variables {
-                variable.override_value(variable_value);
-            }
+        if let Some(variable) = self.variables.get_mut(variable_id) {
+            variable.override_value(variable_value);
         }
     }
 
-    pub(self) fn get_variables_mut(&mut self) -> &mut HashMap<String, Vec<VariableInstantiation>> {
+    fn get_variable_usages(&self) -> &HashMap<String, VariableUsage> {
+        &self.variables
+    }
+
+    pub(self) fn get_variable_usages_mut(&mut self) -> &mut HashMap<String, VariableUsage> {
         &mut self.variables
     }
 
-    fn get_variables(&self) -> &HashMap<String, Vec<VariableInstantiation>> {
+    fn get_variables(&self) -> &HashMap<String, VariableUsage> {
         &self.variables
     }
 
@@ -82,30 +79,40 @@ impl UserInput {
 
 #[derive(Debug)]
 struct VariableUsage {
-    usages: Vec<VariableInstantiation>,
-}
-
-#[derive(Debug)]
-struct VariableInstantiation {
     raw_var_pattern: String,
     raw_user_input_value: Option<String>,
     var_id: String,
     override_value: Option<String>,
-    bytes: Vec<(usize, usize)>,
-    function: Option<UserInputFunction>,
+    instantiations: Vec<VariableInstantiation>,
 }
 
-impl VariableInstantiation {
-    pub fn new(raw_var_pattern: String) -> Self {
-        let parsed_value = parse_user_input_var(&raw_var_pattern);
+impl VariableUsage {}
 
-        VariableInstantiation {
-            raw_var_pattern,
-            raw_user_input_value: None,
-            var_id: parsed_value.0.unwrap(),
-            override_value: None,
-            bytes: Vec::new(),
-            function: parsed_value.1,
+impl VariableUsage {
+    pub fn new(
+        raw_var_pattern: String,
+        var_def_bytes: (usize, usize),
+        file: &PathBuf,
+    ) -> Option<Self> {
+        let var_name_opt = parse_user_input_var(&raw_var_pattern);
+        let mut instantiations = Vec::new();
+        instantiations.push(VariableInstantiation::new(file, var_def_bytes));
+        if let Some(var_name) = var_name_opt {
+            return Some(VariableUsage {
+                raw_var_pattern,
+                raw_user_input_value: None,
+                var_id: var_name,
+                override_value: None,
+                instantiations,
+            });
+        }
+
+        None
+    }
+
+    pub(crate) fn merge(&mut self, new_usage: VariableUsage) {
+        for instantiation in new_usage.get_instantiations() {
+            self.add_instantiation(&instantiation);
         }
     }
 
@@ -117,15 +124,14 @@ impl VariableInstantiation {
         self.var_id.to_owned()
     }
 
-    pub fn add_bytes_indexes(&mut self, byte_indexes: (usize, usize)) {
+    fn add_instantiation(&mut self, instantiation: &VariableInstantiation) {
+        let file = &instantiation.file;
+        let byte_indexes = &instantiation.bytes;
         if byte_indexes.0 >= byte_indexes.1 {
             panic!("Bytes added to user input must have start_byte less than end_byte");
         }
-        self.bytes.push(byte_indexes);
-    }
-
-    pub fn get_bytes_array(&self) -> &Vec<(usize, usize)> {
-        &self.bytes
+        self.instantiations
+            .push(VariableInstantiation::new(&file, *byte_indexes));
     }
 
     pub fn get_content_pattern(&self) -> &str {
@@ -137,13 +143,11 @@ impl VariableInstantiation {
             return Some(override_value.to_owned());
         }
 
-        if let (Some(function_to_apply), Some(user_input)) =
-            (&self.function, &self.raw_user_input_value)
-        {
-            return Some(function_to_apply.apply(user_input.to_string()));
-        }
-
         return self.raw_user_input_value.to_owned();
+    }
+
+    pub fn get_instantiations(&self) -> &Vec<VariableInstantiation> {
+        &self.instantiations
     }
 
     pub fn set_raw_user_input_value(&mut self, input: String) {
@@ -151,45 +155,67 @@ impl VariableInstantiation {
     }
 }
 
-fn parse_user_input_var(pattern: &String) -> (Option<String>, Option<UserInputFunction>) {
-    let internal_str = get_internal_string_from_var_pattern(&pattern);
-    let type_to_value = split_var_and_type(&pattern, internal_str);
-
-    let mut var_id = None;
-    let mut function = None;
-    if let Some(var_id_value) = type_to_value.get("var") {
-        var_id = Some(var_id_value.to_string());
-
-        if let Some(function_value) = type_to_value.get("function") {
-            match UserInputFunction::parse(function_value.to_string()) {
-                Ok(returned_function) => function = Some(returned_function),
-                Err(e) => panic!("Invalid ParseError: {}", e),
-            };
-        }
-    }
-
-    (var_id, function)
+#[derive(Debug)]
+struct VariableInstantiation {
+    file: PathBuf,
+    bytes: (usize, usize),
 }
 
-fn split_var_and_type(pattern: &String, internal_str: String) -> HashMap<String, String> {
-    let mut type_to_value = HashMap::new();
-    let split_internal_str = internal_str.split('|');
-    for split in split_internal_str {
-        let mut type_and_value = split.split("=");
-        if type_and_value.clone().count() != (2 as usize) {
-            panic!(
-                "Invalid parse_user_input_var for pattern \"{}\"",
-                pattern.to_string()
-            );
-        }
-        if let Some(var_type) = type_and_value.next() {
-            if let Some(var_value) = type_and_value.next() {
-                type_to_value.insert(var_type.to_string(), var_value.to_string());
-            }
+impl VariableInstantiation {}
+
+impl VariableInstantiation {
+    pub fn new(file_path: &PathBuf, bytes: (usize, usize)) -> Self {
+        Self::check_var_instantiation(file_path, bytes);
+        VariableInstantiation {
+            file: file_path.to_owned(),
+            bytes,
         }
     }
 
-    type_to_value
+    fn get_file(&self) -> &PathBuf {
+        &self.file
+    }
+
+    fn get_bytes(&self) -> (usize, usize) {
+        self.bytes
+    }
+
+    fn check_var_instantiation(file: &PathBuf, bytes: (usize, usize)) {
+        if !file.exists() || !file.is_file() {
+            panic!("Trying to create VariableInstantiation with invalid file")
+        }
+        if bytes.0 > bytes.1 {
+            panic!(
+                "Trying to create VariableInstantiation with invalid bytes ({},{})",
+                bytes.0, bytes.1
+            );
+        }
+    }
+}
+
+fn parse_user_input_var(pattern: &String) -> Option<String> {
+    let internal_str = get_internal_string_from_var_pattern(&pattern);
+    get_var_name(&pattern, internal_str)
+}
+
+fn get_var_name(pattern: &String, internal_str: String) -> Option<String> {
+    let mut type_and_value = internal_str.split("=");
+    if type_and_value.clone().count() != (2 as usize) {
+        panic!(
+            "Invalid parse_user_input_var for pattern \"{}\"",
+            pattern.to_string()
+        );
+    }
+    if let Some(var_type) = type_and_value.next() {
+        if var_type != "var" {
+            return None;
+        }
+        if let Some(var_value) = type_and_value.next() {
+            return Some(var_value.to_string());
+        }
+    }
+
+    None
 }
 
 fn get_internal_string_from_var_pattern(pattern: &String) -> String {
@@ -199,35 +225,32 @@ fn get_internal_string_from_var_pattern(pattern: &String) -> String {
     pattern[start_index..end_index].to_owned()
 }
 
-fn get_variables(file: &PathBuf) -> HashMap<String, Vec<VariableInstantiation>> {
-    let mut result: HashMap<String, Vec<VariableInstantiation>> = HashMap::new();
+fn get_variables(file: &PathBuf) -> HashMap<String, VariableUsage> {
+    let mut result: HashMap<String, VariableUsage> = HashMap::new();
     let file_content = fs::read_to_string(file)
         .expect(format!("Error reading resource {}", file.to_string_lossy()).as_ref());
 
     let mut start_index = 0;
     while let Some(next_indexes) = find_next_variable(&file_content, start_index) {
-        let user_input_var = get_user_input_variable(file, next_indexes);
-        let user_input_var_id = user_input_var.get_variable_id();
-        if let Some(usages) = result.get_mut(&user_input_var_id) {
-            usages.push(user_input_var);
+        if let Some(var_usage) = get_var_usage(file, next_indexes) {
+            let var_id = var_usage.get_variable_id();
+            if let Some(current_usage) = result.get_mut(&var_id) {
+                current_usage.merge(var_usage);
+            } else {
+                result.insert(var_id, var_usage);
+            }
         } else {
-            let mut usages = Vec::new();
-            usages.push(user_input_var);
-            result.insert(user_input_var_id, usages);
+            panic!("Invalid var_usage in file {:?}", file);
         }
-
         start_index = next_indexes.1;
     }
 
     result
 }
 
-fn get_user_input_variable(file: &PathBuf, var_def_bytes: (usize, usize)) -> VariableInstantiation {
+fn get_var_usage(file: &PathBuf, var_def_bytes: (usize, usize)) -> Option<VariableUsage> {
     let content = read_string(file, var_def_bytes.0, var_def_bytes.1);
-    let mut input = VariableInstantiation::new(content.to_string());
-    input.add_bytes_indexes(var_def_bytes);
-
-    input
+    VariableUsage::new(content.to_string(), var_def_bytes, &file)
 }
 
 fn find_next_variable(file_content: &String, initial_index: usize) -> Option<(usize, usize)> {
@@ -263,24 +286,33 @@ fn get_end_variable_pattern<'a>() -> &'a str {
 
 #[cfg(test)]
 mod tests {
-    use crate::core::user_input::user_input_handler::VariableInstantiation;
+    use std::path::PathBuf;
+
+    use crate::core::testing::test_path::get_test_file;
+    use crate::core::user_input::user_input_handler::UserInput;
 
     #[test]
     fn user_input_variable_new_test() {
-        let variable = "#{var=input_var_id}#".to_string();
+        let test_file = get_test_file(get_current_file_path(), "user_input_test_file.txt");
 
-        let user_var = VariableInstantiation::new(variable);
+        let user_var = UserInput::new(&test_file);
 
-        assert_eq!(user_var.get_variable_id(), "input_var_id".to_string());
+        let usages = user_var.get_variable_usages();
+        assert_eq!(1, usages.len());
+        for (var_id, var_usage) in usages.iter() {
+            assert_eq!("input_var_id".to_string(), var_id.to_owned());
+            let instantiations = var_usage.get_instantiations();
+            if let Some(instantiation) = instantiations.get(0) {
+                assert_eq!((0, 20), instantiation.get_bytes());
+                assert_eq!(
+                    test_file.to_string_lossy(),
+                    instantiation.get_file().to_string_lossy()
+                );
+            }
+        }
     }
 
-    #[test]
-    fn user_input_variable_new_with_function_test() {
-        let variable =
-            "#{var=input_var_id|function=to_lowercase_with_hyphens(input_var_id)}#".to_string();
-
-        let user_var = VariableInstantiation::new(variable);
-
-        assert_eq!(user_var.get_variable_id(), "input_var_id".to_string());
+    pub fn get_current_file_path() -> PathBuf {
+        PathBuf::from(file!())
     }
 }
