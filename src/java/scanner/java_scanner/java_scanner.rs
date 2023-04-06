@@ -10,7 +10,7 @@ pub fn scan_java_project(path: &Path) -> JavaProjectScan {
 mod tests {
     use std::path::PathBuf;
 
-    use crate::domain::core::testing::test_path::get_test_dir;
+    use crate::core::testing::test_path::get_test_dir;
     use crate::java::scanner::java_scanner::java_scanner::scan_java_project;
 
     #[test]

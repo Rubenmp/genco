@@ -1,3 +1,5 @@
+use std::fmt;
+
 use crate::domain::usecase::avro::parser::dto::avro_item_type::AvroItemType;
 
 #[derive(Debug, PartialEq)]
@@ -56,5 +58,20 @@ impl AvroItem {
 
     pub fn get_fields(&self) -> &Option<Vec<AvroItem>> {
         &self.fields
+    }
+
+    pub(crate) fn is_just_type(&self) -> bool {
+        self.name.is_none()
+            && self.namespace.is_none()
+            && self.doc.is_none()
+            && self.symbols.is_none()
+            && self.default.is_none()
+            && self.fields.is_none()
+    }
+}
+
+impl fmt::Display for AvroItem {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:?}", self)
     }
 }

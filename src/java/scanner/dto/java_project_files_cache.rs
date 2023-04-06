@@ -12,7 +12,7 @@ impl JavaProjectFilesCache {
     pub fn add_file(&mut self, file: &Path) {
         if !file.exists() || !file.is_file() {
             panic!(
-                "Trying to add invalid file to JavaProjectFilesCache: {:?}",
+                "Trying to add invalid resource to JavaProjectFilesCache: {:?}",
                 file
             );
         }

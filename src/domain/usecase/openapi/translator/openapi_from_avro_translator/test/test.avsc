@@ -1,0 +1,368 @@
+[
+  {
+    "name": "AuditStatus",
+    "namespace": "com.inditex.logistica.eva.audit.v1",
+    "doc": "Object that stores information of the audit status",
+    "type": "enum",
+    "symbols": [
+      "ACTIVE",
+      "COMPLETED",
+      "CANCELED"
+    ]
+  },
+  {
+    "name": "Score",
+    "namespace": "com.inditex.logistica.eva.audit.v1",
+    "doc": "Object that stores information of the score",
+    "type": "record",
+    "fields": [
+      {
+        "name": "code",
+        "doc": "Code of the standard, section or concept",
+        "type": "string"
+      },
+      {
+        "name": "ranking",
+        "doc": "Ranking of the score",
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "name": "Field",
+    "namespace": "com.inditex.logistica.eva.audit.v1",
+    "doc": "Object that stores information of the fields of a Step",
+    "type": "record",
+    "fields": [
+      {
+        "name": "id",
+        "doc": "Field unique identifier",
+        "type": "long"
+      },
+      {
+        "name": "name",
+        "doc": "Name of the field",
+        "type": "string"
+      },
+      {
+        "name": "value",
+        "doc": "Value of the field",
+        "type": [
+          "null",
+          "string"
+        ],
+        "default": null
+      },
+      {
+        "name": "type",
+        "doc": "Type of the field",
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "name": "Step",
+    "namespace": "com.inditex.logistica.eva.audit.v1",
+    "doc": "Object that stores information of the Step",
+    "type": "record",
+    "fields": [
+      {
+        "name": "id",
+        "doc": "Step unique identifier",
+        "type": "long"
+      },
+      {
+        "name": "name",
+        "doc": "Name of the step",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "status",
+        "doc": "Status of the step",
+        "type": "string"
+      },
+      {
+        "name": "started_at",
+        "doc": "Step start date",
+        "type": "string"
+      },
+      {
+        "name": "finished_at",
+        "doc": "Step end date",
+        "type": [
+          "null",
+          "string"
+        ],
+        "default": null
+      },
+      {
+        "name": "fields",
+        "doc": "Set of step fields",
+        "type": [
+          "null",
+          {
+            "type": "array",
+            "items": "Field"
+          }
+        ],
+        "default": null
+      }
+    ]
+  },
+  {
+    "name": "Audit",
+    "namespace": "com.inditex.logistica.eva.audit.v1",
+    "doc": "Object that stores information of audit",
+    "type": "record",
+    "fields": [
+      {
+        "name": "audit_id",
+        "doc": "Evaluation audit unique identifier",
+        "type": "long"
+      },
+      {
+        "name": "adn_audit_id",
+        "doc": "ADN audit unique identifier",
+        "type": [
+          "null",
+          "long"
+        ],
+        "default": null
+      },
+      {
+        "name": "questionnaire_version_id",
+        "doc": "Questionnaire version unique identifier",
+        "type": "string"
+      },
+      {
+        "name": "standard_version_id",
+        "doc": "Standard version unique identifier",
+        "type": "string"
+      },
+      {
+        "name": "audit_ambit_id",
+        "doc": "Audit ambit identifier",
+        "type": "int"
+      },
+      {
+        "name": "audit_ambit_value",
+        "doc": "Audit ambit value. Possible entries: SOCIAL_AND_LABOR, PROD_QUALITY, PROCESS_QUALITY, ENVIRONMENTAL",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "audit_type_id",
+        "doc": "Audit type identifier",
+        "type": "int"
+      },
+      {
+        "name": "audit_type_value",
+        "doc": "Audit type value. Possible entries: SOCIAL, GTW, GTW_AND_WATER_ANALYSIS, EPA, METAL_DETECTION, METAL_DETECTION_QUALITY_CHECK, TRACEABILITY, GTW_DRY",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "facility_type_id",
+        "doc": "Facility type identifier",
+        "type": "int"
+      },
+      {
+        "name": "facility_type_value",
+        "doc": "Facility type value. Possible entries: NOT_APPLICABLE, PRODUCTION_UNIT, WAREHOUSE",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "provider_id",
+        "doc": "Provider identifier",
+        "type": "int"
+      },
+      {
+        "name": "provider_value",
+        "doc": "Provider value. Possible entries: INTERNAL, SLCP, FEM, ZDCH",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "execution_type_id",
+        "doc": "Execution type identifier",
+        "type": "int"
+      },
+      {
+        "name": "execution_type_value",
+        "doc": "Execution type value. Possible entries: ONSITE, REMOTE",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "fulfillment_type_id",
+        "doc": "Fulfillment type identifier",
+        "type": "int"
+      },
+      {
+        "name": "fulfillment_type_value",
+        "doc": "Fulfillment type value. Possible entries: FULL, CORRECTIVE",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "previous_audit_id",
+        "doc": "Previous evaluation audit unique identifier",
+        "type": [
+          "null",
+          "long"
+        ],
+        "default": null
+      },
+      {
+        "name": "audit_status_id",
+        "doc": "Audit status identifier",
+        "type": "int"
+      },
+      {
+        "name": "audit_status_value",
+        "doc": "Audit status value",
+        "type": [
+          "null",
+          "AuditStatus"
+        ],
+        "default": null
+      },
+      {
+        "name": "auditor_username",
+        "doc": "Auditor username",
+        "type": [
+          "null",
+          "string"
+        ],
+        "default": null
+      },
+      {
+        "name": "auditor_company_id",
+        "doc": "Auditor company unique identifier",
+        "type": "int"
+      },
+      {
+        "name": "auditor_assignment_date",
+        "doc": "Assignment date of the auditor",
+        "type": [
+          "null",
+          "string"
+        ],
+        "default": null
+      },
+      {
+        "name": "auditor_company_name",
+        "doc": "Audit company name",
+        "type": [
+          "null",
+          "string"
+        ],
+        "default": null
+      },
+      {
+        "name": "location_id",
+        "doc": "Location unique identifier",
+        "type": [
+          "null",
+          "int"
+        ],
+        "default": null
+      },
+      {
+        "name": "address",
+        "doc": "Address",
+        "type": [
+          "null",
+          "string"
+        ],
+        "default": null
+      },
+      {
+        "name": "company_id",
+        "doc": "Company unique identifier",
+        "type": "int"
+      },
+      {
+        "name": "company_name",
+        "doc": "Company name",
+        "type": [
+          "null",
+          "string"
+        ],
+        "default": null
+      },
+      {
+        "name": "country_id",
+        "doc": "Country unique identifier",
+        "type": [
+          "null",
+          "int"
+        ],
+        "default": null
+      },
+      {
+        "name": "country_name",
+        "doc": "Country name",
+        "type": [
+          "null",
+          "string"
+        ],
+        "default": null
+      },
+      {
+        "name": "sent_to_auditor_date",
+        "doc": "Sending date to auditor",
+        "type": [
+          "null",
+          "string"
+        ],
+        "default": null
+      },
+      {
+        "name": "last_modified_at",
+        "doc": "Last modification date",
+        "type": "string"
+      },
+      {
+        "name": "current_step",
+        "doc": "Current step value",
+        "type": "string"
+      },
+      {
+        "name": "score_type",
+        "doc": "Score type",
+        "type": [
+          "null",
+          "string"
+        ],
+        "default": null
+      },
+      {
+        "name": "scores",
+        "doc": "Set of scores",
+        "type": [
+          "null",
+          {
+            "type": "array",
+            "items": "Score"
+          }
+        ],
+        "default": null
+      },
+      {
+        "name": "steps",
+        "doc": "Set of steps",
+        "type": [
+          "null",
+          {
+            "type": "array",
+            "items": "Step"
+          }
+        ],
+        "default": null
+      }
+    ]
+  }
+]

@@ -199,7 +199,7 @@ fn write_openapi_schema(fmt: &mut Formatter, depth: usize, schema: &OpenapiSchem
         fmt.write_str(format!("{}required:\n", get_indentation(depth + 1)).as_str())
             .expect("Error writing required properties for openapi schema");
         for property in required_properties {
-            fmt.write_str(format!("{}- \"{}\"\n", get_indentation(depth + 2), property).as_str())
+            fmt.write_str(format!("{}- {}\n", get_indentation(depth + 2), property).as_str())
                 .expect("Error writing required property for openapi schema");
         }
     }

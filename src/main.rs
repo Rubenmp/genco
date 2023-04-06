@@ -1,13 +1,17 @@
 use std::env;
 use std::path::{Path, PathBuf};
 
+use crate::cli::custom::inditex::event::producer::itx_producer::create_producer;
 use crate::java::parser::java_parser::java_parser;
 
 mod cli;
+mod core;
 mod domain;
 mod java;
+mod yaml;
 
 fn main() {
+    create_producer();
     println!("Finish")
 }
 

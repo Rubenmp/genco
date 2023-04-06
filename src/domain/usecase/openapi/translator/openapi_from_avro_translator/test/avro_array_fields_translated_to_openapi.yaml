@@ -2,10 +2,15 @@ ComplexFields:
   description: Docs
   type: object
   required:
-    - "1FieldRequiredStringArray"
+    - 1FieldRequiredStringArray
   properties:
     1FieldRequiredStringArray:
       description: Required string array
       type: array
       items:
-        type: integer
+        type: string
+    2FieldNonRequiredStringArray:
+      description: Non required array of arrays
+      type: array
+      items:
+        $ref: '#/components/schemas/1FieldRequiredStringArray'

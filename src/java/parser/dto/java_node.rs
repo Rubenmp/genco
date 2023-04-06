@@ -4,7 +4,7 @@ use std::str::FromStr;
 
 use tree_sitter::{Node, Parser};
 
-use crate::domain::core::parser::parser_node_trait::ParserNode;
+use crate::core::parser::parser_node_trait::ParserNode;
 use crate::java::parser::dto::java_node_type::JavaNodeType;
 
 #[derive(Debug, Clone)]

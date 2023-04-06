@@ -2,7 +2,7 @@
 
 use std::path::Path;
 
-use crate::domain::core::parser::parser_node_trait::ParserNode;
+use crate::core::parser::parser_node_trait::ParserNode;
 use crate::java::parser::dto::java_file::JavaFile;
 use crate::java::parser::dto::java_node::JavaNode;
 
@@ -18,7 +18,7 @@ pub fn parse(java_file_path: &Path) -> JavaFile {
 mod tests {
     use std::path::{Path, PathBuf};
 
-    use crate::domain::core::testing::test_path::{
+    use crate::core::testing::test_path::{
         get_java_test_file, get_test_dir, get_test_file,
     };
     use crate::java::parser::java_parser::java_parser;

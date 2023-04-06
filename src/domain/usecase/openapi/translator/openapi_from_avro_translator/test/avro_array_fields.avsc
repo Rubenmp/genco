@@ -10,6 +10,18 @@
         "doc": "Required string array",
         "type": "array",
         "items": "string"
+      },
+      {
+        "name": "2FieldNonRequiredStringArray",
+        "doc": "Non required array of arrays",
+        "type": [
+          "null",
+          {
+            "type": "array",
+            "items": "1FieldRequiredStringArray"
+          }
+        ],
+        "default": null
       }
     ]
   }

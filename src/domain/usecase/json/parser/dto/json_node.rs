@@ -5,7 +5,7 @@ use std::str::FromStr;
 
 use tree_sitter::{Node, Tree};
 
-use crate::domain::core::parser::parser_node_trait::ParserNode;
+use crate::core::parser::parser_node_trait::ParserNode;
 use crate::domain::usecase::json::parser::dto::json_node_type::JsonNodeType;
 
 #[derive(Debug, Clone)]

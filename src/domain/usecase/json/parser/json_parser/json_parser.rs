@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use crate::domain::core::parser::parser_node_trait::ParserNode;
+use crate::core::parser::parser_node_trait::ParserNode;
 use crate::domain::usecase::json::parser::dto::json_node::JsonNode;
 
 pub fn parse(yaml_file_path: &PathBuf) -> JsonNode {
@@ -11,9 +11,9 @@ pub fn parse(yaml_file_path: &PathBuf) -> JsonNode {
 mod tests {
     use std::path::PathBuf;
 
-    use crate::domain::core::parser::parser_node_trait::ParserNode;
-    use crate::domain::core::testing::test_assert::assert_same_as_file;
-    use crate::domain::core::testing::test_path::get_test_file;
+    use crate::core::parser::parser_node_trait::ParserNode;
+    use crate::core::testing::test_assert::assert_same_as_file;
+    use crate::core::testing::test_path::get_test_file;
     use crate::domain::usecase::json::parser::json_parser::json_parser::parse;
 
     #[test]

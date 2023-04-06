@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 use std::path::PathBuf;
 
-use crate::domain::core::parser::parser_node_trait::ParserNode;
-use crate::domain::core::parser::string_helper::trim_quotation_marks;
+use crate::core::parser::parser_node_trait::ParserNode;
+use crate::core::parser::string_helper::trim_quotation_marks;
 use crate::domain::usecase::avro::parser::dto::avro_item::AvroItem;
 use crate::domain::usecase::avro::parser::dto::avro_item_type::AvroItemType;
 use crate::domain::usecase::json::parser::dto::json_node::JsonNode;
@@ -28,21 +28,21 @@ fn to_avro_items(json_nodes: Vec<JsonNode>) -> Vec<AvroItem> {
 fn to_avro_item(json_node: &JsonNode) -> AvroItem {
     let pair_nodes = filter_json_nodes_first_level(&json_node, &JsonNodeType::Pair);
 
-    let mut pair_map = HashMap::new();
+    let mut json_node_pair_map = HashMap::new();
     for pair_node in pair_nodes {
         let key = get_key_from_pair(&pair_node);
         let value = get_value_node_from_pair(&pair_node);
-        pair_map.insert(key, value);
+        json_node_pair_map.insert(key, value);
     }
 
     AvroItem::new(
-        get_content(&pair_map, "\"name\"".to_string()),
-        get_content(&pair_map, "\"namespace\"".to_string()),
-        get_content(&pair_map, "\"doc\"".to_string()),
-        get_item_type(pair_map.get("\"type\"")),
-        get_avro_symbols(&pair_map),
-        get_content(&pair_map, "\"default\"".to_string()),
-        get_fields(&pair_map),
+        get_content(&json_node_pair_map, "\"name\"".to_string()),
+        get_content(&json_node_pair_map, "\"namespace\"".to_string()),
+        get_content(&json_node_pair_map, "\"doc\"".to_string()),
+        get_item_type(&json_node_pair_map),
+        get_avro_symbols(&json_node_pair_map),
+        get_content(&json_node_pair_map, "\"default\"".to_string()),
+        get_fields(&json_node_pair_map),
     )
 }
 
@@ -57,7 +57,30 @@ fn get_fields(pair_map: &HashMap<String, JsonNode>) -> Option<Vec<AvroItem>> {
     None
 }
 
-fn get_item_type(type_node_opt: Option<&JsonNode>) -> AvroItemType {
+fn get_item_type(json_node_pair_map: &HashMap<String, JsonNode>) -> AvroItemType {
+    let type_node_opt = json_node_pair_map.get("\"type\"");
+    if let Some(type_node) = type_node_opt {
+        if let Some(JsonNodeType::String) = type_node.get_node_type() {
+            let content = type_node.get_content();
+            return match content.as_str() {
+                "\"array\"" => {
+                    if let Some(item_type) = json_node_pair_map.get("\"items\"") {
+                        let mut avro_types = Vec::new();
+                        avro_types.push(get_item_type_base(Some(item_type)));
+                        AvroItemType::Array(avro_types)
+                    } else {
+                        panic!("Avro resource must have \"items\" when \"type\" is provided.");
+                    }
+                }
+                _ => get_item_type_base(type_node_opt),
+            };
+        }
+    }
+
+    get_item_type_base(type_node_opt)
+}
+
+fn get_item_type_base(type_node_opt: Option<&JsonNode>) -> AvroItemType {
     if let Some(type_node) = type_node_opt {
         let json_node_type = type_node.get_node_type();
         if let Some(JsonNodeType::String) = json_node_type {
@@ -65,7 +88,6 @@ fn get_item_type(type_node_opt: Option<&JsonNode>) -> AvroItemType {
             return match content.as_str() {
                 "\"record\"" => AvroItemType::RecordSimple,
                 "\"enum\"" => AvroItemType::Enum,
-                "\"array\"" => AvroItemType::ArraySimple,
                 "\"null\"" => AvroItemType::Null,
                 "\"int\"" => AvroItemType::Int,
                 "\"long\"" => AvroItemType::Long,
@@ -81,18 +103,16 @@ fn get_item_type(type_node_opt: Option<&JsonNode>) -> AvroItemType {
             let object_nodes = filter_types_in_array(type_node);
             let array_item_types = object_nodes
                 .iter()
-                .map(|item| get_item_type(Some(item)))
+                .map(|item| get_item_type_base(Some(item)))
                 .collect();
             return AvroItemType::Array(array_item_types);
         } else if let Some(JsonNodeType::Object) = json_node_type {
             let avro_item = Box::new(to_avro_item(type_node));
             return AvroItemType::Record(avro_item);
-        } else {
-            let _a = 0;
         }
     }
 
-    panic!("Avro file must have type.");
+    panic!("Avro resource must have base type.");
 }
 
 fn get_content(key_to_value: &HashMap<String, JsonNode>, key: String) -> Option<String> {
@@ -175,7 +195,7 @@ fn filter_types_in_array(array_node: &JsonNode) -> Vec<JsonNode> {
 mod tests {
     use std::path::PathBuf;
 
-    use crate::domain::core::testing::test_path::get_test_file;
+    use crate::core::testing::test_path::get_test_file;
     use crate::domain::usecase::avro::parser::avro_parser::avro_parser;
     use crate::domain::usecase::avro::parser::dto::avro_item::AvroItem;
     use crate::domain::usecase::avro::parser::dto::avro_item_type::AvroItemType;
@@ -222,7 +242,7 @@ mod tests {
             None,
             None,
             None,
-            AvroItemType::ArraySimple,
+            AvroItemType::Array(Vec::new()),
             None,
             None,
             None,

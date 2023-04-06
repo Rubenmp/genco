@@ -1,3 +1,5 @@
+use std::fmt;
+
 use crate::domain::usecase::avro::parser::dto::avro_item::AvroItem;
 
 #[derive(Debug, PartialEq)]
@@ -6,7 +8,6 @@ pub enum AvroItemType {
     RecordSimple,
     Record(Box<AvroItem>),
     RecordName(String),
-    ArraySimple, // TODO: remove this redundant type
     Array(Vec<AvroItemType>),
     Null,
     Int,
@@ -17,4 +18,10 @@ pub enum AvroItemType {
     Bytes,
     Boolean,
     Map,
+}
+
+impl fmt::Display for AvroItemType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
 }

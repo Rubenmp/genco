@@ -1,0 +1,213 @@
+AuditStatus:
+  description: Object that stores information of the audit status
+  type: string
+  enum:
+    - ACTIVE
+    - COMPLETED
+    - CANCELED
+
+Score:
+  description: Object that stores information of the score
+  type: object
+  required:
+    - code
+    - ranking
+  properties:
+    code:
+      description: Code of the standard, section or concept
+      type: string
+    ranking:
+      description: Ranking of the score
+      type: string
+
+Field:
+  description: Object that stores information of the fields of a Step
+  type: object
+  required:
+    - id
+    - name
+    - type
+  properties:
+    id:
+      description: Field unique identifier
+      type: integer
+      format: int64
+    name:
+      description: Name of the field
+      type: string
+    value:
+      description: Value of the field
+      type: string
+    type:
+      description: Type of the field
+      type: string
+
+Step:
+  description: Object that stores information of the Step
+  type: object
+  required:
+    - id
+    - name
+    - status
+    - started_at
+  properties:
+    id:
+      description: Step unique identifier
+      type: integer
+      format: int64
+    name:
+      description: Name of the step
+      type: string
+    status:
+      description: Status of the step
+      type: string
+    started_at:
+      description: Step start date
+      type: string
+    finished_at:
+      description: Step end date
+      type: string
+    fields:
+      $ref: '#/components/schemas/Field'
+
+Audit:
+  description: Object that stores information of audit
+  type: object
+  required:
+    - audit_id
+    - questionnaire_version_id
+    - standard_version_id
+    - audit_ambit_id
+    - audit_ambit_value
+    - audit_type_id
+    - audit_type_value
+    - facility_type_id
+    - facility_type_value
+    - provider_id
+    - provider_value
+    - execution_type_id
+    - execution_type_value
+    - fulfillment_type_id
+    - fulfillment_type_value
+    - audit_status_id
+    - auditor_company_id
+    - company_id
+    - last_modified_at
+    - current_step
+  properties:
+    audit_id:
+      description: Evaluation audit unique identifier
+      type: integer
+      format: int64
+    adn_audit_id:
+      description: ADN audit unique identifier
+      type: integer
+      format: int64
+    questionnaire_version_id:
+      description: Questionnaire version unique identifier
+      type: string
+    standard_version_id:
+      description: Standard version unique identifier
+      type: string
+    audit_ambit_id:
+      description: Audit ambit identifier
+      type: integer
+      format: int32
+    audit_ambit_value:
+      description: "Audit ambit value. Possible entries: SOCIAL_AND_LABOR, PROD_QUALITY, PROCESS_QUALITY, ENVIRONMENTAL"
+      type: string
+    audit_type_id:
+      description: Audit type identifier
+      type: integer
+      format: int32
+    audit_type_value:
+      description: "Audit type value. Possible entries: SOCIAL, GTW, GTW_AND_WATER_ANALYSIS, EPA, METAL_DETECTION, METAL_DETECTION_QUALITY_CHECK, TRACEABILITY, GTW_DRY"
+      type: string
+    facility_type_id:
+      description: Facility type identifier
+      type: integer
+      format: int32
+    facility_type_value:
+      description: "Facility type value. Possible entries: NOT_APPLICABLE, PRODUCTION_UNIT, WAREHOUSE"
+      type: string
+    provider_id:
+      description: Provider identifier
+      type: integer
+      format: int32
+    provider_value:
+      description: "Provider value. Possible entries: INTERNAL, SLCP, FEM, ZDCH"
+      type: string
+    execution_type_id:
+      description: Execution type identifier
+      type: integer
+      format: int32
+    execution_type_value:
+      description: "Execution type value. Possible entries: ONSITE, REMOTE"
+      type: string
+    fulfillment_type_id:
+      description: Fulfillment type identifier
+      type: integer
+      format: int32
+    fulfillment_type_value:
+      description: "Fulfillment type value. Possible entries: FULL, CORRECTIVE"
+      type: string
+    previous_audit_id:
+      description: Previous evaluation audit unique identifier
+      type: integer
+      format: int64
+    audit_status_id:
+      description: Audit status identifier
+      type: integer
+      format: int32
+    audit_status_value:
+      $ref: '#/components/schemas/AuditStatus'
+    auditor_username:
+      description: Auditor username
+      type: string
+    auditor_company_id:
+      description: Auditor company unique identifier
+      type: integer
+      format: int32
+    auditor_assignment_date:
+      description: Assignment date of the auditor
+      type: string
+    auditor_company_name:
+      description: Audit company name
+      type: string
+    location_id:
+      description: Location unique identifier
+      type: integer
+      format: int32
+    address:
+      description: Address
+      type: string
+    company_id:
+      description: Company unique identifier
+      type: integer
+      format: int32
+    company_name:
+      description: Company name
+      type: string
+    country_id:
+      description: Country unique identifier
+      type: integer
+      format: int32
+    country_name:
+      description: Country name
+      type: string
+    sent_to_auditor_date:
+      description: Sending date to auditor
+      type: string
+    last_modified_at:
+      description: Last modification date
+      type: string
+    current_step:
+      description: Current step value
+      type: string
+    score_type:
+      description: Score type
+      type: string
+    scores:
+      $ref: '#/components/schemas/Score'
+    steps:
+      $ref: '#/components/schemas/Step'

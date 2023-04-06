@@ -1,4 +1,4 @@
-use crate::domain::core::parser::parser_node_trait::ParserNode;
+use crate::core::parser::parser_node_trait::ParserNode;
 use crate::java::generator::dto::java_data_type::JavaDataType;
 use crate::java::generator::dto::java_visibility::JavaVisibility;
 use crate::java::generator::dto::{java_data_type, java_visibility};

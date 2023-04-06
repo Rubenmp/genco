@@ -58,7 +58,7 @@ pub fn to_component_schema(avro_item: &AvroItem) -> OpenapiSchema {
             avro_item.get_doc(),
             OpenapiDataType::Array(subtypes_result),
         );
-    } else if let AvroItemType::Record(_) = avro_item.get_item_type() {
+    } else if let AvroItemType::Record(_record) = avro_item.get_item_type() {
         let _a = 0;
     } else {
         return OpenapiSchema::new_basic_type(
@@ -94,6 +94,18 @@ pub fn to_data_type(avro_item_type: &AvroItemType) -> OpenapiDataType {
         return OpenapiDataType::Bytes;
     } else if let AvroItemType::RecordName(record_name) = avro_item_type {
         return OpenapiDataType::ObjectName(record_name.to_owned());
+    } else if let AvroItemType::Array(subtypes) = avro_item_type {
+        if subtypes.len() == 1 {
+            if let Some(subtype) = subtypes.get(0) {
+                return to_data_type(subtype);
+            }
+        }
+    } else if let AvroItemType::Record(record_box) = avro_item_type {
+        if record_box.is_just_type() {
+            return to_data_type(record_box.get_item_type());
+        } else {
+            panic!("TODO: translate compound types");
+        }
     }
 
     panic!("Error translating avro item type");
@@ -103,8 +115,9 @@ pub fn to_data_type(avro_item_type: &AvroItemType) -> OpenapiDataType {
 mod tests {
     use std::path::PathBuf;
 
-    use crate::domain::core::testing::test_assert::assert_same_as_file;
-    use crate::domain::core::testing::test_path::get_test_file;
+    use crate::core::file_system::file_creator::file_creator;
+    use crate::core::testing::test_assert::assert_same_as_file;
+    use crate::core::testing::test_path::{get_non_existing_test_file, get_test_file};
     use crate::domain::usecase::avro::parser::avro_parser::avro_parser;
     use crate::domain::usecase::openapi::translator::openapi_from_avro_translator::openapi_from_avro_translator::avro_to_openapi_str;
 
@@ -146,6 +159,19 @@ mod tests {
             "avro_array_fields_translated_to_openapi.yaml",
         );
         assert_same_as_file(&expect_result_file_path, openapi_str)
+    }
+
+    #[test]
+    #[ignore]
+    fn test() {
+        let file_path = get_test_file(get_current_file_path(), "test.avsc");
+        let avro_items = avro_parser::parse(&file_path);
+
+        let openapi_str = avro_to_openapi_str(&avro_items);
+
+        let result_file_path =
+            get_non_existing_test_file(get_current_file_path(), "test_translated_to_openapi.yaml");
+        file_creator::create_file_if_not_exists_with_content(&result_file_path, &openapi_str);
     }
 
     fn get_current_file_path() -> PathBuf {

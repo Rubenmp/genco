@@ -1,7 +1,7 @@
 use std::path::{Path, PathBuf};
 
-use crate::domain::core::file_system::directory_browser::directory_browser;
-use crate::domain::core::file_system::file_browser::file_browser;
+use crate::core::file_system::directory_browser::directory_browser;
+use crate::core::file_system::file_browser::file_browser;
 use crate::java::scanner::dto::java_project_files_cache::JavaProjectFilesCache;
 
 pub struct JavaProjectScan {

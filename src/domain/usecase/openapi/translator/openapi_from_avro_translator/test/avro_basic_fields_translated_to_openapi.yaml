@@ -2,9 +2,9 @@ AvroBasicFields:
   description: Docs
   type: object
   required:
-    - "2FieldRequiredBoolean"
-    - "3FieldRequiredInt32"
-    - "5FieldRequiredFloat"
+    - 2FieldRequiredBoolean
+    - 3FieldRequiredInt32
+    - 5FieldRequiredFloat
   properties:
     1FieldNullableString:
       description: Nullable string
