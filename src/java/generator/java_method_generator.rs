@@ -19,7 +19,7 @@ pub fn generate(dir: &Path, skeleton: &JavaMethodGenerator) {
     write_to_file(dir, &skeleton, &mut result);
 }
 
-fn write_parameters(result: &mut String, skeleton: &&JavaMethodGenerator) {
+fn write_parameters(result: &mut String, skeleton: &JavaMethodGenerator) {
     let parameters = skeleton.get_parameters();
     *result += "(";
     for (index, parameter) in parameters.iter().enumerate() {
@@ -31,7 +31,7 @@ fn write_parameters(result: &mut String, skeleton: &&JavaMethodGenerator) {
     *result += ")";
 }
 
-fn write_to_file(dir: &Path, skeleton: &&JavaMethodGenerator, result: &mut String) {
+fn write_to_file(dir: &Path, skeleton: &JavaMethodGenerator, result: &mut String) {
     let mut file_path = dir.to_path_buf();
     file_path.push(format!("{}.java", &skeleton.get_name()));
     file_creator::create_file_if_not_exist(&file_path);

@@ -8,16 +8,19 @@ use crate::core::file_system::file_reader::read_string;
 use crate::core::user_input::cli_query;
 
 pub struct UserInput {
-    file: PathBuf,
     variables: HashMap<String, VariableUsage>,
 }
 
 impl UserInput {
     pub fn new(file: &PathBuf) -> Self {
         UserInput {
-            file: file.to_owned(),
             variables: get_variables(file),
         }
+    }
+
+    pub fn add(&mut self, new_file: &PathBuf) {
+        let new_user_input = UserInput::new(new_file);
+        self.merge(&new_user_input);
     }
 
     pub fn request_missing_user_input(&mut self) {
@@ -34,13 +37,18 @@ impl UserInput {
         }
     }
 
-    pub fn write_output(&self, output_file: &PathBuf) {
-        let mut file_overwriting = self.generate_file_overwriting(output_file);
+    pub fn write_output(&self, input_file: &PathBuf, output_file: &PathBuf) {
+        let mut file_overwriting = self.generate_file_overwriting(input_file, output_file);
         file_overwriting.write_all_to_file(output_file);
     }
 
-    fn generate_file_overwriting(&self, output_file: &PathBuf) -> FileOverwriting {
-        create_file_with_content(output_file, self.get_file());
+    // TODO: update structure
+    fn generate_file_overwriting(
+        &self,
+        input_file: &PathBuf,
+        output_file: &PathBuf,
+    ) -> FileOverwriting {
+        create_file_with_content(output_file, input_file);
         let mut result = FileOverwriting::new(output_file);
         for variable_usage in self.get_variables().values() {
             for instantiation in variable_usage.get_instantiations() {
@@ -57,6 +65,8 @@ impl UserInput {
     pub fn override_value(&mut self, variable_id: &str, variable_value: &str) {
         if let Some(variable) = self.variables.get_mut(variable_id) {
             variable.override_value(variable_value);
+        } else {
+            panic!("Variable to override value not found \"{}\"", variable_id);
         }
     }
 
@@ -72,12 +82,19 @@ impl UserInput {
         &self.variables
     }
 
-    pub fn get_file(&self) -> &PathBuf {
-        &self.file
+    fn merge(&mut self, new_user_input: &UserInput) {
+        for (var_id, var_usage) in new_user_input.get_variable_usages().clone() {
+            if let Some(match_usage) = self.variables.get_mut(&var_id) {
+                match_usage.merge(&var_usage);
+            } else {
+                self.variables
+                    .insert(var_id.to_owned(), var_usage.to_owned());
+            }
+        }
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct VariableUsage {
     raw_var_pattern: String,
     raw_user_input_value: Option<String>,
@@ -110,7 +127,7 @@ impl VariableUsage {
         None
     }
 
-    pub(crate) fn merge(&mut self, new_usage: VariableUsage) {
+    pub(crate) fn merge(&mut self, new_usage: &VariableUsage) {
         for instantiation in new_usage.get_instantiations() {
             self.add_instantiation(&instantiation);
         }
@@ -155,7 +172,7 @@ impl VariableUsage {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct VariableInstantiation {
     file: PathBuf,
     bytes: (usize, usize),
@@ -235,7 +252,7 @@ fn get_variables(file: &PathBuf) -> HashMap<String, VariableUsage> {
         if let Some(var_usage) = get_var_usage(file, next_indexes) {
             let var_id = var_usage.get_variable_id();
             if let Some(current_usage) = result.get_mut(&var_id) {
-                current_usage.merge(var_usage);
+                current_usage.merge(&var_usage);
             } else {
                 result.insert(var_id, var_usage);
             }
@@ -289,11 +306,11 @@ mod tests {
     use std::path::PathBuf;
 
     use crate::core::testing::test_path::get_test_file;
-    use crate::core::user_input::user_input_handler::UserInput;
+    use crate::core::user_input::user_input_handler::{UserInput, VariableInstantiation};
 
     #[test]
-    fn user_input_variable_new_test() {
-        let test_file = get_test_file(get_current_file_path(), "user_input_test_file.txt");
+    fn user_input_new() {
+        let test_file = get_test_file(get_current_file_path(), "user_input_var_input_var_id.txt");
 
         let user_var = UserInput::new(&test_file);
 
@@ -302,14 +319,86 @@ mod tests {
         for (var_id, var_usage) in usages.iter() {
             assert_eq!("input_var_id".to_string(), var_id.to_owned());
             let instantiations = var_usage.get_instantiations();
+            assert_eq!(1, instantiations.len());
             if let Some(instantiation) = instantiations.get(0) {
-                assert_eq!((0, 20), instantiation.get_bytes());
-                assert_eq!(
-                    test_file.to_string_lossy(),
-                    instantiation.get_file().to_string_lossy()
-                );
+                check_instantiation(&test_file, instantiation, (0, 20));
             }
         }
+    }
+
+    #[test]
+    fn user_input_merge_same_variable() {
+        let current_file_path = get_current_file_path();
+        let first_test_file = get_test_file(
+            current_file_path.to_owned(),
+            "user_input_var_input_var_id.txt",
+        );
+        let second_test_file = get_test_file(
+            current_file_path.to_owned(),
+            "user_input_var_input_var_id_copy.txt",
+        );
+
+        let mut user_var = UserInput::new(&first_test_file);
+        user_var.merge(&UserInput::new(&second_test_file));
+
+        let usages = user_var.get_variable_usages();
+        assert_eq!(1, usages.len());
+        for (var_id, var_usage) in usages.iter() {
+            assert_eq!("input_var_id".to_string(), var_id.to_owned());
+            let instantiations = var_usage.get_instantiations();
+            assert_eq!(2, instantiations.len());
+            if let Some(instantiation) = instantiations.get(0) {
+                check_instantiation(&first_test_file, instantiation, (0, 20));
+            }
+            if let Some(instantiation) = instantiations.get(1) {
+                check_instantiation(&second_test_file, instantiation, (0, 20));
+            }
+        }
+    }
+
+    #[test]
+    fn user_input_merge_different_variable() {
+        let current_file_path = get_current_file_path();
+        let first_test_file = get_test_file(
+            current_file_path.to_owned(),
+            "user_input_var_input_var_id.txt",
+        );
+        let second_test_file = get_test_file(
+            current_file_path.to_owned(),
+            "user_input_var_new_var_id.txt",
+        );
+
+        let mut user_var = UserInput::new(&first_test_file);
+        user_var.merge(&UserInput::new(&second_test_file));
+
+        let usages = user_var.get_variable_usages();
+        assert_eq!(2, usages.len());
+        if let Some(var_usage) = usages.get("input_var_id") {
+            let instantiations = var_usage.get_instantiations();
+            assert_eq!(1, instantiations.len());
+            if let Some(instantiation) = instantiations.get(0) {
+                check_instantiation(&first_test_file, instantiation, (0, 20));
+            }
+        }
+        if let Some(var_usage) = usages.get("new_var_id") {
+            let instantiations = var_usage.get_instantiations();
+            assert_eq!(1, instantiations.len());
+            if let Some(instantiation) = instantiations.get(0) {
+                check_instantiation(&second_test_file, instantiation, (0, 18));
+            }
+        }
+    }
+
+    fn check_instantiation(
+        test_file: &PathBuf,
+        instantiation: &VariableInstantiation,
+        bytes: (usize, usize),
+    ) {
+        assert_eq!(bytes, instantiation.get_bytes());
+        assert_eq!(
+            test_file.to_string_lossy(),
+            instantiation.get_file().to_string_lossy()
+        );
     }
 
     pub fn get_current_file_path() -> PathBuf {

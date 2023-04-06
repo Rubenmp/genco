@@ -37,9 +37,7 @@ pub fn get_test_file(current_file: PathBuf, name: &str) -> PathBuf {
 pub fn get_non_existing_test_file(current_file: PathBuf, name: &str) -> PathBuf {
     let mut path = current_file;
     path.pop();
-    path.push("test");
-    path.push(name);
-    path
+    path.join("test").join(name)
 }
 
 // Java
