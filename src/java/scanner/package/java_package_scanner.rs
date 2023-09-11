@@ -3,12 +3,36 @@ use std::path::{Path, PathBuf};
 use crate::core::file_system::directory_browser::directory_browser;
 use crate::core::file_system::file_browser::file_browser;
 use crate::core::file_system::path_helper;
+use crate::core::file_system::path_helper::to_absolute_path_str;
 use crate::core::observability::logger::logger::log_unrecoverable_error;
 
-pub(crate) fn get_package_from_file(file_path: &Path) -> String {
-    let mut clone_file_path = file_path.clone().to_path_buf();
-    clone_file_path.pop();
-    get_package_from_dir(&clone_file_path)
+pub(crate) fn get_base_package_and_route_from_dir_no_check(dir_path: &Path) -> (String, String) {
+    for ancestor in dir_path.ancestors() {
+        if ancestor.ends_with("java") {
+            if let Some(second_ancestor) = ancestor.parent() {
+                if second_ancestor.ends_with("main") {
+                    if let Some(third_ancestor) = second_ancestor.parent() {
+                        if third_ancestor.ends_with("src") {
+                            let mut third_ancestor_buf = third_ancestor.to_path_buf();
+                            third_ancestor_buf.pop();
+                            let base_package = get_base_package(third_ancestor_buf);
+                            let route = get_package_route(dir_path, ancestor);
+                            return (base_package, route);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    panic!(
+        "base_package_and_route_from_dir must exist, faile for  path: {}",
+        to_absolute_path_str(dir_path)
+    )
+}
+
+fn get_base_package(base_java_package_dir: PathBuf) -> String {
+    to_absolute_path_str(&base_java_package_dir)
 }
 
 pub(crate) fn get_package_from_dir(dir_path: &Path) -> String {
@@ -32,12 +56,7 @@ pub(crate) fn get_package_from_dir_no_check(dir_path: &Path) -> String {
                 if second_ancestor.ends_with("main") {
                     if let Some(third_ancestor) = second_ancestor.parent() {
                         if third_ancestor.ends_with("src") {
-                            let bytes = ancestor.to_string_lossy().as_bytes().len();
-                            let mut package_route = dir_path.to_string_lossy().to_string()[bytes..]
-                                .to_owned()
-                                .replace(['/', '\\'], ".");
-                            package_route.remove(0); // Remove first "."
-                            return package_route;
+                            return get_package_route(dir_path, ancestor);
                         }
                     }
                 }
@@ -46,6 +65,15 @@ pub(crate) fn get_package_from_dir_no_check(dir_path: &Path) -> String {
     }
 
     "".to_string()
+}
+
+fn get_package_route(dir_path: &Path, ancestor: &Path) -> String {
+    let bytes = ancestor.to_string_lossy().as_bytes().len();
+    let mut package_route = dir_path.to_string_lossy().to_string()[bytes..]
+        .to_owned()
+        .replace(['/', '\\'], ".");
+    package_route.remove(0);
+    package_route
 }
 
 pub fn get_src_main_java_dir(path: &Path) -> Option<PathBuf> {

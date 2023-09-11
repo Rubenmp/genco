@@ -76,6 +76,7 @@ fn is_java_file(file_name: &PathBuf) -> bool {
 mod tests {
     use std::path::PathBuf;
 
+    use crate::core::database::model::java_import_route::db_java_import_route_search;
     use crate::core::testing::test_path::get_test_dir;
     use crate::java::scanner::package::java_dependency_scanner;
 
@@ -86,6 +87,8 @@ mod tests {
         let scan_result = java_dependency_scanner::scan(&dir_path);
 
         scan_result.expect("Scan must be ok");
+        let n_demo_app = db_java_import_route_search::by_last_type_id("DemoApplication").len();
+        assert_eq!(1, n_demo_app);
     }
 
     #[test]

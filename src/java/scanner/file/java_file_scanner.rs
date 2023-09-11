@@ -23,7 +23,7 @@ mod tests {
 
         match scan(&dir_path) {
             Ok(java_file) => {
-                assert_eq!("com.org.demo", java_file.get_package().to_string())
+                assert_eq!("com.org.test", java_file.get_package().to_string())
             }
             Err(e) => assert_fail(&e),
         }

@@ -268,7 +268,6 @@ fn check_dir_for_new_wildcard_import(dir_path: &Path) -> Result<(), String> {
     Ok(())
 }
 
-
 pub fn get_package_nodes_vec_from_dir(dir_path: &Path) -> Vec<String> {
     if !dir_path.exists() || !dir_path.is_dir() {
         logger::log_unrecoverable_error(

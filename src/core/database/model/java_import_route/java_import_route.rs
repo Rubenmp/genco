@@ -1,3 +1,4 @@
+use std::ops::Add;
 use std::path::{Path, PathBuf};
 
 use rusqlite::Row;
@@ -39,10 +40,14 @@ impl JavaImportRouteCreate {
     pub(crate) fn new(file_path: &PathBuf) -> Self {
         let dir_path = Self::get_dir_path(file_path);
         let last_type_id = new_last_type_id(&file_path);
+        let (base_package, dir_route) =
+            java_package_scanner::get_base_package_and_route_from_dir_no_check(&dir_path);
 
-        let base_package = java_package_scanner::get_package_from_dir(&dir_path);
-        dbg!(base_package);
-        todo!()
+        JavaImportRouteCreate {
+            base_package,
+            route: dir_route.add(".").add(&last_type_id),
+            last_type_id,
+        }
     }
 
     fn get_dir_path(file_path: &PathBuf) -> PathBuf {
@@ -53,7 +58,13 @@ impl JavaImportRouteCreate {
 }
 
 fn new_last_type_id(file_path: &Path) -> String {
-    let file_name = file_path.iter().last().expect("Last type id must exist to transform path to JavaImportRoute").to_str().expect("Last type id must be transformed to string to convert it to JavaImportRoute").to_string();
+    let file_name = file_path
+        .iter()
+        .last()
+        .expect("Last type id must exist to transform path to JavaImportRoute")
+        .to_str()
+        .expect("Last type id must be transformed to string to convert it to JavaImportRoute")
+        .to_string();
     file_browser::remove_java_extension(file_name)
 }
 
@@ -61,9 +72,13 @@ impl JavaImportRoute {
     pub(crate) fn from_row(row: &Row) -> Self {
         Self {
             id: row.get(0).expect("JavaImportRoute field \"id\" missing"),
-            base_package: row.get(1).expect("JavaImportRoute field \"base_package\" missing"),
+            base_package: row
+                .get(1)
+                .expect("JavaImportRoute field \"base_package\" missing"),
             route: row.get(2).expect("JavaImportRoute field \"route\" missing"),
-            last_type_id: row.get(3).expect("JavaImportRoute field \"last_type_id\" missing"),
+            last_type_id: row
+                .get(3)
+                .expect("JavaImportRoute field \"last_type_id\" missing"),
         }
     }
 }
