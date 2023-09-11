@@ -30,7 +30,7 @@ fn db_initial_migration() {
             if filename.ends_with(".sql") {
                 let sql_query = fs::read_to_string(file_path).expect("Read to string");
                 conn.execute(sql_query.as_str(), ())
-                    .expect(format!("migration query: \"{}\"", sql_query).as_str());
+                    .unwrap_or_else(|_| panic!("migration query: \"{}\"", sql_query));
             }
         }
     }

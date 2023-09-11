@@ -54,7 +54,7 @@ impl JavaVariable {
                 params.push(Self::from_formal_param_node(
                     param_node,
                     file_imports,
-                    &input_java_file,
+                    input_java_file,
                 )?);
             }
         }
@@ -80,8 +80,8 @@ impl JavaVariable {
             if Some(JavaNodeType::TypeIdentifier) == child_node.get_node_type_opt() {
                 match JavaDataType::from_generic_type_id(
                     &child_node.get_content(),
-                    &file_imports,
-                    &input_java_file,
+                    file_imports,
+                    input_java_file,
                 ) {
                     Ok(data_type) => data_type_opt = Some(data_type),
                     Err(err) => {
@@ -95,11 +95,11 @@ impl JavaVariable {
             }
         }
 
-        Ok(Self::builder()
+        Self::builder()
             .is_final(is_final)
             .data_type(data_type_opt.ok_or("Java data type is mandatory to build variable")?)
             .name(&name_opt.ok_or("Java variable name is mandatory")?)
-            .build()?)
+            .build()
     }
 
     pub(crate) fn get_import(&self) -> Option<JavaImport> {
@@ -113,7 +113,7 @@ impl fmt::Display for JavaVariable {
         if self.is_final {
             string += "final ";
         }
-        string += format!("{} {}", self.data_type.to_string(), self.name).as_str();
+        string += format!("{} {}", self.data_type, self.name).as_str();
         write!(f, "{}", string)
     }
 }

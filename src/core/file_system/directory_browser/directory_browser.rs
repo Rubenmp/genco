@@ -3,7 +3,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 pub fn get_dir_ending_with(input_path: &Path, ending: &str) -> Option<PathBuf> {
-    let paths_result = fs::read_dir(input_path.to_path_buf()).unwrap();
+    let paths_result = fs::read_dir(input_path).unwrap();
 
     for dir_entry_result in paths_result {
         match dir_entry_result {
@@ -66,7 +66,7 @@ pub(crate) fn read_dir(path: &Path) -> Vec<PathBuf> {
         panic!("Error: expecting directory in {:?}", path);
     }
     let mut result = Vec::new();
-    let paths_result = fs::read_dir(path.to_path_buf()).unwrap();
+    let paths_result = fs::read_dir(path).unwrap();
 
     for dir_entry_result in paths_result {
         match dir_entry_result {

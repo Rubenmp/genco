@@ -33,7 +33,7 @@ fn to_lowercase_with_hyphens_internal(upper_camel_case_str: String) -> String {
     let matches_count = matches.len();
     for (index, word) in matches.into_iter().enumerate() {
         if index != 0 && index < matches_count {
-            result.push_str("-");
+            result.push('-');
         }
         result.push_str(word.as_str().to_lowercase().as_str());
     }
@@ -47,7 +47,7 @@ pub fn to_lowercase_space_separated_internal(upper_camel_case_str: String) -> St
     let matches_count = matches.len();
     for (index, word) in matches.into_iter().enumerate() {
         if index != 0 && index < matches_count {
-            result.push_str(" ");
+            result.push(' ');
         }
         result.push_str(word.as_str().to_lowercase().as_str());
     }
@@ -58,7 +58,7 @@ pub fn to_lowercase_space_separated_internal(upper_camel_case_str: String) -> St
 fn find_word_matches(upper_camel_case_str: &String) -> Vec<Match> {
     let mut matches = Vec::new();
     let re = Regex::new(r"([A-Z][a-z]+)").expect("Unable to create regex pattern");
-    for field in re.find_iter(&upper_camel_case_str) {
+    for field in re.find_iter(upper_camel_case_str) {
         matches.push(field);
     }
     matches
@@ -66,8 +66,8 @@ fn find_word_matches(upper_camel_case_str: &String) -> Vec<Match> {
 
 impl UserInputFunction {
     pub fn parse(raw_function_pattern: String) -> Result<Self, ParseError> {
-        let mut split_function = raw_function_pattern.split("(");
-        if split_function.clone().count() != (2 as usize) {
+        let mut split_function = raw_function_pattern.split('(');
+        if split_function.clone().count() != 2_usize {
             panic!("Invalid UserInputFunction \"{}\"", raw_function_pattern);
         }
 
@@ -76,7 +76,7 @@ impl UserInputFunction {
             let function_reference = get_function_reference(&function_name);
 
             if let Some(params_with_last_parenthesis) = split_function.next() {
-                if params_with_last_parenthesis.ends_with(")") {
+                if params_with_last_parenthesis.ends_with(')') {
                     let mut function_parameter = params_with_last_parenthesis.to_string();
                     function_parameter.pop();
                     check_valid_function_string(&function_parameter);

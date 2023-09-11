@@ -61,7 +61,7 @@ impl JavaInterface {
     /// # get_annotations
     /// Get the java annotations of the JavaInterface
     pub fn get_annotations(&self) -> &Vec<JavaAnnotationUsage> {
-        &self.get_structure().get_annotations()
+        self.get_structure().get_annotations()
     }
 
     /// # get_visibility
@@ -79,13 +79,13 @@ impl JavaInterface {
     /// # get_methods
     /// Get the methods of the current JavaInterface.
     pub fn get_methods(&self) -> &Vec<JavaMethod> {
-        &self.get_structure().get_methods()
+        self.get_structure().get_methods()
     }
 
     /// # get_fields
     /// Get the fields of the current JavaInterface.
     pub fn get_fields(&self) -> &Vec<JavaField> {
-        &self.get_structure().get_fields()
+        self.get_structure().get_fields()
     }
 }
 
@@ -103,7 +103,7 @@ impl JavaInterface {
     }
 
     pub(crate) fn get_file(&self) -> &PathBuf {
-        &self.get_structure().get_file()
+        self.get_structure().get_file()
     }
 
     pub(crate) fn get_imports(&self) -> Vec<JavaImport> {
@@ -192,7 +192,7 @@ impl JavaInterfaceBuilder {
             return Err(format!(
                 "Invalid java interface \"{}\" build, expected dir:\n{}\n",
                 name,
-                to_absolute_path_str(&folder)
+                to_absolute_path_str(folder)
             ));
         }
 

@@ -32,8 +32,8 @@ pub fn create_file_if_not_exist(file_path: &Path) {
 }
 
 pub fn create_file_if_not_exists_with_content(output_file: &PathBuf, content: &str) {
-    remove_file_if_exists(&output_file);
-    create_file_if_not_exist(&output_file);
+    remove_file_if_exists(output_file);
+    create_file_if_not_exist(output_file);
     let mut file = OpenOptions::new()
         .read(true)
         .write(true)
@@ -42,19 +42,14 @@ pub fn create_file_if_not_exists_with_content(output_file: &PathBuf, content: &s
     let content_vec_u8 = content.as_bytes();
     let number_of_bytes = content_vec_u8.len();
     let mut buffer = vec![0; number_of_bytes];
-    buffer[0..number_of_bytes].clone_from_slice(&content_vec_u8.to_vec());
+    buffer[0..number_of_bytes].clone_from_slice(content_vec_u8);
 
     write_buffer(&mut file, &mut buffer);
 }
 
 pub fn create_file_with_content(output_file: &Path, content_path: &Path) {
-    let data = fs::read(content_path).expect(
-        format!(
-            "Error reading resource to get content from {:?}",
-            content_path
-        )
-        .as_str(),
-    );
+    let data = fs::read(content_path).unwrap_or_else(|_| panic!("Error reading resource to get content from {:?}",
+            content_path));
     remove_file_if_exists(output_file);
     create_file_if_not_exist(output_file);
 
@@ -73,7 +68,7 @@ pub fn create_file_with_content(output_file: &Path, content_path: &Path) {
 fn write_buffer(file: &mut File, buffer: &mut Vec<u8>) {
     file.seek(io::SeekFrom::Start(0))
         .expect("Seek resource to the beginning");
-    file.write_all(&buffer).expect("Write resource failed.");
+    file.write_all(buffer).expect("Write resource failed.");
 }
 
 pub fn remove_file_if_exists(file_path: &Path) {

@@ -223,7 +223,7 @@ impl FileOverwriting {
     fn check_replacements(&self, items: &Vec<FileOverwritingItem>) {
         let bytes_in_file = self.get_file_number_of_bytes();
         let max_end_byte = get_max_end_byte(items);
-        if max_end_byte > bytes_in_file as usize {
+        if max_end_byte > bytes_in_file {
             panic!(
                 "Invalid FileOverwritingItem with end_byte {} to resource with {} bytes: \"{}\"",
                 max_end_byte,
@@ -348,7 +348,7 @@ impl FileOverwritingItem {
 }
 
 fn write_initial_new_line(buffer: &mut Vec<u8>) {
-    buffer[0..get_new_line_number_of_bytes()].clone_from_slice(&*get_new_line_as_bytes());
+    buffer[0..get_new_line_number_of_bytes()].clone_from_slice(&get_new_line_as_bytes());
 }
 
 fn get_new_line_as_bytes() -> Vec<u8> {

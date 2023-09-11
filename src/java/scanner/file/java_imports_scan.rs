@@ -23,7 +23,7 @@ impl JavaImportsScan {
             }
         }
 
-        let error = format!("Import for \"{}\" not found.", type_id.to_string());
+        let error = format!("Import for \"{}\" not found.", type_id);
         Err(error)
     }
 
@@ -34,7 +34,7 @@ impl JavaImportsScan {
             logger::log_unrecoverable_error(
                 format!(
                     "Wildcard imports are not supported yet\n\"{}\"",
-                    import.to_string()
+                    import
                 )
                 .as_str(),
             );

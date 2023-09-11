@@ -1,7 +1,7 @@
 use std::path::Path;
 
-use crate::core::file_system::file_creator::file_creator;
-use crate::core::file_system::file_overwriting::file_overwriting::FileOverwriting;
+
+
 use crate::core::observability::logger::logger;
 use crate::core::parser::parser_node_trait::ParserNode;
 use crate::java::dto::java_annotation_usage::JavaAnnotationUsage;
@@ -93,7 +93,7 @@ impl JavaMethod {
         file_imports: &JavaImportsScan,
         input_java_file: &Path,
     ) -> Result<JavaMethod, String> {
-        check_root_is_method_decl(&root_node);
+        check_root_is_method_decl(root_node);
         let mut annotations = Vec::new();
         let mut visibility = JavaVisibility::Package;
         let mut is_static = false;
@@ -109,9 +109,9 @@ impl JavaMethod {
                         if let Some(node_type) = modifier.get_node_type_opt() {
                             if java_annotation_usage::is_java_node_annotation(&node_type) {
                                 match JavaAnnotationUsage::new_from_java_node(
-                                    &modifier,
-                                    &file_imports,
-                                    &input_java_file,
+                                    modifier,
+                                    file_imports,
+                                    input_java_file,
                                 ) {
                                     Ok(annotation) => {
                                         annotations.push(annotation);
@@ -126,7 +126,7 @@ impl JavaMethod {
                         }
                     }
                 } else if JavaDataType::is_data_type_node(&node_type) {
-                    match JavaDataType::get_data_type(child_node, file_imports, &input_java_file) {
+                    match JavaDataType::get_data_type(child_node, file_imports, input_java_file) {
                         Ok(data_type) => {
                             return_type_opt = Some(data_type);
                             return_type_detected = true;
@@ -139,7 +139,7 @@ impl JavaMethod {
                     match JavaVariable::from_formal_params_node(
                         child_node,
                         file_imports,
-                        &input_java_file,
+                        input_java_file,
                     ) {
                         Ok(result) => parameters = result,
                         Err(err) => {
@@ -168,15 +168,15 @@ impl JavaMethod {
     }
 
     pub(crate) fn write_to_string(&self, result: &mut String, indentation: &JavaIndentation) {
-        self.write_annotations(result, &indentation);
-        self.write_visibility(result, &indentation);
+        self.write_annotations(result, indentation);
+        self.write_visibility(result, indentation);
         self.write_return_type(result);
         *result += self.get_name();
         self.write_parameters(result);
         *result += " {\n";
         // TODO: write method body here
         *result += format!("{}}}\n", indentation.get_current_indentation()).as_str();
-        ()
+        
     }
 
     pub(crate) fn get_imports(&self) -> Vec<JavaImport> {
@@ -187,8 +187,7 @@ impl JavaMethod {
 
         if let Some(import) = self
             .get_return_type()
-            .as_ref()
-            .map_or(None, |rt| rt.get_import())
+            .as_ref().and_then(|rt| rt.get_import())
         {
             imports.push(import)
         }
@@ -197,7 +196,7 @@ impl JavaMethod {
             imports.push(import);
         }
 
-        return imports;
+        imports
     }
 
     fn get_annotation_imports(&self) -> Vec<JavaImport> {
@@ -229,7 +228,7 @@ impl JavaMethod {
 
     fn write_return_type(&self, result: &mut String) {
         if let Some(return_type) = self.get_return_type() {
-            *result += format!("{} ", return_type.to_string()).as_str();
+            *result += format!("{} ", return_type).as_str();
         } else {
             *result += "void ";
         }

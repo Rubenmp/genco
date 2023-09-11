@@ -8,7 +8,7 @@ use crate::java::scanner::package::java_package_scanner;
 
 pub fn scan(base_java_path: &Path) -> Result<(), String> {
     java_package_scanner::check_base_java_project(base_java_path);
-    recursive_scan(&base_java_path);
+    recursive_scan(base_java_path);
 
     Ok(())
 }
@@ -39,13 +39,8 @@ fn insert_java_import_routes_in_db(java_files: Vec<PathBuf>) {
 fn get_files_and_dirs_to_scan(path: &Path) -> (Vec<PathBuf>, Vec<PathBuf>) {
     let mut files = Vec::new();
     let mut dirs = Vec::new();
-    let paths_result = fs::read_dir(path.to_path_buf()).expect(
-        format!(
-            "Error scanning directory:\n\"{}\"\n",
-            to_absolute_path_str(path)
-        )
-        .as_str(),
-    );
+    let paths_result = fs::read_dir(path).unwrap_or_else(|_| panic!("Error scanning directory:\n\"{}\"\n",
+            to_absolute_path_str(path)));
 
     for dir_entry_result in paths_result {
         match dir_entry_result {
@@ -55,10 +50,8 @@ fn get_files_and_dirs_to_scan(path: &Path) -> (Vec<PathBuf>, Vec<PathBuf>) {
                     if is_java_file(&path) {
                         files.push(path);
                     }
-                } else if path.is_dir() {
-                    if java_package_scanner::should_scan_dir(&path) {
-                        dirs.push(path);
-                    }
+                } else if path.is_dir() && java_package_scanner::should_scan_dir(&path) {
+                    dirs.push(path);
                 }
             }
             Err(_e) => panic!("Error get_files_and_dirs_to_scan"),

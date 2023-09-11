@@ -78,9 +78,9 @@ impl JavaField {
                     let modifier_type_opt = modifiers_child.get_node_type_opt();
                     if java_annotation_usage::is_java_node_annotation_opt(&modifier_type_opt) {
                         match JavaAnnotationUsage::new_from_java_node(
-                            &modifiers_child,
-                            &file_imports,
-                            &input_java_file,
+                            modifiers_child,
+                            file_imports,
+                            input_java_file,
                         ) {
                             Ok(annotation) => annotations.push(annotation),
                             Err(err) => logger::log_warning(&err),
@@ -94,7 +94,7 @@ impl JavaField {
                     }
                 }
             } else if JavaDataType::is_data_type_node_opt(&node_type_opt) {
-                match JavaDataType::get_data_type(child, file_imports, &input_java_file) {
+                match JavaDataType::get_data_type(child, file_imports, input_java_file) {
                     Ok(data_type) => data_type_opt = Some(data_type),
                     Err(err) => logger::log_warning(&err),
                 }
@@ -155,7 +155,7 @@ impl JavaField {
         if self.is_final {
             result += "final ";
         }
-        result += format!("{} ", self.data_type.to_string()).as_str();
+        result += format!("{} ", self.data_type).as_str();
         result += format!("{};\n", self.get_name()).as_str();
         result
     }

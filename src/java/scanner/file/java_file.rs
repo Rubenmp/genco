@@ -30,12 +30,12 @@ impl JavaFile {
         for child in root_java_node.get_children() {
             if let Some(node_type) = child.get_node_type_opt() {
                 if JavaNodeType::ImportDecl == node_type {
-                    imports.insert(JavaImport::from_file_import_decl(&child, &java_file_path));
+                    imports.insert(JavaImport::from_file_import_decl(child, java_file_path));
                 } else if JavaNodeType::PackageDecl == node_type {
                     Self::check_package_def(&java_file_import, child);
                     package_found = true;
                 } else if Self::is_structure(node_type) {
-                    let structure = JavaStructure::new(&child, &imports, &java_file_path)?;
+                    let structure = JavaStructure::new(child, &imports, java_file_path)?;
                     structure_opt = Some(structure);
                 }
             }

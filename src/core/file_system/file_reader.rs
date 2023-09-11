@@ -8,7 +8,7 @@ use crate::core::file_system::path_helper::to_absolute_path_str;
 
 pub fn read_to_string(file: &Path) -> String {
     fs::read_to_string(file)
-        .expect(format!("Unable to read file:\n{}\n", to_absolute_path_str(&file)).as_str())
+        .unwrap_or_else(|_| panic!("Unable to read file:\n{}\n", to_absolute_path_str(file)))
 }
 
 pub fn read_string(file: &Path, start_byte: usize, end_byte: usize) -> String {
@@ -24,7 +24,7 @@ pub fn read_bytes(file: &Path, start_byte: usize, end_byte: usize) -> Vec<u8> {
         .read(true)
         .write(true)
         .open(file)
-        .expect(format!("File can not be opened to write \"{:?}\"", file.to_str()).as_str());
+        .unwrap_or_else(|_| panic!("File can not be opened to write \"{:?}\"", file.to_str()));
 
     let mut reader = BufReader::new(file);
 
@@ -40,12 +40,7 @@ pub fn read_bytes(file: &Path, start_byte: usize, end_byte: usize) -> Vec<u8> {
 
 pub fn get_number_of_bytes_of(file: &Path) -> usize {
     fs::metadata(file)
-        .expect(
-            format!(
-                "Can not get bytes from file:\n{}\n",
-                to_absolute_path_str(file)
-            )
-            .as_str(),
-        )
+        .unwrap_or_else(|_| panic!("Can not get bytes from file:\n{}\n",
+                to_absolute_path_str(file)))
         .len() as usize
 }

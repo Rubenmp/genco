@@ -86,7 +86,7 @@ impl JavaImport {
         if !self.is_explicit_import() {
             return Err(format!(
                 "Java import \"{}\" must be explicit to the its specific file.",
-                self.to_string()
+                self
             ));
         }
 
@@ -101,7 +101,7 @@ impl JavaImport {
         }
         Err(format!(
             "Specific file not found for import \"{}\"",
-            self.to_string()
+            self
         ))
     }
     pub(crate) fn is_explicit_import(&self) -> bool {
@@ -112,7 +112,7 @@ impl JavaImport {
         if let Some(last_node) = self.get_nodes().last() {
             return !last_node.eq("*");
         }
-        return false;
+        false
     }
 
     fn get_all_nodes(&self) -> Vec<String> {
@@ -125,7 +125,7 @@ impl JavaImport {
             return all_nodes;
         }
 
-        return self.get_all_fake_nodes();
+        self.get_all_fake_nodes()
     }
 
     fn get_nodes(&self) -> Vec<String> {
@@ -133,7 +133,7 @@ impl JavaImport {
             return self.nodes.to_owned();
         }
 
-        return self.get_all_fake_nodes();
+        self.get_all_fake_nodes()
     }
 
     pub(crate) fn is_wildcard_import(&self) -> bool {
@@ -144,11 +144,11 @@ impl JavaImport {
         if let Some(last_node) = self.get_nodes().last() {
             return last_node.eq("*");
         }
-        return false;
+        false
     }
 
     fn new_from_route(route: &str) -> JavaImport {
-        if split_to_nodes(&route).is_empty() {
+        if split_to_nodes(route).is_empty() {
             logger::log_unrecoverable_error(&format!(
                 "Invalid java import found:\n\t\"{:?}\"",
                 route
@@ -174,7 +174,7 @@ impl JavaImport {
         if let Some(last_node) = all_nodes.last() {
             return &last_node == &type_id;
         }
-        return false;
+        false
     }
 
     // Relates to fake_non_checked_route
@@ -222,7 +222,7 @@ impl JavaImport {
 fn invalid_explicit_import_msg(file_path: &&Path) -> String {
     format!(
         "Invalid attempt to create an explicit java import using a file not associated to a java project:\n\"{:?}\"",
-        path_helper::to_absolute_path_str(&file_path)
+        path_helper::to_absolute_path_str(file_path)
     )
 }
 
@@ -329,7 +329,7 @@ pub fn get_package_nodes_vec_from_dir(dir_path: &Path) -> Vec<String> {
 
 // Relates to fake_non_checked_route
 fn split_to_nodes(content: &str) -> Vec<String> {
-    content.split(".").map(|str| str.to_string()).collect()
+    content.split('.').map(|str| str.to_string()).collect()
 }
 
 fn get_nodes_content(import_decl_node: JavaNode) -> String {
@@ -343,7 +343,7 @@ fn get_nodes_content(import_decl_node: JavaNode) -> String {
         }
     }
 
-    return "".to_string();
+    "".to_string()
 }
 
 impl fmt::Display for JavaImport {
@@ -354,7 +354,7 @@ impl fmt::Display for JavaImport {
             if idx != 0 {
                 fmt.write_str(".")?;
             }
-            fmt.write_str(&children)?;
+            fmt.write_str(children)?;
         }
         if self.folder_path.is_some() && self.nodes.is_empty() {
             fmt.write_str(".*")?;

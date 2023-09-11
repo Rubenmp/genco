@@ -4,13 +4,8 @@ use std::path::Path;
 use crate::core::file_system::file_reader;
 
 pub fn assert_same_as_file(expect_result_file_path: &Path, result: &str) {
-    let data = fs::read_to_string(expect_result_file_path).expect(
-        format!(
-            "Unable to read expected result file:\n{}\n",
-            expect_result_file_path.to_string_lossy()
-        )
-        .as_str(),
-    );
+    let data = fs::read_to_string(expect_result_file_path).unwrap_or_else(|_| panic!("Unable to read expected result file:\n{}\n",
+            expect_result_file_path.to_string_lossy()));
 
     assert_eq!(result.replace("\r\n", "\n"), data.replace("\r\n", "\n"));
 }

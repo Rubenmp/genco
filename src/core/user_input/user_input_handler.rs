@@ -30,7 +30,7 @@ impl UserInput {
     pub fn add_variables_from(&mut self, new_file: &Path) {
         let new_file_str = new_file.to_string_lossy().to_string();
         if !self.config_files_used.contains(&new_file_str) {
-            let new_user_input = get_variables(&new_file);
+            let new_user_input = get_variables(new_file);
             self.merge(&new_user_input);
             self.config_files_used.insert(new_file_str);
         }
@@ -134,7 +134,7 @@ impl VariableUsage {
 
     pub(crate) fn merge(&mut self, new_usage: &VariableUsage) {
         for instantiation in new_usage.get_instantiations() {
-            self.add_instantiation(&instantiation);
+            self.add_instantiation(instantiation);
         }
     }
 
@@ -153,7 +153,7 @@ impl VariableUsage {
             panic!("Bytes added to user input must have start_byte less than end_byte");
         }
         self.instantiations
-            .push(VariableInstantiation::new(&file, *byte_indexes));
+            .push(VariableInstantiation::new(file, *byte_indexes));
     }
 
     pub fn get_value(&self) -> Option<String> {
@@ -161,7 +161,7 @@ impl VariableUsage {
             return Some(override_value.to_owned());
         }
 
-        return self.raw_user_input_value.to_owned();
+        self.raw_user_input_value.to_owned()
     }
 
     pub fn get_instantiations(&self) -> &Vec<VariableInstantiation> {
@@ -212,16 +212,16 @@ impl VariableInstantiation {
 }
 
 fn parse_user_input_var(pattern: &String) -> Option<String> {
-    let internal_str = get_internal_string_from_var_pattern(&pattern);
-    get_var_name(&pattern, internal_str)
+    let internal_str = get_internal_string_from_var_pattern(pattern);
+    get_var_name(pattern, internal_str)
 }
 
 fn get_var_name(pattern: &String, internal_str: String) -> Option<String> {
-    let mut type_and_value = internal_str.split("=");
-    if type_and_value.clone().count() != (2 as usize) {
+    let mut type_and_value = internal_str.split('=');
+    if type_and_value.clone().count() != 2_usize {
         panic!(
             "Invalid parse_user_input_var for pattern \"{}\"",
-            pattern.to_string()
+            pattern
         );
     }
     if let Some(var_type) = type_and_value.next() {
@@ -246,7 +246,7 @@ fn get_internal_string_from_var_pattern(pattern: &String) -> String {
 fn get_variables(file: &Path) -> HashMap<String, VariableUsage> {
     let mut result: HashMap<String, VariableUsage> = HashMap::new();
     let file_content = fs::read_to_string(file)
-        .expect(format!("Error reading resource {}", file.to_string_lossy()).as_ref());
+        .unwrap_or_else(|_| panic!("Error reading resource {}", file.to_string_lossy()));
 
     let mut start_index = 0;
     while let Some(next_indexes) = find_next_variable(&file_content, start_index) {
@@ -268,7 +268,7 @@ fn get_variables(file: &Path) -> HashMap<String, VariableUsage> {
 
 fn get_var_usage(file: &Path, var_def_bytes: (usize, usize)) -> Option<VariableUsage> {
     let content = read_string(file, var_def_bytes.0, var_def_bytes.1);
-    VariableUsage::new(content.to_string(), var_def_bytes, &file)
+    VariableUsage::new(content.to_string(), var_def_bytes, file)
 }
 
 fn find_next_variable(file_content: &String, initial_index: usize) -> Option<(usize, usize)> {

@@ -37,15 +37,15 @@ impl JavaDataType {
     }
 
     pub(crate) fn is_data_type_node(node_type: &JavaNodeType) -> bool {
-        return &JavaNodeType::TypeIdentifier == node_type
+        &JavaNodeType::TypeIdentifier == node_type
             || &JavaNodeType::IntegralType == node_type
             || &JavaNodeType::FloatingPointType == node_type
             || &JavaNodeType::Boolean == node_type
-            || &JavaNodeType::VoidType == node_type;
+            || &JavaNodeType::VoidType == node_type
     }
     pub(crate) fn is_data_type_node_opt(node_type_opt: &Option<JavaNodeType>) -> bool {
         if let Some(node_type) = node_type_opt {
-            return Self::is_data_type_node(&node_type);
+            return Self::is_data_type_node(node_type);
         }
         false
     }
@@ -59,8 +59,8 @@ impl JavaDataType {
         if JavaNodeType::TypeIdentifier == node_type {
             return match JavaDataType::from_generic_type_id(
                 &data_type_node.get_content(),
-                &file_imports,
-                &input_java_file,
+                file_imports,
+                input_java_file,
             ) {
                 Ok(type_id_data_type) => Ok(type_id_data_type),
                 Err(err) => Err(err),
@@ -87,7 +87,7 @@ impl JavaDataType {
         let child_node = data_type_node.get_children().get(0).unwrap();
         let child_node_type = child_node.get_node_type_opt().unwrap();
 
-        return if JavaNodeType::Float == child_node_type {
+        if JavaNodeType::Float == child_node_type {
             Ok(JavaDataType::Basic(JavaBasicDataType::Float))
         } else if JavaNodeType::Double == child_node_type {
             Ok(JavaDataType::Basic(JavaBasicDataType::Double))
@@ -97,7 +97,7 @@ impl JavaDataType {
                 data_type_node.get_content().as_str(),
                 to_absolute_path_str(input_java_file)
             ))
-        };
+        }
     }
 
     fn get_data_type_from_integral_type(
@@ -115,7 +115,7 @@ impl JavaDataType {
             to_absolute_path_str(input_java_file)
         ))?;
 
-        return if JavaNodeType::Int == child_node_type {
+        if JavaNodeType::Int == child_node_type {
             Ok(JavaDataType::Basic(JavaBasicDataType::Int))
         } else if JavaNodeType::Long == child_node_type {
             Ok(JavaDataType::Basic(JavaBasicDataType::Long))
@@ -131,7 +131,7 @@ impl JavaDataType {
                 data_type_node.get_content().as_str(),
                 to_absolute_path_str(input_java_file)
             ))
-        };
+        }
     }
 
     pub(crate) fn from_generic_type_id(
@@ -144,7 +144,7 @@ impl JavaDataType {
             return Ok(JavaDataType::Basic(data_type));
         }
 
-        Self::from_import_type_id(type_id, file_imports, &input_java_file)
+        Self::from_import_type_id(type_id, file_imports, input_java_file)
     }
 
     pub(crate) fn from_import_type_id(
@@ -152,10 +152,10 @@ impl JavaDataType {
         file_imports: &JavaImportsScan,
         _input_java_file: &Path,
     ) -> Result<JavaDataType, String> {
-        return match file_imports.get_explicit_import(type_id) {
+        match file_imports.get_explicit_import(type_id) {
             Ok(import) => Ok(JavaDataType::FromImport(import)),
             Err(err) => Err(err),
-        };
+        }
     }
 }
 

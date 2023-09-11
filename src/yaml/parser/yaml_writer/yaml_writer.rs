@@ -15,15 +15,15 @@ use crate::yaml::parser::yaml_parser::yaml_parser::parse;
 pub fn overwrite(original_yaml_file: &PathBuf, to_add_yaml_file: &PathBuf) {
     // TODO: check original_yaml_file extension
     file_creator::create_file_if_not_exist(original_yaml_file);
-    let yaml_original = parse(&original_yaml_file);
-    let yaml_to_add = parse(&to_add_yaml_file);
+    let yaml_original = parse(original_yaml_file);
+    let yaml_to_add = parse(to_add_yaml_file);
 
     write_yaml(&yaml_original, &yaml_to_add);
 }
 
 fn write_yaml(original: &YamlNode, to_add: &YamlNode) {
     let mut overwriting = FileOverwriting::new(&original.get_file_path().to_path_buf());
-    include_nodes_to_overwrite(&mut overwriting, &original, &to_add, 0);
+    include_nodes_to_overwrite(&mut overwriting, original, to_add, 0);
 
     overwriting.write_all();
 }
@@ -160,14 +160,14 @@ fn include_modification_nodes_to_overwrite(
     modification_nodes: &Vec<YamlNode>,
     depth: usize,
 ) {
-    let original_mapping_pairs_from_key = get_mapping_pairs_from_key(&original_mapping_pairs);
+    let original_mapping_pairs_from_key = get_mapping_pairs_from_key(original_mapping_pairs);
     for modification_node in modification_nodes {
         let key = get_key_from_block_mapping_pair(modification_node);
         if let Some(&original_mapping_pair) = original_mapping_pairs_from_key.get(&key) {
             let original_mapped_value =
                 get_mapped_value_from_block_mapping_pair(original_mapping_pair);
             let modification_mapped_value =
-                get_mapped_value_from_block_mapping_pair(&modification_node);
+                get_mapped_value_from_block_mapping_pair(modification_node);
 
             if let Some(mapped_value_node_type) = modification_mapped_value.get_node_type() {
                 if YamlNodeType::FlowNode == mapped_value_node_type {
@@ -181,7 +181,7 @@ fn include_modification_nodes_to_overwrite(
                     include_nodes_to_overwrite(
                         overwriting,
                         original_mapped_value,
-                        &modification_mapped_value,
+                        modification_mapped_value,
                         depth + 1,
                     );
                 }
@@ -245,7 +245,7 @@ fn split_into_new_and_modifications(
 fn get_mapping_pairs_from_key(mapping_pairs_to_add: &Vec<YamlNode>) -> HashMap<String, &YamlNode> {
     let mut mapping_pairs_from_key = HashMap::new();
     for mapping_pair_to_add in mapping_pairs_to_add {
-        let key = get_key_from_block_mapping_pair(&mapping_pair_to_add);
+        let key = get_key_from_block_mapping_pair(mapping_pair_to_add);
         mapping_pairs_from_key.insert(key, mapping_pair_to_add);
     }
     mapping_pairs_from_key

@@ -13,7 +13,7 @@ pub fn by_last_type_id(type_id: &str) -> Vec<JavaImportRoute> {
         .expect("Database statement preparation failed (\"by_last_type_id\")");
 
     let mapped_rows_to_result = stmt
-        .query_map([type_id], |row| Ok(JavaImportRoute::from_row(&row)))
+        .query_map([type_id], |row| Ok(JavaImportRoute::from_row(row)))
         .expect("Search JavaImportRoute query failed")
         .filter_map(|row| row.ok())
         .collect();

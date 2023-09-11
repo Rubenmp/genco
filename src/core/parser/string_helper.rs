@@ -48,7 +48,7 @@ fn escape_str_line_with_quotes(line: &str) -> String {
 
 pub fn to_medial_case(upper_camel_case_str: &str) -> String {
     let mut result = "".to_string();
-    let matches = find_word_matches(&upper_camel_case_str);
+    let matches = find_word_matches(upper_camel_case_str);
     for word in matches.into_iter() {
         result.push_str(first_letter_uppercase(word.as_str().to_lowercase()).as_str());
     }
@@ -78,7 +78,7 @@ pub fn to_lowercase_with_hyphens(upper_camel_case_str: String) -> String {
     let matches_count = matches.len();
     for (index, word) in matches.into_iter().enumerate() {
         if index != 0 && index < matches_count {
-            result.push_str("-");
+            result.push('-');
         }
         result.push_str(word.as_str().to_lowercase().as_str());
     }
@@ -92,7 +92,7 @@ pub fn to_lowercase_space_separated(upper_camel_case_str: String) -> String {
     let matches_count = matches.len();
     for (index, word) in matches.into_iter().enumerate() {
         if index != 0 && index < matches_count {
-            result.push_str(" ");
+            result.push(' ');
         }
         result.push_str(word.as_str().to_lowercase().as_str());
     }
@@ -103,14 +103,14 @@ pub fn to_lowercase_space_separated(upper_camel_case_str: String) -> String {
 fn find_word_matches(upper_camel_case_str: &str) -> Vec<Match> {
     let mut matches = Vec::new();
     let re = Regex::new(r"([A-Z][a-z]+)").expect("Unable to create regex pattern");
-    for field in re.find_iter(&upper_camel_case_str) {
+    for field in re.find_iter(upper_camel_case_str) {
         matches.push(field);
     }
     matches
 }
 
 pub(crate) fn to_str(buf: &Vec<u8>) -> String {
-    let s = match str::from_utf8(&*buf) {
+    let s = match str::from_utf8(buf) {
         Ok(content) => content,
         Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
     };

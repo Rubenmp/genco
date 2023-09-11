@@ -84,14 +84,14 @@ impl JavaAnnotationUsage {
         input_java_file: &Path,
         result_name: &str,
     ) -> Result<JavaImport, String> {
-        return match file_imports.get_explicit_import(&result_name) {
+        match file_imports.get_explicit_import(result_name) {
             Ok(explicit_import) => Ok(explicit_import),
             Err(_) => Err(format!(
                 "Unexpected java annotation \"{}\" without import in file:\n\"{}\"\n",
                 root_java_node.get_content(),
                 path_helper::to_absolute_path_str(input_java_file)
             )),
-        };
+        }
     }
 
     fn get_annotation_id(node: &JavaNode) -> Option<String> {

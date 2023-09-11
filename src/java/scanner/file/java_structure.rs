@@ -59,7 +59,7 @@ impl JavaStructure {
         file_imports: &JavaImportsScan,
         input_java_file: &Path,
     ) -> Result<Self, String> {
-        new_structure_internal(root_struct_decl_node, &file_imports, &input_java_file, true)
+        new_structure_internal(root_struct_decl_node, file_imports, input_java_file, true)
     }
 
     pub(crate) fn get_file(&self) -> &PathBuf {
@@ -103,7 +103,7 @@ impl JavaStructure {
             return match JavaClass::from_import(extension_class) {
                 Ok(java_class) => Some(java_class),
                 Err(err) => {
-                    self.log_warning_scanning_super_class(&extension_class, &err);
+                    self.log_warning_scanning_super_class(extension_class, &err);
                     return None;
                 }
             };
@@ -114,7 +114,7 @@ impl JavaStructure {
     fn log_warning_scanning_super_class(&self, extension_class: &JavaImport, err: &str) {
         logger::log_warning(&format!(
             "Unexpected error scanning \"{}\" (super class of \"{}\"):\n{}",
-            extension_class.to_string(),
+            extension_class,
             self.get_name(),
             err
         ));
@@ -125,7 +125,7 @@ impl JavaStructure {
         for interface_import in &self.implemented_interfaces {
             match JavaInterface::from_import(interface_import) {
                 Ok(java_interface) => result.push(java_interface),
-                Err(err) => self.log_warning_scanning_interface(&interface_import, &err),
+                Err(err) => self.log_warning_scanning_interface(interface_import, &err),
             };
         }
 
@@ -135,7 +135,7 @@ impl JavaStructure {
     fn log_warning_scanning_interface(&self, interface_import: &JavaImport, err: &str) {
         logger::log_warning(&format!(
             "Unexpected error scanning \"{}\" (implemented interface of \"{}\"):\n{}",
-            interface_import.to_string(),
+            interface_import,
             self.get_name(),
             err
         ));
@@ -158,7 +158,7 @@ impl JavaStructure {
     /// TODO: this is only to for parent structures, not substructures
     pub(crate) fn get_self_import(&self) -> JavaImport {
         if self.is_root_structure() {
-            return JavaImport::new_explicit_import_from_file(&self.get_file())
+            return JavaImport::new_explicit_import_from_file(self.get_file())
                 .expect("Import for java structure must exist");
         } else {
             panic!("get_self_import of substructure is not supported");
@@ -282,12 +282,12 @@ impl JavaStructure {
     fn write_to_file_internal(&self, result: &mut String) {
         let file_path = self.get_file();
         if file_path.exists() && file_path.is_file() {
-            file_creator::remove_file_if_exists(&file_path);
+            file_creator::remove_file_if_exists(file_path);
         }
 
-        file_creator::create_file_if_not_exist(&file_path);
-        let mut overwriting = FileOverwriting::new(&file_path);
-        overwriting.append(&result);
+        file_creator::create_file_if_not_exist(file_path);
+        let mut overwriting = FileOverwriting::new(file_path);
+        overwriting.append(result);
         overwriting.write_all();
     }
 
@@ -323,7 +323,7 @@ impl JavaStructure {
         }
 
         let interfaces = self.get_implemented_interfaces();
-        if interfaces.len() > 0 {
+        if !interfaces.is_empty() {
             *result += " implements ";
             for (index, interface) in interfaces.iter().enumerate() {
                 if index > 0 {
@@ -383,9 +383,9 @@ fn new_structure_internal(
                     if let Some(node_type) = modifier.get_node_type_opt() {
                         if java_annotation_usage::is_java_node_annotation(&node_type) {
                             match JavaAnnotationUsage::new_from_java_node(
-                                &modifier,
-                                &file_imports,
-                                &input_java_file,
+                                modifier,
+                                file_imports,
+                                input_java_file,
                             ) {
                                 Ok(annotation) => annotations.push(annotation),
                                 Err(err) => logger::log_warning(&err),
@@ -405,27 +405,27 @@ fn new_structure_internal(
                 name_opt = Some(child_node.get_content());
             } else if JavaNodeType::Superclass == structure_node_type {
                 if let Some(import) =
-                    extract_super_class(file_imports, &input_java_file, child_node)
+                    extract_super_class(file_imports, input_java_file, child_node)
                 {
                     extended_class.push(import);
                 }
             } else if JavaNodeType::SuperInterfaces == structure_node_type {
-                for import in extract_interfaces(child_node, &file_imports, &input_java_file) {
+                for import in extract_interfaces(child_node, file_imports, input_java_file) {
                     implemented_interfaces.push(import);
                 }
             } else if is_structure_body(&structure_node_type) {
                 for body_child in child_node.get_children() {
                     if let Some(body_node_type) = body_child.get_node_type_opt() {
                         if JavaNodeType::FieldDeclaration == body_node_type {
-                            match JavaField::new(&body_child, &file_imports, &input_java_file) {
+                            match JavaField::new(body_child, file_imports, input_java_file) {
                                 Ok(field) => fields.push(field),
                                 Err(err) => logger::log_warning(&err),
                             };
                         } else if JavaNodeType::MethodDecl == body_node_type {
                             match JavaMethod::new_from_node(
-                                &body_child,
-                                &file_imports,
-                                &input_java_file,
+                                body_child,
+                                file_imports,
+                                input_java_file,
                             ) {
                                 Ok(method) => methods.push(method),
                                 Err(err) => log_invalid_method_decl(input_java_file, err),
@@ -439,7 +439,7 @@ fn new_structure_internal(
                     }
                 }
             } else if is_java_structure_type(Some(structure_node_type)) {
-                match new_structure_internal(child_node, &file_imports, &input_java_file, false) {
+                match new_structure_internal(child_node, file_imports, input_java_file, false) {
                     Ok(new_substructure) => substructures.push(new_substructure),
                     Err(err) => logger::log_warning(&err),
                 }
@@ -479,18 +479,18 @@ fn extract_super_class(
 ) -> Option<JavaImport> {
     let children = child_node.get_children();
     if !is_second_child_an_extended_class_id(children) {
-        log_unrecognized_super_class(child_node, &input_java_file);
+        log_unrecognized_super_class(child_node, input_java_file);
         return None;
     }
 
     let second_child_content = children.get(1).unwrap().get_content();
     let data_type =
-        JavaDataType::from_import_type_id(&second_child_content, file_imports, &input_java_file);
+        JavaDataType::from_import_type_id(&second_child_content, file_imports, input_java_file);
     if let Ok(JavaDataType::FromImport(import)) = data_type {
         return Some(import);
     }
 
-    log_unrecognized_super_class_type_id_import(child_node, &input_java_file);
+    log_unrecognized_super_class_type_id_import(child_node, input_java_file);
     None
 }
 
@@ -710,7 +710,7 @@ fn log_unrecognized_super_class(super_class_node: &JavaNode, input_java_file: &P
 fn is_second_child_an_extended_class_id(children: &Vec<JavaNode>) -> bool {
     is_first_child_of_type(children, JavaNodeType::Extends)
         && Some(JavaNodeType::TypeIdentifier)
-            == children.get(1).map_or(None, |t| t.get_node_type_opt())
+            == children.get(1).and_then(|t| t.get_node_type_opt())
 }
 
 fn extract_interfaces(
@@ -722,7 +722,7 @@ fn extract_interfaces(
     let children = super_interfaces_node.get_children();
     if is_first_child_of_type(children, JavaNodeType::Implements)
         && Some(JavaNodeType::InterfaceTypeList)
-            == children.get(1).map_or(None, |t| t.get_node_type_opt())
+            == children.get(1).and_then(|t| t.get_node_type_opt())
     {
         for interface_type in children
             .get(1)
@@ -732,7 +732,7 @@ fn extract_interfaces(
             let data_type = JavaDataType::from_import_type_id(
                 &interface_type.get_content(),
                 file_imports,
-                &input_java_file,
+                input_java_file,
             );
             if let Ok(JavaDataType::FromImport(import)) = data_type {
                 result.push(import);
@@ -758,7 +758,7 @@ fn extract_interfaces(
 }
 
 fn is_first_child_of_type(children: &Vec<JavaNode>, node_type: JavaNodeType) -> bool {
-    Some(node_type) == children.get(0).map_or(None, |t| t.get_node_type_opt())
+    Some(node_type) == children.get(0).and_then(|t| t.get_node_type_opt())
 }
 
 #[cfg(test)]

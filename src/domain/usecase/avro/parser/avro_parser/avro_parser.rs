@@ -26,7 +26,7 @@ fn to_avro_items(json_nodes: Vec<JsonNode>) -> Vec<AvroItem> {
 }
 
 fn to_avro_item(json_node: &JsonNode) -> AvroItem {
-    let pair_nodes = filter_json_nodes_first_level(&json_node, &JsonNodeType::Pair);
+    let pair_nodes = filter_json_nodes_first_level(json_node, &JsonNodeType::Pair);
 
     let mut json_node_pair_map = HashMap::new();
     for pair_node in pair_nodes {
@@ -152,7 +152,7 @@ fn filter_json_nodes_first_level(root: &JsonNode, json_node_type: &JsonNodeType)
     }
 
     for child in root.get_children() {
-        for mapping_pairs_node in filter_json_nodes_first_level(child, &json_node_type) {
+        for mapping_pairs_node in filter_json_nodes_first_level(child, json_node_type) {
             result_nodes.push(mapping_pairs_node);
         }
     }

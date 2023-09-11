@@ -57,7 +57,7 @@ impl JavaClass {
     /// # get_annotations
     /// Get the java annotations of the class
     pub fn get_annotations(&self) -> &Vec<JavaAnnotationUsage> {
-        &self.get_structure().get_annotations()
+        self.get_structure().get_annotations()
     }
 
     /// # get_visibility
@@ -111,19 +111,19 @@ impl JavaClass {
     /// # get_methods
     /// Get the methods of the current JavaClass.
     pub fn get_methods(&self) -> &Vec<JavaMethod> {
-        &self.get_structure().get_methods()
+        self.get_structure().get_methods()
     }
 
     /// # get_fields
     /// Get the fields of the current JavaClass.
     pub fn get_fields(&self) -> &Vec<JavaField> {
-        &self.get_structure().get_fields()
+        self.get_structure().get_fields()
     }
 
     /// # insert_method
     /// Insert a new method into the class and write it to the file.
     pub fn insert_method(&mut self, method: &JavaMethod) -> Result<(), String> {
-        self.get_structure().insert_method(&method)
+        self.get_structure().insert_method(method)
     }
 }
 
@@ -274,7 +274,7 @@ impl JavaClassBuilder {
             return Err(format!(
                 "Invalid java class \"{}\" build, expected dir:\n{}\n",
                 name,
-                to_absolute_path_str(&folder)
+                to_absolute_path_str(folder)
             ));
         }
 

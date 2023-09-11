@@ -206,7 +206,7 @@ fn write_properties(fmt: &mut Formatter, depth: usize, properties: &Vec<OpenapiS
 }
 
 fn write_description(fmt: &mut Formatter, depth: usize, description: &String) {
-    let description = if description.contains(":") {
+    let description = if description.contains(':') {
         format!("\"{}\"", description)
     } else {
         description.to_string()

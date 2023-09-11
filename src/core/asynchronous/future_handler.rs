@@ -2,8 +2,8 @@ use std::future::Future;
 
 pub(crate) fn wait<T>(async_call: impl Future<Output = T>) -> T {
     let rt = tokio::runtime::Runtime::new().expect("Error trying to wait for asynchronous task");
-    let result = rt.block_on(async_call);
-    result
+    
+    rt.block_on(async_call)
 }
 
 #[cfg(test)]

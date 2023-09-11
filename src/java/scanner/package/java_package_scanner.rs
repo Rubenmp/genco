@@ -29,8 +29,7 @@ pub fn get_package_from_dir(dir_path: &Path) -> String {
                             let bytes = ancestor.to_string_lossy().as_bytes().len();
                             let mut package_route = dir_path.to_string_lossy().to_string()[bytes..]
                                 .to_owned()
-                                .replace("/", ".")
-                                .replace("\\", ".");
+                                .replace(['/', '\\'], ".");
                             package_route.remove(0); // Remove first "."
                             return package_route;
                         }
@@ -60,7 +59,7 @@ pub fn check_base_java_project(path: &Path) {
     files.push("build.gradle");
     files.push("pom.xml");
 
-    if file_browser::get_first_file_if_exists(&path, files).is_none() {
+    if file_browser::get_first_file_if_exists(path, files).is_none() {
         panic!("Invalid java project root path found: {:?}", path);
     }
 }

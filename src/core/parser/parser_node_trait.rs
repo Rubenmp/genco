@@ -102,7 +102,7 @@ pub trait ParserNode: Sized {
 
     fn get_content(&self) -> String {
         let buffer = file_reader::read_bytes(
-            &self.get_file_path(),
+            self.get_file_path(),
             self.get_start_byte(),
             self.get_end_byte(),
         );
@@ -133,7 +133,7 @@ pub trait ParserNode: Sized {
         }
 
         let buffer = file_reader::read_bytes(
-            &self.get_file_path(),
+            self.get_file_path(),
             current_start_byte,
             self.get_end_byte(),
         );
