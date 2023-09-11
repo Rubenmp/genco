@@ -109,7 +109,7 @@ impl JavaFile {
     pub(crate) fn get_import(&self) -> JavaImport {
         self.base_import.to_owned()
     }
-    pub(crate) fn get_imports(&self) -> &JavaImportsScan {
+    fn get_imports(&self) -> &JavaImportsScan {
         &self.imports
     }
 
@@ -202,7 +202,7 @@ mod tests {
         let dir_path = get_test_folder().join("Invalid.java");
 
         match JavaFile::from_path(&dir_path) {
-            Ok(java_file) => assert_fail("It should not return a valid java file struct"),
+            Ok(_) => assert_fail("It should not return a valid java file struct"),
             Err(e) => assert!(e.contains("Java package not found in file")),
         }
     }

@@ -54,7 +54,6 @@ mod tests {
 
         let result = db_java_import_route_search::by_last_type_id(last_type_id);
 
-        let a = 0;
         assert_eq!(1, result.len());
         let result_item = result.get(0).expect("Result item must exist");
         assert_eq!(1, result_item.get_id());

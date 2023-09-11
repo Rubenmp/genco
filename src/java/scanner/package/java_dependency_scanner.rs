@@ -32,7 +32,7 @@ fn insert_java_import_routes_in_db(java_files: Vec<PathBuf>) {
         .map(|file| JavaImportRouteCreate::new(file))
         .collect();
 
-    db_java_import_route_save::save(routes_to_save);
+    db_java_import_route_save::save(routes_to_save).expect("JavaImportRoute batch save must succeed")
 }
 
 fn get_files_and_dirs_to_scan(path: &Path) -> (Vec<PathBuf>, Vec<PathBuf>) {
@@ -85,7 +85,7 @@ mod tests {
     fn scan_java_project_test() {
         let dir_path = get_test_dir(get_current_file_path(), "basic_project");
 
-        let project_scan = java_dependency_scanner::scan(&dir_path).expect("Scan must be ok");
+        java_dependency_scanner::scan(&dir_path).expect("Scan must be ok");
     }
 
     #[test]
@@ -94,7 +94,6 @@ mod tests {
 
         let (files, dirs) = java_dependency_scanner::get_files_and_dirs_to_scan(&dir_path);
 
-        let a = 0;
         assert_eq!(0, files.len());
         assert_eq!(1, dirs.len());
     }

@@ -319,7 +319,7 @@ mod tests {
         let file_path = folder.join("EmptyService.java");
         let expected_file_content = get_test_file("ExpectedEmptyService");
 
-        let annotations = vec![java_spring_context_factory::create_service_annotation_usage()];
+        let annotations = vec![java_spring_context_factory::_create_service_annotation_usage()];
         match JavaClass::builder()
             .folder(&folder)
             .visibility(JavaVisibility::Public)
@@ -353,7 +353,7 @@ mod tests {
         let file_path = folder.join("FullJavaService.java");
         let expected_file_content = get_test_file("ExpectedFullJavaService");
 
-        let annotations = vec![java_spring_context_factory::create_service_annotation_usage()];
+        let annotations = vec![java_spring_context_factory::_create_service_annotation_usage()];
         let method = get_new_method();
         let field = get_private_field();
         let extended_class =

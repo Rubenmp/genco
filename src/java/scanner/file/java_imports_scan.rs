@@ -26,11 +26,7 @@ impl JavaImportsScan {
         let error = format!("Import for \"{}\" not found.", type_id.to_string());
         Err(error)
     }
-    pub(crate) fn insert_imports(&mut self, imports: Vec<JavaImport>) {
-        for import in imports {
-            self.insert(import)
-        }
-    }
+
 
     pub(crate) fn insert(&mut self, import: JavaImport) {
         if import.is_explicit_import() {
@@ -41,7 +37,7 @@ impl JavaImportsScan {
                     "Wildcard imports are not supported yet\n\"{}\"",
                     import.to_string()
                 )
-                .as_str(),
+                    .as_str(),
             );
             self.wildcard_imports.push(import);
         } else {
@@ -82,12 +78,10 @@ mod tests {
 
         let result = imports.get_explicit_import("NotFoundClass");
         match result {
-            Ok(import) => {
-                assert_fail("It should not return any JavaImport");
-            }
-            Err(error_msg) => {
-                assert_eq!("Import for \"NotFoundClass\" not found.", error_msg);
-            }
+            Ok(_) =>
+                assert_fail("It should not return any JavaImport"),
+            Err(err) =>
+                assert_eq!("Import for \"NotFoundClass\" not found.", err)
         }
     }
 
@@ -98,7 +92,13 @@ mod tests {
         ];
 
         let mut imports = JavaImportsScan::new();
-        imports.insert_imports(imports_vec);
+        insert_imports(&mut imports, imports_vec);
         imports
+    }
+
+    fn insert_imports(import_scan: &mut JavaImportsScan, imports: Vec<JavaImport>) {
+        for import in imports {
+            import_scan.insert(import)
+        }
     }
 }

@@ -897,7 +897,7 @@ mod tests {
         let expected_file_content = get_test_file("ExpectedClassSkeletonWithAnnotation");
         remove_file_if_exists(&file_path);
 
-        let annotations = vec![java_spring_context_factory::create_service_annotation_usage()];
+        let annotations = vec![java_spring_context_factory::_create_service_annotation_usage()];
 
         match JavaStructure::builder()
             .file(&file_path)

@@ -1,10 +1,10 @@
 use std::path::Path;
 
-use crate::core::file_system::directory_browser::directory_browser::check_dir_exist;
 use crate::core::file_system::file_creator::file_creator;
 use crate::core::file_system::file_overwriting::file_overwriting::FileOverwriting;
 use crate::core::observability::logger::logger;
 use crate::core::parser::parser_node_trait::ParserNode;
+use crate::java::dto::{java_annotation_usage, java_visibility};
 use crate::java::dto::java_annotation_usage::JavaAnnotationUsage;
 use crate::java::dto::java_data_type::JavaDataType;
 use crate::java::dto::java_import::JavaImport;
@@ -12,7 +12,6 @@ use crate::java::dto::java_indentation_config::JavaIndentation;
 use crate::java::dto::java_steps_generator::JavaStepsGenerator;
 use crate::java::dto::java_variable::JavaVariable;
 use crate::java::dto::java_visibility::JavaVisibility;
-use crate::java::dto::{java_annotation_usage, java_visibility};
 use crate::java::parser::dto::java_node::JavaNode;
 use crate::java::parser::dto::java_node_type::JavaNodeType;
 use crate::java::scanner::file::java_imports_scan::JavaImportsScan;
@@ -215,15 +214,6 @@ impl JavaMethod {
             .collect()
     }
 
-    pub(crate) fn generate(&self, dir: &Path, indentation: &JavaIndentation) {
-        check_exists(dir);
-
-        let mut result = "".to_string();
-        self.write_to_string(&mut result, &indentation);
-
-        self.write_to_file(dir, &mut result);
-    }
-
     fn write_parameters(&self, result: &mut String) {
         let parameters = self.get_parameters();
         *result += "(";
@@ -235,15 +225,6 @@ impl JavaMethod {
             *result += parameter.to_string().as_str();
         }
         *result += ")";
-    }
-
-    fn write_to_file(&self, dir: &Path, result: &mut String) {
-        let mut file_path = dir.to_path_buf();
-        file_path.push(format!("{}.java", &self.get_name()));
-        file_creator::create_file_if_not_exist(&file_path);
-        let mut overwriting = FileOverwriting::new(&file_path);
-        overwriting.append(&result);
-        overwriting.write_all();
     }
 
     fn write_return_type(&self, result: &mut String) {
@@ -275,12 +256,6 @@ fn check_root_is_method_decl(node: &JavaNode) {
     }
 }
 
-fn check_exists(dir: &Path) {
-    check_dir_exist(
-        dir,
-        "Error generating JavaClassSkeleton due to invalid directory",
-    );
-}
 
 pub struct JavaMethodBuilder {
     annotations: Vec<JavaAnnotationUsage>,
@@ -353,7 +328,7 @@ mod tests {
     use std::path::PathBuf;
 
     use crate::core::file_system::file_creator::file_creator::remove_file_if_exists;
-    use crate::core::testing::test_assert::assert_same_file;
+    use crate::core::testing::test_assert::assert_same_as_file;
     use crate::core::testing::test_path;
     use crate::java::dependency::org::junit::jupiter::junit_jupiter_api::java_junit_jupiter_api_factory;
     use crate::java::dto::java_indentation_config::JavaIndentation;
@@ -381,11 +356,10 @@ mod tests {
             .build()
             .expect("newMethodToGenerate is expected to be valid");
 
-        method.generate(&folder_path, &JavaIndentation::default());
+        let mut result = "".to_string();
+        method.write_to_string(&mut result, &JavaIndentation::default());
 
-        assert!(file_path.exists());
-        assert!(file_path.is_file());
-        assert_same_file(&expected_file_content, &file_path);
+        assert_same_as_file(&expected_file_content, &result);
         remove_file_if_exists(&file_path);
     }
 

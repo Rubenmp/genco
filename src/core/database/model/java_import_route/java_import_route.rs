@@ -33,7 +33,7 @@ pub struct JavaImportRouteCreate {
 }
 
 impl JavaImportRouteCreate {
-    pub(crate) fn new(path: &Path) -> Self {
+    pub(crate) fn new(_path: &Path) -> Self {
         todo!()
     }
 }

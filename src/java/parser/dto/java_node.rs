@@ -40,10 +40,10 @@ impl JavaNode {
                             file_reader::read_string(
                                 &file_path,
                                 node.start_byte(),
-                                node.end_byte()
+                                node.end_byte(),
                             )
                         )
-                        .as_str(),
+                            .as_str(),
                     );
                     None
                 }
@@ -57,32 +57,6 @@ impl JavaNode {
 
     pub fn get_children(&self) -> &Vec<JavaNode> {
         &self.children
-    }
-
-    fn get_node_type_str(&self) -> String {
-        if let Some(some_node_type) = self.get_node_type_opt() {
-            some_node_type.to_string()
-        } else {
-            "None".to_string()
-        }
-    }
-
-    fn get_tree_str(&self, depth: usize) -> String {
-        let mut tree_str: String = "  ".repeat(depth);
-        tree_str.push_str(self.get_node_type_str().as_str());
-        let children = self.get_children();
-        if !children.is_empty() {
-            tree_str.push_str(" {\n");
-
-            for child in children {
-                tree_str.push_str(child.get_tree_str(depth + 1).as_str());
-                tree_str.push('\n');
-            }
-
-            tree_str.push_str("  ".repeat(depth).as_str());
-            tree_str.push('}');
-        }
-        tree_str
     }
 }
 
@@ -147,9 +121,6 @@ impl ParserNode for JavaNode {
         None
     }
 
-    fn get_tree_str(&self) -> String {
-        self.get_tree_str_internal(0, 1, false)
-    }
 
     fn is_printable(&self) -> bool {
         if let Some(node_type) = self.node_type.to_owned() {
