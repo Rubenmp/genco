@@ -54,6 +54,12 @@ pub fn do_last_element_in_path_ends_with(path: &Path, ending: &str) -> bool {
     file_name.ends_with(ending)
 }
 
+pub(crate) fn remove_java_extension(java_file_name: String) -> String {
+    let until = java_file_name.len() - 5;
+    let node_copy = java_file_name.to_owned();
+    node_copy.to_owned().drain(0..until).as_str().to_string()
+}
+
 #[cfg(test)]
 mod tests {
     use std::path::PathBuf;

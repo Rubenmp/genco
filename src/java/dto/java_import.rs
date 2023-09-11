@@ -34,7 +34,7 @@ impl JavaImport {
         Ok(JavaImport {
             fake_non_checked_route: "".to_string(),
             folder_path: Some(dir_path.to_owned()),
-            nodes: vec![remove_java_extension(last_node)],
+            nodes: vec![file_browser::remove_java_extension(last_node)],
         })
     }
 
@@ -91,10 +91,6 @@ impl JavaImport {
         }
 
         if let Some(folder) = self.folder_path.to_owned() {
-            dbg!(format!(
-                "Java import folder: {}",
-                path_helper::to_absolute_path_str(&folder)
-            ));
             if let Some(first_node) = self.nodes.get(0) {
                 return Ok(folder.join(format!("{}.java", first_node)));
             }
@@ -272,11 +268,6 @@ fn check_dir_for_new_wildcard_import(dir_path: &Path) -> Result<(), String> {
     Ok(())
 }
 
-fn remove_java_extension(java_file_name: String) -> String {
-    let until = java_file_name.len() - 5;
-    let node_copy = java_file_name.to_owned();
-    node_copy.to_owned().drain(0..until).as_str().to_string()
-}
 
 pub fn get_package_nodes_vec_from_dir(dir_path: &Path) -> Vec<String> {
     if !dir_path.exists() || !dir_path.is_dir() {

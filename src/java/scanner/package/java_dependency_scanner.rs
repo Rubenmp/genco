@@ -1,7 +1,7 @@
-use crate::core::database::model::java_import_route::db_java_import_route_save;
 use std::fs;
 use std::path::{Path, PathBuf};
 
+use crate::core::database::model::java_import_route::db_java_import_route_save;
 use crate::core::database::model::java_import_route::java_import_route::JavaImportRouteCreate;
 use crate::core::file_system::path_helper::to_absolute_path_str;
 use crate::java::scanner::package::java_package_scanner;
@@ -83,7 +83,9 @@ mod tests {
     fn scan_java_project_test() {
         let dir_path = get_test_dir(get_current_file_path(), "basic_project");
 
-        java_dependency_scanner::scan(&dir_path).expect("Scan must be ok");
+        let scan_result = java_dependency_scanner::scan(&dir_path);
+
+        scan_result.expect("Scan must be ok");
     }
 
     #[test]

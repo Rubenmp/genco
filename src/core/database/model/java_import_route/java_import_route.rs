@@ -1,6 +1,9 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use rusqlite::Row;
+
+use crate::core::file_system::file_browser::file_browser;
+use crate::java::scanner::package::java_package_scanner;
 
 #[derive(Debug)]
 pub struct JavaImportRoute {
@@ -33,18 +36,34 @@ pub struct JavaImportRouteCreate {
 }
 
 impl JavaImportRouteCreate {
-    pub(crate) fn new(_path: &Path) -> Self {
+    pub(crate) fn new(file_path: &PathBuf) -> Self {
+        let dir_path = Self::get_dir_path(file_path);
+        let last_type_id = new_last_type_id(&file_path);
+
+        let base_package = java_package_scanner::get_package_from_dir(&dir_path);
+        dbg!(base_package);
         todo!()
     }
+
+    fn get_dir_path(file_path: &PathBuf) -> PathBuf {
+        let mut dir_path = file_path.to_owned();
+        dir_path.pop();
+        dir_path
+    }
+}
+
+fn new_last_type_id(file_path: &Path) -> String {
+    let file_name = file_path.iter().last().expect("Last type id must exist to transform path to JavaImportRoute").to_str().expect("Last type id must be transformed to string to convert it to JavaImportRoute").to_string();
+    file_browser::remove_java_extension(file_name)
 }
 
 impl JavaImportRoute {
     pub(crate) fn from_row(row: &Row) -> Self {
         Self {
             id: row.get(0).expect("JavaImportRoute field \"id\" missing"),
-            base_package: row.get(1).expect("JavaImportRoute field \"name\" missing"),
-            route: row.get(2).expect("JavaImportRoute field \"data\" missing"),
-            last_type_id: row.get(3).expect("JavaImportRoute field \"data\" missing"),
+            base_package: row.get(1).expect("JavaImportRoute field \"base_package\" missing"),
+            route: row.get(2).expect("JavaImportRoute field \"route\" missing"),
+            last_type_id: row.get(3).expect("JavaImportRoute field \"last_type_id\" missing"),
         }
     }
 }

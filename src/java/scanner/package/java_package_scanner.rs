@@ -1,15 +1,17 @@
+use std::path::{Path, PathBuf};
+
 use crate::core::file_system::directory_browser::directory_browser;
 use crate::core::file_system::file_browser::file_browser;
 use crate::core::file_system::path_helper;
 use crate::core::observability::logger::logger::log_unrecoverable_error;
-use std::path::{Path, PathBuf};
 
 pub(crate) fn get_package_from_file(file_path: &Path) -> String {
     let mut clone_file_path = file_path.clone().to_path_buf();
     clone_file_path.pop();
     get_package_from_dir(&clone_file_path)
 }
-pub fn get_package_from_dir(dir_path: &Path) -> String {
+
+pub(crate) fn get_package_from_dir(dir_path: &Path) -> String {
     if !dir_path.exists() || !dir_path.is_dir() {
         log_unrecoverable_error(
             format!(
@@ -20,6 +22,10 @@ pub fn get_package_from_dir(dir_path: &Path) -> String {
         );
     }
 
+    get_package_from_dir_no_check(dir_path)
+}
+
+pub(crate) fn get_package_from_dir_no_check(dir_path: &Path) -> String {
     for ancestor in dir_path.ancestors() {
         if ancestor.ends_with("java") {
             if let Some(second_ancestor) = ancestor.parent() {
