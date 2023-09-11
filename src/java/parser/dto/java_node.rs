@@ -43,7 +43,7 @@ impl JavaNode {
                                 node.end_byte(),
                             )
                         )
-                            .as_str(),
+                        .as_str(),
                     );
                     None
                 }
@@ -120,7 +120,6 @@ impl ParserNode for JavaNode {
         }
         None
     }
-
 
     fn is_printable(&self) -> bool {
         if let Some(node_type) = self.node_type.to_owned() {

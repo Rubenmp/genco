@@ -27,7 +27,6 @@ impl JavaImportsScan {
         Err(error)
     }
 
-
     pub(crate) fn insert(&mut self, import: JavaImport) {
         if import.is_explicit_import() {
             self.explicit_imports.push(import);
@@ -37,7 +36,7 @@ impl JavaImportsScan {
                     "Wildcard imports are not supported yet\n\"{}\"",
                     import.to_string()
                 )
-                    .as_str(),
+                .as_str(),
             );
             self.wildcard_imports.push(import);
         } else {
@@ -78,10 +77,8 @@ mod tests {
 
         let result = imports.get_explicit_import("NotFoundClass");
         match result {
-            Ok(_) =>
-                assert_fail("It should not return any JavaImport"),
-            Err(err) =>
-                assert_eq!("Import for \"NotFoundClass\" not found.", err)
+            Ok(_) => assert_fail("It should not return any JavaImport"),
+            Err(err) => assert_eq!("Import for \"NotFoundClass\" not found.", err),
         }
     }
 

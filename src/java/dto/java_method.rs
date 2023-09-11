@@ -4,7 +4,6 @@ use crate::core::file_system::file_creator::file_creator;
 use crate::core::file_system::file_overwriting::file_overwriting::FileOverwriting;
 use crate::core::observability::logger::logger;
 use crate::core::parser::parser_node_trait::ParserNode;
-use crate::java::dto::{java_annotation_usage, java_visibility};
 use crate::java::dto::java_annotation_usage::JavaAnnotationUsage;
 use crate::java::dto::java_data_type::JavaDataType;
 use crate::java::dto::java_import::JavaImport;
@@ -12,6 +11,7 @@ use crate::java::dto::java_indentation_config::JavaIndentation;
 use crate::java::dto::java_steps_generator::JavaStepsGenerator;
 use crate::java::dto::java_variable::JavaVariable;
 use crate::java::dto::java_visibility::JavaVisibility;
+use crate::java::dto::{java_annotation_usage, java_visibility};
 use crate::java::parser::dto::java_node::JavaNode;
 use crate::java::parser::dto::java_node_type::JavaNodeType;
 use crate::java::scanner::file::java_imports_scan::JavaImportsScan;
@@ -255,7 +255,6 @@ fn check_root_is_method_decl(node: &JavaNode) {
         ));
     }
 }
-
 
 pub struct JavaMethodBuilder {
     annotations: Vec<JavaAnnotationUsage>,

@@ -32,7 +32,8 @@ fn insert_java_import_routes_in_db(java_files: Vec<PathBuf>) {
         .map(|file| JavaImportRouteCreate::new(file))
         .collect();
 
-    db_java_import_route_save::save(routes_to_save).expect("JavaImportRoute batch save must succeed")
+    db_java_import_route_save::save(routes_to_save)
+        .expect("JavaImportRoute batch save must succeed")
 }
 
 fn get_files_and_dirs_to_scan(path: &Path) -> (Vec<PathBuf>, Vec<PathBuf>) {
