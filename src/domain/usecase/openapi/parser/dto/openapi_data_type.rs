@@ -1,5 +1,6 @@
-use crate::domain::usecase::openapi::parser::dto::openapi_schema::OpenapiSchema;
 use std::fmt;
+
+use crate::domain::usecase::openapi::parser::dto::openapi_schema::OpenapiSchema;
 
 #[derive(Debug, Clone)]
 pub enum OpenapiDataType {
@@ -13,6 +14,7 @@ pub enum OpenapiDataType {
     Object(Box<OpenapiSchema>),
     ObjectName(String),
     Array(Vec<OpenapiDataType>),
+    ArrayItems(Box<OpenapiDataType>),
 }
 
 #[derive(Debug, Clone)]

@@ -1,10 +1,17 @@
 use std::fs;
 use std::fs::OpenOptions;
 use std::io::{BufReader, Read, Seek, SeekFrom};
-use std::path::PathBuf;
+use std::path::Path;
 use std::str;
 
-pub fn read_string(file: &PathBuf, start_byte: usize, end_byte: usize) -> String {
+use crate::core::file_system::path_helper::to_absolute_path_str;
+
+pub fn read_to_string(file: &Path) -> String {
+    fs::read_to_string(file)
+        .expect(format!("Unable to read file:\n{}\n", to_absolute_path_str(&file)).as_str())
+}
+
+pub fn read_string(file: &Path, start_byte: usize, end_byte: usize) -> String {
     let bytes = read_bytes(file, start_byte, end_byte);
     return match str::from_utf8(&bytes) {
         Ok(str) => str.to_string(),
@@ -12,7 +19,7 @@ pub fn read_string(file: &PathBuf, start_byte: usize, end_byte: usize) -> String
     };
 }
 
-pub fn read_bytes(file: &PathBuf, start_byte: usize, end_byte: usize) -> Vec<u8> {
+pub fn read_bytes(file: &Path, start_byte: usize, end_byte: usize) -> Vec<u8> {
     let file = OpenOptions::new()
         .read(true)
         .write(true)
@@ -31,8 +38,14 @@ pub fn read_bytes(file: &PathBuf, start_byte: usize, end_byte: usize) -> Vec<u8>
     temporal_buffer
 }
 
-pub fn get_number_of_bytes_of(file: &PathBuf) -> usize {
+pub fn get_number_of_bytes_of(file: &Path) -> usize {
     fs::metadata(file)
-        .expect("File to get number of bytes from can not be opened")
+        .expect(
+            format!(
+                "Can not get bytes from file:\n{}\n",
+                to_absolute_path_str(file)
+            )
+            .as_str(),
+        )
         .len() as usize
 }

@@ -4,6 +4,8 @@ use std::str::FromStr;
 
 use tree_sitter::{Node, Parser};
 
+use crate::core::file_system::file_reader;
+use crate::core::observability::logger::logger;
 use crate::core::parser::parser_node_trait::ParserNode;
 use crate::java::parser::dto::java_node_type::JavaNodeType;
 
@@ -30,13 +32,27 @@ impl JavaNode {
             children,
             node_type: match JavaNodeType::from_str(node.kind()) {
                 Ok(v) => Some(v),
-                Err(_e) => None,
+                Err(_e) => {
+                    logger::log_warning(
+                        format!(
+                            "Unrecognized node type \"{}\" in expression \"{:?}\"",
+                            node.kind(),
+                            file_reader::read_string(
+                                &file_path,
+                                node.start_byte(),
+                                node.end_byte()
+                            )
+                        )
+                        .as_str(),
+                    );
+                    None
+                }
             },
         }
     }
 
-    pub fn get_node_type(&self) -> Option<JavaNodeType> {
-        self.node_type.clone()
+    pub fn get_node_type_opt(&self) -> Option<JavaNodeType> {
+        self.node_type.to_owned()
     }
 
     pub fn get_children(&self) -> &Vec<JavaNode> {
@@ -44,7 +60,7 @@ impl JavaNode {
     }
 
     fn get_node_type_str(&self) -> String {
-        if let Some(some_node_type) = self.get_node_type() {
+        if let Some(some_node_type) = self.get_node_type_opt() {
             some_node_type.to_string()
         } else {
             "None".to_string()
@@ -81,8 +97,27 @@ impl ParserNode for JavaNode {
                 file_path_str
             )
         });
-        let _tree = parser.parse(file_content, None).unwrap();
+        let parsed_tree = parser.parse(file_content, None);
+        let _tree = parsed_tree.unwrap();
         JavaNode::new_internal(_tree.root_node(), file_path)
+    }
+
+    fn new_with_result(file_path: &Path) -> Result<Self, String> {
+        let mut parser = build_parser();
+
+        let file_path_str = file_path.to_str().unwrap();
+        let file_content = fs::read_to_string(file_path_str).unwrap_or_else(|_| {
+            panic!(
+                "File path \"{}\" should exists to parse java node",
+                file_path_str
+            )
+        });
+        if let Some(parsed_tree) = parser.parse(file_content, None) {
+            let node = JavaNode::new_internal(parsed_tree.root_node(), file_path);
+            return Ok(node);
+        }
+
+        Err(String::from("Error parsing java node"))
     }
 
     fn get_start_byte(&self) -> usize {
@@ -112,6 +147,10 @@ impl ParserNode for JavaNode {
         None
     }
 
+    fn get_tree_str(&self) -> String {
+        self.get_tree_str_internal(0, 1, false)
+    }
+
     fn is_printable(&self) -> bool {
         if let Some(node_type) = self.node_type.to_owned() {
             return matches!(
@@ -122,7 +161,13 @@ impl ParserNode for JavaNode {
                     | JavaNodeType::Public
                     | JavaNodeType::Protected
                     | JavaNodeType::Private
+                    | JavaNodeType::Static
+                    | JavaNodeType::Final
                     | JavaNodeType::Class
+                    | JavaNodeType::Interface
+                    | JavaNodeType::EnumConstant
+                    | JavaNodeType::Extends
+                    | JavaNodeType::Implements
                     | JavaNodeType::TypeIdentifier
                     | JavaNodeType::Dot
                     | JavaNodeType::Semicolon
@@ -130,10 +175,15 @@ impl ParserNode for JavaNode {
                     | JavaNodeType::RParentheses
                     | JavaNodeType::LBrace
                     | JavaNodeType::RBrace
+                    | JavaNodeType::LBracket
+                    | JavaNodeType::RBracket
+                    | JavaNodeType::Comma
                     | JavaNodeType::Equals
                     | JavaNodeType::StringLiteral
                     | JavaNodeType::At
                     | JavaNodeType::VoidType
+                    | JavaNodeType::Int
+                    | JavaNodeType::Boolean
             );
         }
         false

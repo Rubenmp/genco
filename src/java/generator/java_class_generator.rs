@@ -4,7 +4,7 @@ use crate::core::file_system::directory_browser::directory_browser::check_dir;
 use crate::core::file_system::file_creator::file_creator;
 use crate::core::file_system::file_overwriting::file_overwriting::FileOverwriting;
 use crate::java::generator::dto::java_class_skeleton::JavaClassSkeleton;
-use crate::java::scanner::java_package_scanner::java_package_scanner;
+use crate::java::scanner::package::java_package_scanner;
 
 pub fn generate(dir: &Path, skeleton: JavaClassSkeleton) {
     check_exists(dir);

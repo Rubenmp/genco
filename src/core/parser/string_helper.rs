@@ -1,3 +1,5 @@
+use std::str;
+
 use regex::{Match, Regex};
 
 pub fn escape_str_for_json(input_string: String) -> String {
@@ -107,23 +109,40 @@ fn find_word_matches(upper_camel_case_str: &str) -> Vec<Match> {
     matches
 }
 
-fn to_lowercase(input: &str) -> String {
-    input.to_lowercase()
+pub(crate) fn to_str(buf: &Vec<u8>) -> String {
+    let s = match str::from_utf8(&*buf) {
+        Ok(content) => content,
+        Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
+    };
+
+    s.to_string()
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::core::parser::string_helper::{to_medial_case, trim_quotation_marks};
+    use crate::core::parser::string_helper;
 
     #[test]
     fn trim_quotation_marks_tests() {
-        assert_eq!("", trim_quotation_marks("".to_string()));
-        assert_eq!("abc", trim_quotation_marks("\"abc\"".to_string()));
-        assert_eq!("a\"b\"c", trim_quotation_marks("\"a\"b\"c\"".to_string()));
+        assert_eq!("", string_helper::trim_quotation_marks("".to_string()));
+        assert_eq!(
+            "abc",
+            string_helper::trim_quotation_marks("\"abc\"".to_string())
+        );
+        assert_eq!(
+            "a\"b\"c",
+            string_helper::trim_quotation_marks("\"a\"b\"c\"".to_string())
+        );
     }
 
     #[test]
     fn to_medial_case_test() {
-        assert_eq!("medialCase", to_medial_case("MedialCase"));
+        assert_eq!("medialCase", string_helper::to_medial_case("MedialCase"));
+    }
+
+    #[test]
+    fn to_str_from_byte_vector() {
+        let example = "StringExample";
+        assert_eq!(example, string_helper::to_str(&example.as_bytes().to_vec()));
     }
 }

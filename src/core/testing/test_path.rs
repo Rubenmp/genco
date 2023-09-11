@@ -41,19 +41,28 @@ pub fn get_non_existing_test_file(current_file: PathBuf, name: &str) -> PathBuf 
 }
 
 // Java
-pub fn get_java_test_file(current_dir: PathBuf, test_name: &str) -> PathBuf {
-    let mut path = get_test_dir_raw(current_dir);
+pub fn get_java_test_file(
+    current_dir: PathBuf,
+    test_folder: &str,
+    java_file_name: &str,
+) -> PathBuf {
+    let mut path = get_java_project_test_folder(current_dir, test_folder);
+    path.join(java_file_name)
+}
 
-    include_path_to_main_java_file(test_name, &mut path);
+pub fn get_java_project_test_folder(current_file: PathBuf, test_folder: &str) -> PathBuf {
+    let mut path = get_test_dir_raw(current_file);
+
+    include_path_to_main_java_folder(&mut path, test_folder);
+
     path
 }
 
-fn include_path_to_main_java_file(test_name: &str, path: &mut PathBuf) {
-    path.push(test_name);
+fn include_path_to_main_java_folder(path: &mut PathBuf, test_folder: &str) {
+    path.push(test_folder);
     path.push("src");
     path.push("main");
     path.push("java");
     path.push("org");
-    path.push("gencotest");
-    path.push("Main.java");
+    path.push("test");
 }

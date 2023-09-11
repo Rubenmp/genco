@@ -95,11 +95,14 @@ pub fn to_data_type(avro_item_type: &AvroItemType) -> OpenapiDataType {
     } else if let AvroItemType::RecordName(record_name) = avro_item_type {
         return OpenapiDataType::ObjectName(record_name.to_owned());
     } else if let AvroItemType::Array(subtypes) = avro_item_type {
-        if subtypes.len() == 1 {
-            if let Some(subtype) = subtypes.get(0) {
-                return to_data_type(subtype);
-            }
+        let mut translated_types = Vec::new();
+        for subtype in subtypes {
+            translated_types.push(to_data_type(subtype));
         }
+        return OpenapiDataType::Array(translated_types);
+    } else if let AvroItemType::ArrayItems(items_type) = avro_item_type {
+        let translated_type = to_data_type(items_type);
+        return OpenapiDataType::ArrayItems(Box::new(translated_type));
     } else if let AvroItemType::Record(record_box) = avro_item_type {
         if record_box.is_just_type() {
             return to_data_type(record_box.get_item_type());
@@ -130,7 +133,7 @@ mod tests {
 
         let expect_result_file_path =
             get_test_file(get_current_file_path(), "enum_translated.yaml");
-        assert_same_as_file(&expect_result_file_path, openapi_str)
+        assert_same_as_file(&expect_result_file_path, &openapi_str)
     }
 
     #[test]
@@ -144,7 +147,7 @@ mod tests {
             get_current_file_path(),
             "avro_basic_fields_translated_to_openapi.yaml",
         );
-        assert_same_as_file(&expect_result_file_path, openapi_str)
+        assert_same_as_file(&expect_result_file_path, &openapi_str)
     }
 
     #[test]
@@ -158,7 +161,7 @@ mod tests {
             get_current_file_path(),
             "avro_array_fields_translated_to_openapi.yaml",
         );
-        assert_same_as_file(&expect_result_file_path, openapi_str)
+        assert_same_as_file(&expect_result_file_path, &openapi_str)
     }
 
     #[test]

@@ -49,6 +49,11 @@ pub fn get_file_map(path: &Path) -> HashMap<String, PathBuf> {
     result
 }
 
+pub fn do_last_element_in_path_ends_with(path: &Path, ending: &str) -> bool {
+    let file_name = path.iter().last().unwrap().to_string_lossy().to_string();
+    file_name.ends_with(ending)
+}
+
 #[cfg(test)]
 mod tests {
     use std::path::PathBuf;

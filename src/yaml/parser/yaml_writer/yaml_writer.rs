@@ -1,7 +1,7 @@
-use crate::core::file_system::file_creator::file_creator;
 use std::collections::HashMap;
 use std::path::PathBuf;
 
+use crate::core::file_system::file_creator::file_creator;
 use crate::core::file_system::file_overwriting::file_overwriting::FileOverwriting;
 use crate::core::parser::parser_node_trait::ParserNode;
 use crate::yaml::parser::dto::yaml_node::YamlNode;
@@ -36,8 +36,8 @@ fn include_nodes_to_overwrite(
     node_to_add: &YamlNode,
     depth: usize,
 ) {
-    let mapping_pairs_to_add = filter_first_level_block_mapping_pairs(node_to_add);
-    let original_mapping_pairs = filter_first_level_block_mapping_pairs(original_node);
+    let original_mapping_pairs = filter_block_mapping_pairs_without_sequence_items(original_node);
+    let mapping_pairs_to_add = filter_block_mapping_pairs_without_sequence_items(node_to_add);
 
     let (new_nodes, modification_nodes) =
         split_into_new_and_modifications(&original_mapping_pairs, &mapping_pairs_to_add);
@@ -251,7 +251,7 @@ fn get_mapping_pairs_from_key(mapping_pairs_to_add: &Vec<YamlNode>) -> HashMap<S
     mapping_pairs_from_key
 }
 
-fn filter_first_level_block_mapping_pairs(root: &YamlNode) -> Vec<YamlNode> {
+fn filter_block_mapping_pairs_without_sequence_items(root: &YamlNode) -> Vec<YamlNode> {
     let mut result_nodes: Vec<YamlNode> = Vec::new();
     if let Some(node_type) = root.get_node_type() {
         if YamlNodeType::BlockMappingPair == node_type {
@@ -263,8 +263,13 @@ fn filter_first_level_block_mapping_pairs(root: &YamlNode) -> Vec<YamlNode> {
     }
 
     for child in root.get_children() {
-        for mapping_pairs_node in filter_first_level_block_mapping_pairs(child) {
-            result_nodes.push(mapping_pairs_node);
+        let child_node_type = child.get_node_type();
+        if Some(YamlNodeType::BlockSequence) != child_node_type
+            && Some(YamlNodeType::BlockSequenceItem) != child_node_type
+        {
+            for mapping_pairs_node in filter_block_mapping_pairs_without_sequence_items(child) {
+                result_nodes.push(mapping_pairs_node);
+            }
         }
     }
 
@@ -313,25 +318,55 @@ mod tests {
     use std::fs;
     use std::path::PathBuf;
 
-    use crate::core::testing::test_assert::assert_same_file;
-    use crate::core::testing::test_path::get_test_file;
+    use crate::core::file_system::file_creator::file_creator::{
+        create_file_with_content, remove_file_if_exists,
+    };
+    use crate::core::testing::test_assert::assert_same_as_file;
+    use crate::core::testing::test_path::get_non_existing_test_file;
     use crate::yaml::parser::yaml_writer::yaml_writer::overwrite;
 
     #[test]
     fn overwrite_test() {
-        let original_file_path = get_test_file(get_current_file_path(), "simple_write_base.yaml");
-        let file_to_add_path = get_test_file(get_current_file_path(), "simple_write_to_add.yaml");
-        let copy_file_path = get_test_file(get_current_file_path(), "simple_write_base_copy.yaml");
+        let original_file_path = get_yaml_test_file("overwrite_base.yaml");
+        let file_to_add_path = get_yaml_test_file("overwrite_base_to_add.yaml");
+        let copy_file_path = get_yaml_test_file("overwrite_base_copy.yaml");
+        create_file_with_content(&copy_file_path, &original_file_path);
 
         overwrite(&original_file_path, &file_to_add_path);
 
+        let result_data = fs::read_to_string(&original_file_path)
+            .expect("Unable to read expected result resource");
+        create_file_with_content(&original_file_path, &copy_file_path);
+
+        let expect_result_file_path = get_yaml_test_file("overwrite_base_expected_result.yaml");
+        assert_same_as_file(&expect_result_file_path, &result_data);
+        remove_file_if_exists(&copy_file_path);
+    }
+
+    #[test]
+    fn overwrite_new_hyphen_item() {
+        let original_file_path = get_yaml_test_file("overwrite_new_hyphen_item.yaml");
+        let file_to_add_path = get_yaml_test_file("overwrite_new_hyphen_item_to_add.yaml");
+        let copy_file_path = get_yaml_test_file("overwrite_new_hyphen_item_copy.yaml");
+        create_file_with_content(&copy_file_path, &original_file_path);
+
+        overwrite(&original_file_path, &file_to_add_path);
+
+        let result_data = fs::read_to_string(&original_file_path)
+            .expect("Unable to read expected result resource");
+        create_file_with_content(&original_file_path, &copy_file_path);
+
         let expect_result_file_path =
-            get_test_file(get_current_file_path(), "simple_write_expected_result.yaml");
-        assert_same_file(&expect_result_file_path, &original_file_path);
-        fs::copy(copy_file_path, &original_file_path).expect("Replace resource with copy");
+            get_yaml_test_file("overwrite_new_hyphen_item_expected_result.yaml");
+        assert_same_as_file(&expect_result_file_path, &result_data);
+        remove_file_if_exists(&copy_file_path);
     }
 
     fn get_current_file_path() -> PathBuf {
         PathBuf::from(file!())
+    }
+
+    fn get_yaml_test_file(file_name: &str) -> PathBuf {
+        get_non_existing_test_file(get_current_file_path(), file_name)
     }
 }

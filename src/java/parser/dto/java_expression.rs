@@ -1,12 +1,10 @@
 use crate::java::parser::dto::java_node::JavaNode;
 
-#[derive(Debug)]
-pub struct JavaExpression {
-    node: JavaNode,
-}
+#[derive(Debug, Copy, Clone)]
+pub struct JavaExpression {}
 
 impl<'a> JavaExpression {
-    pub fn new(node: &JavaNode) -> Self {
-        JavaExpression { node: node.clone() }
+    pub(crate) fn new(_node: &JavaNode) -> Self {
+        JavaExpression {}
     }
 }

@@ -9,6 +9,7 @@ pub enum AvroItemType {
     Record(Box<AvroItem>),
     RecordName(String),
     Array(Vec<AvroItemType>),
+    ArrayItems(Box<AvroItemType>),
     Null,
     Int,
     Long,

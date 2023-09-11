@@ -3,14 +3,15 @@ ComplexFields:
   type: object
   required:
     - 1FieldRequiredStringArray
+    - 2FieldRequiredStringArray
   properties:
     1FieldRequiredStringArray:
       description: Required string array
       type: array
       items:
         type: string
-    2FieldNonRequiredStringArray:
-      description: Non required array of arrays
+    2FieldRequiredStringArray:
+      description: Required array of arrays
       type: array
       items:
         $ref: '#/components/schemas/1FieldRequiredStringArray'

@@ -2,19 +2,28 @@ use std::fmt::Write;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::Path;
-use std::str;
 
 use crate::core::file_system::file_reader;
+use crate::core::parser::string_helper;
 use crate::core::parser::string_helper::escape_str_for_json;
 
-pub trait ParserNode {
+pub trait ParserNode: Sized {
     fn new(file_path: &Path) -> Self;
+    fn new_with_result(_file_path: &Path) -> Result<Self, String> {
+        todo!();
+    }
 
     fn get_start_byte(&self) -> usize;
     fn get_end_byte(&self) -> usize;
     fn get_file_path(&self) -> &Path;
     fn get_children_boxes(&self) -> Vec<Box<Self>>;
     fn get_node_type_str(&self) -> Option<String>;
+
+    #[allow(unused)]
+    fn print_tree_and_panic(&self) {
+        println!("{}", self.get_tree_str());
+        panic!("Finished");
+    }
     fn get_tree_str(&self) -> String {
         self.get_tree_str_internal(0, 1, false)
     }
@@ -92,13 +101,13 @@ pub trait ParserNode {
     fn is_printable(&self) -> bool;
 
     fn get_content(&self) -> String {
-        let mut buffer = file_reader::read_bytes(
-            &self.get_file_path().to_path_buf(),
+        let buffer = file_reader::read_bytes(
+            &self.get_file_path(),
             self.get_start_byte(),
             self.get_end_byte(),
         );
 
-        to_str(&mut buffer)
+        string_helper::to_str(&buffer)
     }
 
     fn get_content_bytes_with_previous_empty_space(&self) -> String {
@@ -123,21 +132,12 @@ pub trait ParserNode {
             current_start_byte = self.get_start_byte();
         }
 
-        let mut buffer = file_reader::read_bytes(
-            &self.get_file_path().to_path_buf(),
+        let buffer = file_reader::read_bytes(
+            &self.get_file_path(),
             current_start_byte,
             self.get_end_byte(),
         );
 
-        to_str(&mut buffer)
+        string_helper::to_str(&buffer)
     }
-}
-
-fn to_str(buf: &mut Vec<u8>) -> String {
-    let s = match str::from_utf8(&*buf) {
-        Ok(content) => content,
-        Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
-    };
-
-    s.to_string()
 }

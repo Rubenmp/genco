@@ -1,4 +1,4 @@
-rate::domain::core::/crate::core::
-rate::domain::core::/crate::core::
-rate::domain::core::/crate::core::
-rate::domain::core::/crate::core::
+package com.org.demo;
+
+class JavaChildServiceImpl extends ParentClass implements JavaInterface1, JavaInterface2 {
+}

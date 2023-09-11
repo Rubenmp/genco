@@ -9,7 +9,6 @@ pub struct OpenapiSchema {
     schema_type: Option<OpenapiDataType>,
     description: Option<String>,
     enum_values: Option<Vec<String>>,
-    dollar_ref: Option<String>,
     example: Option<String>,
     properties: Option<Vec<OpenapiSchema>>,
 }
@@ -21,7 +20,6 @@ impl OpenapiSchema {
             schema_type: Some(OpenapiDataType::String),
             description,
             enum_values: Some(enum_values),
-            dollar_ref: None,
             example: None,
             properties: None,
         }
@@ -37,21 +35,8 @@ impl OpenapiSchema {
             schema_type: Some(OpenapiDataType::ObjectSimple),
             description,
             enum_values: None,
-            dollar_ref: None,
             example: None,
             properties: Some(fields),
-        }
-    }
-
-    pub fn new_dollar_ref(name: String, dollar_ref: String) -> Self {
-        OpenapiSchema {
-            name,
-            schema_type: Some(OpenapiDataType::ObjectSimple),
-            description: None,
-            enum_values: None,
-            dollar_ref: Some(dollar_ref),
-            example: None,
-            properties: None,
         }
     }
 
@@ -65,7 +50,6 @@ impl OpenapiSchema {
             schema_type: Some(data_type),
             description,
             enum_values: None,
-            dollar_ref: None,
             example: None,
             properties: None,
         }
@@ -105,7 +89,7 @@ impl OpenapiSchema {
             return Some(number_format.to_string().to_lowercase());
         } else if let OpenapiDataType::Array(subtypes) = schema_type {
             let subtypes_without_null = get_sub_types_without_null(subtypes);
-            if subtypes_without_null.len() == 1 {
+            if subtypes.len() == 2 && subtypes_without_null.len() == 1 {
                 if let Some(&subtype) = subtypes_without_null.get(0) {
                     return Self::get_format_from_schema_type(subtype);
                 }
@@ -141,34 +125,13 @@ fn write_openapi_schema(fmt: &mut Formatter, depth: usize, schema: &OpenapiSchem
         .expect("Error writing OpenapiSchema name");
     if let Some(schema_type) = get_object_name_schema(schema) {
         if let OpenapiDataType::ObjectName(object_name) = schema_type {
-            fmt.write_str(
-                format!(
-                    "{}$ref: '#/components/schemas/{}'\n",
-                    get_indentation(depth + 1),
-                    object_name
-                )
-                .as_str(),
-            )
-            .expect("Error writing OpenapiSchema type");
+            write_ref(fmt, depth, object_name);
             return;
         }
     }
 
     if let Some(description) = &schema.get_description() {
-        let description = if description.contains(":") {
-            format!("\"{}\"", description)
-        } else {
-            description.to_string()
-        };
-        fmt.write_str(
-            format!(
-                "{}description: {}\n",
-                get_indentation(depth + 1),
-                description
-            )
-            .as_str(),
-        )
-        .expect("Error writing OpenapiSchema description");
+        write_description(fmt, depth, description);
     }
     if let Some(example) = &schema.example {
         fmt.write_str(format!("{}example: {}\n", get_indentation(depth + 1), example).as_str())
@@ -180,6 +143,28 @@ fn write_openapi_schema(fmt: &mut Formatter, depth: usize, schema: &OpenapiSchem
             format!("{}type: {}\n", get_indentation(depth + 1), schema_type_str).as_str(),
         )
         .expect("Error writing OpenapiSchema type");
+        if let OpenapiDataType::ArrayItems(subtype) = schema_type {
+            fmt.write_str(format!("{}items:", get_indentation(depth + 1)).as_str())
+                .expect("Error writing OpenapiSchema type");
+
+            let schema_type_str = get_str(subtype);
+            if schema_type_str.starts_with("$ref") {
+                fmt.write_str(
+                    format!("\n{}{}\n", get_indentation(depth + 2), schema_type_str).as_str(),
+                )
+                .expect("Error writing OpenapiSchema type");
+            } else {
+                fmt.write_str(
+                    format!(
+                        "\n{}type: {}\n",
+                        get_indentation(depth + 2),
+                        schema_type_str
+                    )
+                    .as_str(),
+                )
+                .expect("Error writing OpenapiSchema type");
+            }
+        }
     }
     if let Some(format) = &schema.get_format() {
         fmt.write_str(format!("{}format: {}\n", get_indentation(depth + 1), format).as_str())
@@ -187,12 +172,7 @@ fn write_openapi_schema(fmt: &mut Formatter, depth: usize, schema: &OpenapiSchem
     }
 
     if let Some(enum_values) = schema.get_enum_values() {
-        fmt.write_str(format!("{}enum:\n", get_indentation(depth + 1)).as_str())
-            .expect("Error writing enum for openapi schema");
-        for enum_value in enum_values {
-            fmt.write_str(format!("{}- {}\n", get_indentation(depth + 2), enum_value).as_str())
-                .expect("Error writing enum value for openapi schema");
-        }
+        write_enum_values(fmt, depth, enum_values);
     }
     let required_properties = schema.get_required_properties();
     if !required_properties.is_empty() {
@@ -203,17 +183,55 @@ fn write_openapi_schema(fmt: &mut Formatter, depth: usize, schema: &OpenapiSchem
                 .expect("Error writing required property for openapi schema");
         }
     }
-    if let Some(dollar_ref) = &schema.dollar_ref {
-        fmt.write_str(format!("{}$ref: {}\n", get_indentation(depth + 1), dollar_ref).as_str())
-            .expect("Error writing OpenapiSchema $ref");
-    }
     if let Some(properties) = &schema.get_properties() {
-        fmt.write_str(format!("{}properties:\n", get_indentation(depth + 1)).as_str())
-            .expect("Error writing properties for openapi schema");
-        for property in properties {
-            write_openapi_schema(fmt, depth + 2, property);
-        }
+        write_properties(fmt, depth, properties);
     }
+}
+
+fn write_enum_values(fmt: &mut Formatter, depth: usize, enum_values: &Vec<String>) {
+    fmt.write_str(format!("{}enum:\n", get_indentation(depth + 1)).as_str())
+        .expect("Error writing enum for openapi schema");
+    for enum_value in enum_values {
+        fmt.write_str(format!("{}- {}\n", get_indentation(depth + 2), enum_value).as_str())
+            .expect("Error writing enum value for openapi schema");
+    }
+}
+
+fn write_properties(fmt: &mut Formatter, depth: usize, properties: &Vec<OpenapiSchema>) {
+    fmt.write_str(format!("{}properties:\n", get_indentation(depth + 1)).as_str())
+        .expect("Error writing properties for openapi schema");
+    for property in properties {
+        write_openapi_schema(fmt, depth + 2, property);
+    }
+}
+
+fn write_description(fmt: &mut Formatter, depth: usize, description: &String) {
+    let description = if description.contains(":") {
+        format!("\"{}\"", description)
+    } else {
+        description.to_string()
+    };
+    fmt.write_str(
+        format!(
+            "{}description: {}\n",
+            get_indentation(depth + 1),
+            description
+        )
+        .as_str(),
+    )
+    .expect("Error writing OpenapiSchema description");
+}
+
+fn write_ref(fmt: &mut Formatter, depth: usize, object_name: String) {
+    fmt.write_str(
+        format!(
+            "{}$ref: '#/components/schemas/{}'\n",
+            get_indentation(depth + 1),
+            object_name
+        )
+        .as_str(),
+    )
+    .expect("Error writing OpenapiSchema type");
 }
 
 fn get_object_name_schema(schema: &OpenapiSchema) -> Option<OpenapiDataType> {
@@ -244,6 +262,8 @@ fn get_str(data_type: &OpenapiDataType) -> String {
         return "integer".to_string();
     } else if let OpenapiDataType::Number(_) = data_type {
         return "number".to_string();
+    } else if let OpenapiDataType::ArrayItems(_) = data_type {
+        return "array".to_string();
     } else if let OpenapiDataType::Array(subtypes) = data_type {
         let subtypes_without_null = get_sub_types_without_null(subtypes);
         if subtypes_without_null.len() == 1 {
@@ -251,6 +271,8 @@ fn get_str(data_type: &OpenapiDataType) -> String {
                 return get_str(subtype);
             }
         }
+    } else if let OpenapiDataType::ObjectName(object_name) = data_type {
+        return format!("$ref: '#/components/schemas/{}'", object_name);
     }
 
     data_type.to_string()

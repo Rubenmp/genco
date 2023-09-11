@@ -1,0 +1,5 @@
+itemList:
+  - item: item1
+    property: property1
+  - item: item2
+    property: property2

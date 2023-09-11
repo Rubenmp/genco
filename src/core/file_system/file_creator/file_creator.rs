@@ -1,15 +1,15 @@
 use std::fs::{File, OpenOptions};
 use std::io::{Seek, Write};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::vec::Vec;
 use std::{fs, io};
 
 use crate::core::file_system::file_reader::get_number_of_bytes_of;
 
 #[allow(unused)]
-pub fn create_file_if_not_exist(file_path: &PathBuf) {
+pub fn create_file_if_not_exist(file_path: &Path) {
     if !file_path.exists() {
-        let mut mut_file_path = file_path.clone();
+        let mut mut_file_path = file_path.clone().to_path_buf();
         let mut all_to_create = Vec::new();
 
         for ancestor in file_path.ancestors() {
@@ -47,8 +47,7 @@ pub fn create_file_if_not_exists_with_content(output_file: &PathBuf, content: &s
     write_buffer(&mut file, &mut buffer);
 }
 
-pub fn create_file_with_content(output_file: &PathBuf, content_path: &PathBuf) {
-    let _a = 0;
+pub fn create_file_with_content(output_file: &Path, content_path: &Path) {
     let data = fs::read(content_path).expect(
         format!(
             "Error reading resource to get content from {:?}",
@@ -77,7 +76,7 @@ fn write_buffer(file: &mut File, buffer: &mut Vec<u8>) {
     file.write_all(&buffer).expect("Write resource failed.");
 }
 
-pub fn remove_file_if_exists(file_path: &PathBuf) {
+pub fn remove_file_if_exists(file_path: &Path) {
     if file_path.exists() && file_path.is_file() {
         fs::remove_file(file_path).expect("Error removing resource");
     }

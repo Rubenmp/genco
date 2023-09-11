@@ -1,3 +1,3 @@
-rate::domain::core::/crate::core::
-rate::domain::core::/crate::core::
-rate::domain::core::/crate::core::
+@Test
+public void new_method(final int id, final String name) {
+}

@@ -25,7 +25,7 @@ mod tests {
         let root_node = parse(&file_path);
 
         let tree_str = root_node.get_tree_str();
-        assert_same_as_file(&expect_result_file_path, tree_str)
+        assert_same_as_file(&expect_result_file_path, &tree_str)
     }
 
     fn get_current_file_path() -> PathBuf {

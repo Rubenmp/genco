@@ -20,7 +20,21 @@ pub fn get_dir_ending_with(input_path: &Path, ending: &str) -> Option<PathBuf> {
     None
 }
 
-pub fn get_dir_map(path: &Path) -> HashMap<String, PathBuf> {
+pub(crate) fn get_files_and_dirs(path: &Path) -> (Vec<PathBuf>, Vec<PathBuf>) {
+    let mut files = Vec::new();
+    let mut dirs = Vec::new();
+    for path in read_dir(path) {
+        if path.is_file() {
+            files.push(path);
+        } else if path.is_dir() {
+            dirs.push(path);
+        }
+    }
+
+    (files, dirs)
+}
+
+pub(crate) fn get_dir_map(path: &Path) -> HashMap<String, PathBuf> {
     let mut result = HashMap::new();
     for path in read_dir(path) {
         if path.is_dir() && path.exists() {
@@ -47,7 +61,7 @@ pub fn get_dir(input_dir: &Path, dir_name: &str) -> Option<PathBuf> {
     None
 }
 
-pub fn read_dir(path: &Path) -> Vec<PathBuf> {
+pub(crate) fn read_dir(path: &Path) -> Vec<PathBuf> {
     if !path.exists() || !path.is_dir() {
         panic!("Error: expecting directory in {:?}", path);
     }
@@ -56,9 +70,7 @@ pub fn read_dir(path: &Path) -> Vec<PathBuf> {
 
     for dir_entry_result in paths_result {
         match dir_entry_result {
-            Ok(dir_entry) => {
-                result.push(dir_entry.path());
-            }
+            Ok(dir_entry) => result.push(dir_entry.path()),
             Err(_e) => panic!("Error get_dir_ending_with"),
         }
     }
@@ -66,7 +78,7 @@ pub fn read_dir(path: &Path) -> Vec<PathBuf> {
     result
 }
 
-pub fn check_dir(input_dir: &Path, start_error_message: &str) {
+pub(crate) fn check_dir_exist(input_dir: &Path, start_error_message: &str) {
     if !input_dir.exists() || !input_dir.is_dir() {
         panic!("{}: {:?}", start_error_message, input_dir)
     }
@@ -77,7 +89,7 @@ mod tests {
     use std::path::PathBuf;
 
     use crate::core::file_system::directory_browser::directory_browser::{
-        check_dir, get_dir, get_dir_ending_with, get_dir_map,
+        check_dir_exist, get_dir, get_dir_ending_with, get_dir_map,
     };
     use crate::core::testing::test_assert::assert_dir_is;
     use crate::core::testing::test_path::get_test_dir;
@@ -137,7 +149,7 @@ mod tests {
     fn check_dir_test() {
         let test_dir = get_test_dir(get_current_file_path(), "get_dir_map");
 
-        check_dir(&test_dir, "Error");
+        check_dir_exist(&test_dir, "Error");
     }
 
     fn get_current_file_path() -> PathBuf {

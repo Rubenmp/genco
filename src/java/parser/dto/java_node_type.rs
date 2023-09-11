@@ -6,10 +6,10 @@ pub enum JavaNodeType {
     // Modularization
     Program,
     PackageDecl,
-    // Ex: "package org.gencotest;"
+    // Ex: "package org.test;"
     Package,
     ScopedIdentifier,
-    // Ex: "org.gencotest"
+    // Ex: "org.test"
     ImportDecl,
     // Ex: "import java.util.List;"
     Import,
@@ -124,6 +124,7 @@ pub enum JavaNodeType {
     InterfaceDeclaration,
     SuperInterfaces,
     // Ex: "implements TestInterface"
+    InterfaceTypeList,
     TypeList,
     // Ex: "TestInterface"
     Interface,
@@ -189,7 +190,7 @@ pub enum JavaNodeType {
     Double,
     Long,
     Char,
-    BooleanType,
+    Boolean,
     String,
     Byte,
     Short,
@@ -212,6 +213,7 @@ pub enum JavaNodeType {
     Comma, // ,
 
     // Comments
+    Comment,
     LineComment,
     // Ex: "// One line comment"
     BlockComment, // Ex /**\n* Basic variables testing\n*/
@@ -420,6 +422,7 @@ impl FromStr for JavaNodeType {
             // Interface
             "interface_declaration" => Ok(JavaNodeType::InterfaceDeclaration),
             "super_interfaces" => Ok(JavaNodeType::SuperInterfaces),
+            "interface_type_list" => Ok(JavaNodeType::InterfaceTypeList),
             "type_list" => Ok(JavaNodeType::TypeList),
             "interface" => Ok(JavaNodeType::Interface),
             "interface_body" => Ok(JavaNodeType::InterfaceBody),
@@ -464,7 +467,7 @@ impl FromStr for JavaNodeType {
             "double" => Ok(JavaNodeType::Double),
             "long" => Ok(JavaNodeType::Long),
             "char" => Ok(JavaNodeType::Char),
-            "boolean_type" => Ok(JavaNodeType::BooleanType),
+            "boolean_type" => Ok(JavaNodeType::Boolean),
             "string" => Ok(JavaNodeType::String),
             "byte" => Ok(JavaNodeType::Byte),
             "short" => Ok(JavaNodeType::Short),
@@ -485,6 +488,7 @@ impl FromStr for JavaNodeType {
             "," => Ok(JavaNodeType::Comma),
 
             // Comments
+            "comment" => Ok(JavaNodeType::Comment),
             "line_comment" => Ok(JavaNodeType::LineComment),
             "block_comment" => Ok(JavaNodeType::BlockComment),
 
@@ -562,14 +566,17 @@ impl FromStr for JavaNodeType {
     }
 }
 
+pub(crate) fn is_visibility(node_type_opt: &Option<JavaNodeType>) -> bool {
+    if let Some(node_type) = node_type_opt {
+        return &JavaNodeType::Private == node_type
+            || &JavaNodeType::Public == node_type
+            || &JavaNodeType::Protected == node_type;
+    }
+    false
+}
+
 impl fmt::Display for JavaNodeType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{:?}", self)
     }
-}
-
-pub fn is_visibility(node_type: &JavaNodeType) -> bool {
-    &JavaNodeType::Private == node_type
-        || &JavaNodeType::Public == node_type
-        || &JavaNodeType::Protected == node_type
 }

@@ -1,3 +1,4 @@
-pub mod generator;
-pub mod parser;
+mod dependency;
+pub mod dto;
+mod parser;
 pub mod scanner;

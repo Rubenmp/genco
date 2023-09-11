@@ -1,5 +1,5 @@
-rate::domain::core::/crate::core::
-rate::domain::core::/crate::core::
-rate::domain::core::/crate::core::
-rate::domain::core::/crate::core::
-rate::domain::core::/crate::core::
+package com.org.demo;
+
+@Service
+protected class JavaServiceBean {
+}

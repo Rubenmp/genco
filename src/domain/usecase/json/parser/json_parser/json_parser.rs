@@ -25,7 +25,7 @@ mod tests {
         let tree_str = root_node.get_tree_str();
         let expect_result_file_path =
             get_test_file(get_current_file_path(), "basic-json-expected-result.json");
-        assert_same_as_file(&expect_result_file_path, tree_str)
+        assert_same_as_file(&expect_result_file_path, &tree_str)
     }
 
     fn get_current_file_path() -> PathBuf {
