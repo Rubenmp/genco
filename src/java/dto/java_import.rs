@@ -99,10 +99,7 @@ impl JavaImport {
                 return Ok(folder.join(format!("{}.java", first_node)));
             }
         }
-        Err(format!(
-            "Specific file not found for import \"{}\"",
-            self
-        ))
+        Err(format!("Specific file not found for import \"{}\"", self))
     }
     pub(crate) fn is_explicit_import(&self) -> bool {
         if self.folder_path.is_some() {

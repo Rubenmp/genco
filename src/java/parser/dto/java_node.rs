@@ -37,11 +37,7 @@ impl JavaNode {
                         format!(
                             "Unrecognized node type \"{}\" in expression \"{:?}\"",
                             node.kind(),
-                            file_reader::read_string(
-                                file_path,
-                                node.start_byte(),
-                                node.end_byte(),
-                            )
+                            file_reader::read_string(file_path, node.start_byte(), node.end_byte(),)
                         )
                         .as_str(),
                     );

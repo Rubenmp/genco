@@ -48,8 +48,12 @@ pub fn create_file_if_not_exists_with_content(output_file: &PathBuf, content: &s
 }
 
 pub fn create_file_with_content(output_file: &Path, content_path: &Path) {
-    let data = fs::read(content_path).unwrap_or_else(|_| panic!("Error reading resource to get content from {:?}",
-            content_path));
+    let data = fs::read(content_path).unwrap_or_else(|_| {
+        panic!(
+            "Error reading resource to get content from {:?}",
+            content_path
+        )
+    });
     remove_file_if_exists(output_file);
     create_file_if_not_exist(output_file);
 

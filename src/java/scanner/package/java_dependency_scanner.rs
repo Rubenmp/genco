@@ -39,8 +39,12 @@ fn insert_java_import_routes_in_db(java_files: Vec<PathBuf>) {
 fn get_files_and_dirs_to_scan(path: &Path) -> (Vec<PathBuf>, Vec<PathBuf>) {
     let mut files = Vec::new();
     let mut dirs = Vec::new();
-    let paths_result = fs::read_dir(path).unwrap_or_else(|_| panic!("Error scanning directory:\n\"{}\"\n",
-            to_absolute_path_str(path)));
+    let paths_result = fs::read_dir(path).unwrap_or_else(|_| {
+        panic!(
+            "Error scanning directory:\n\"{}\"\n",
+            to_absolute_path_str(path)
+        )
+    });
 
     for dir_entry_result in paths_result {
         match dir_entry_result {

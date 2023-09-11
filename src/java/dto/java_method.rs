@@ -1,7 +1,5 @@
 use std::path::Path;
 
-
-
 use crate::core::observability::logger::logger;
 use crate::core::parser::parser_node_trait::ParserNode;
 use crate::java::dto::java_annotation_usage::JavaAnnotationUsage;
@@ -176,7 +174,6 @@ impl JavaMethod {
         *result += " {\n";
         // TODO: write method body here
         *result += format!("{}}}\n", indentation.get_current_indentation()).as_str();
-        
     }
 
     pub(crate) fn get_imports(&self) -> Vec<JavaImport> {
@@ -187,7 +184,8 @@ impl JavaMethod {
 
         if let Some(import) = self
             .get_return_type()
-            .as_ref().and_then(|rt| rt.get_import())
+            .as_ref()
+            .and_then(|rt| rt.get_import())
         {
             imports.push(import)
         }

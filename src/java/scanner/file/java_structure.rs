@@ -404,8 +404,7 @@ fn new_structure_internal(
             } else if JavaNodeType::Id == structure_node_type {
                 name_opt = Some(child_node.get_content());
             } else if JavaNodeType::Superclass == structure_node_type {
-                if let Some(import) =
-                    extract_super_class(file_imports, input_java_file, child_node)
+                if let Some(import) = extract_super_class(file_imports, input_java_file, child_node)
                 {
                     extended_class.push(import);
                 }
@@ -709,8 +708,7 @@ fn log_unrecognized_super_class(super_class_node: &JavaNode, input_java_file: &P
 
 fn is_second_child_an_extended_class_id(children: &Vec<JavaNode>) -> bool {
     is_first_child_of_type(children, JavaNodeType::Extends)
-        && Some(JavaNodeType::TypeIdentifier)
-            == children.get(1).and_then(|t| t.get_node_type_opt())
+        && Some(JavaNodeType::TypeIdentifier) == children.get(1).and_then(|t| t.get_node_type_opt())
 }
 
 fn extract_interfaces(

@@ -219,10 +219,7 @@ fn parse_user_input_var(pattern: &String) -> Option<String> {
 fn get_var_name(pattern: &String, internal_str: String) -> Option<String> {
     let mut type_and_value = internal_str.split('=');
     if type_and_value.clone().count() != 2_usize {
-        panic!(
-            "Invalid parse_user_input_var for pattern \"{}\"",
-            pattern
-        );
+        panic!("Invalid parse_user_input_var for pattern \"{}\"", pattern);
     }
     if let Some(var_type) = type_and_value.next() {
         if var_type != "var" {

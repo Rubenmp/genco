@@ -40,7 +40,11 @@ pub fn read_bytes(file: &Path, start_byte: usize, end_byte: usize) -> Vec<u8> {
 
 pub fn get_number_of_bytes_of(file: &Path) -> usize {
     fs::metadata(file)
-        .unwrap_or_else(|_| panic!("Can not get bytes from file:\n{}\n",
-                to_absolute_path_str(file)))
+        .unwrap_or_else(|_| {
+            panic!(
+                "Can not get bytes from file:\n{}\n",
+                to_absolute_path_str(file)
+            )
+        })
         .len() as usize
 }

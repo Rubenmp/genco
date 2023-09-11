@@ -32,11 +32,7 @@ impl JavaImportsScan {
             self.explicit_imports.push(import);
         } else if import.is_wildcard_import() {
             logger::log_unrecoverable_error(
-                format!(
-                    "Wildcard imports are not supported yet\n\"{}\"",
-                    import
-                )
-                .as_str(),
+                format!("Wildcard imports are not supported yet\n\"{}\"", import).as_str(),
             );
             self.wildcard_imports.push(import);
         } else {
