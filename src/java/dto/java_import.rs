@@ -115,8 +115,8 @@ impl JavaImport {
     fn get_all_nodes(&self) -> Vec<String> {
         if self.folder_path.is_some() {
             let mut all_nodes = self.get_package_nodes_vec();
-            for node in self.nodes.to_owned() {
-                all_nodes.push(node);
+            for node in self.nodes.iter().clone() {
+                all_nodes.push(node.to_string());
             }
 
             return all_nodes;
@@ -169,7 +169,7 @@ impl JavaImport {
     pub(crate) fn match_type_id(&self, type_id: &str) -> bool {
         let all_nodes = self.get_all_nodes().to_owned();
         if let Some(last_node) = all_nodes.last() {
-            return &last_node == &type_id;
+            return last_node == type_id;
         }
         false
     }

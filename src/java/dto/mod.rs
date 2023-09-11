@@ -1,6 +1,7 @@
 pub mod java_annotation_usage;
 pub mod java_class;
 pub mod java_data_type;
+pub mod java_expression;
 pub mod java_field;
 pub mod java_import;
 pub mod java_indentation_config;
