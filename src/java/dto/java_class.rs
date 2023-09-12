@@ -348,10 +348,10 @@ mod tests {
     }
 
     #[test]
-    fn build_full_java_service() {
+    fn build_full_java_service_from_builder() {
         let folder = get_test_folder();
-        let file_path = folder.join("FullJavaService.java");
-        let expected_file_content = get_test_file("ExpectedFullJavaService");
+        let file_path = folder.join("FullJavaServiceFromBuilder.java");
+        let expected_file_content = get_test_file("ExpectedFullJavaServiceFromBuilder");
 
         let annotations = vec![java_spring_context_factory::_create_service_annotation_usage()];
         let method = get_new_method();
@@ -364,7 +364,7 @@ mod tests {
             .folder(&folder)
             .annotations(annotations)
             .visibility(JavaVisibility::Public)
-            .name("FullJavaService")
+            .name("FullJavaServiceFromBuilder")
             .fields(vec![field])
             .methods(vec![method])
             .extended_class(extended_class)
@@ -380,7 +380,7 @@ mod tests {
                 assert!(!java_class.is_static());
                 assert!(!java_class.is_final());
                 assert!(!java_class.is_abstract());
-                assert_eq!("FullJavaService", java_class.get_name());
+                assert_eq!("FullJavaServiceFromBuilder", java_class.get_name());
                 assert!(java_class.get_extended_class().is_some());
                 assert_eq!(1, java_class.get_implemented_interfaces().len());
                 assert_eq!(1, java_class.get_fields().len());

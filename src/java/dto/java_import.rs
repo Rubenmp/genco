@@ -57,10 +57,24 @@ impl JavaImport {
         // in the same java project than java_file_path (multi-module not supported)
         let imports = java_dependency_scanner::search_imports(&import_route, java_file_path);
         if imports.len() > 1 {
-            logger::log_warning(format!("Several import possibilities found for import \"{}\" in file:\n\"{}\"\n", import_route, to_absolute_path_str(java_file_path)).as_str());
+            logger::log_warning(
+                format!(
+                    "Several import possibilities found for import \"{}\" in file:\n\"{}\"\n",
+                    import_route,
+                    to_absolute_path_str(java_file_path)
+                )
+                .as_str(),
+            );
         } else if let Some(java_import_route) = imports.get(0) {
             let file = java_import_route.to_file_path();
-            return Self::new_explicit_import_from_file(&file).expect(format!("Explicit import must be returned for import \"{}\" in file:\n\"{}\"\n", import_route, to_absolute_path_str(java_file_path)).as_str());
+            return Self::new_explicit_import_from_file(&file).expect(
+                format!(
+                    "Explicit import must be returned for import \"{}\" in file:\n\"{}\"\n",
+                    import_route,
+                    to_absolute_path_str(java_file_path)
+                )
+                .as_str(),
+            );
         }
 
         Self::new_from_route(&import_route)

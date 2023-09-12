@@ -15,14 +15,16 @@ pub(crate) fn by_last_type_id(type_id: &str) -> Vec<JavaImportRoute> {
         )
         .expect("Database statement preparation failed (\"by_last_type_id\")");
 
-    stmt
-        .query_map([type_id], |row| Ok(JavaImportRoute::from_row(row)))
+    stmt.query_map([type_id], |row| Ok(JavaImportRoute::from_row(row)))
         .expect("Search JavaImportRoute by_last_type_id query failed")
         .filter_map(|row| row.ok())
         .collect()
 }
 
-pub(crate) fn by_base_package_and_route(base_package: &Path, import_route: &str) -> Vec<JavaImportRoute> {
+pub(crate) fn by_base_package_and_route(
+    base_package: &Path,
+    import_route: &str,
+) -> Vec<JavaImportRoute> {
     let conn = setup::get_db_connection();
 
     let base_package_str = to_absolute_path_str(base_package);
@@ -34,11 +36,12 @@ pub(crate) fn by_base_package_and_route(base_package: &Path, import_route: &str)
         )
         .expect("Database statement preparation failed (\"by_base_package_and_route\")");
 
-    stmt
-        .query_map([base_package_str, import_route.to_owned()], |row| Ok(JavaImportRoute::from_row(row)))
-        .expect("Search JavaImportRoute by_base_package_and_route query failed")
-        .filter_map(|row| row.ok())
-        .collect()
+    stmt.query_map([base_package_str, import_route.to_owned()], |row| {
+        Ok(JavaImportRoute::from_row(row))
+    })
+    .expect("Search JavaImportRoute by_base_package_and_route query failed")
+    .filter_map(|row| row.ok())
+    .collect()
 }
 
 #[cfg(test)]

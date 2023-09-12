@@ -32,7 +32,12 @@ impl JavaImportRoute {
 
     pub(crate) fn to_file_path(&self) -> PathBuf {
         let route_dot_replaces = self.get_route().replace('.', "/");
-        let result_absolute_path = format!("{}{}{}.java", self.get_base_package(), "/src/main/java/", route_dot_replaces);
+        let result_absolute_path = format!(
+            "{}{}{}.java",
+            self.get_base_package(),
+            "/src/main/java/",
+            route_dot_replaces
+        );
         Path::new(&result_absolute_path).to_path_buf()
     }
 }
