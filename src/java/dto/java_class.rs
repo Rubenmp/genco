@@ -143,7 +143,7 @@ impl JavaClass {
         }
     }
 
-    fn from_java_file(java_file: JavaFile) -> Result<JavaClass, String> {
+    fn from_java_file(java_file: JavaFile) -> Result<Self, String> {
         let structure_type = java_file.get_main_structure_type();
         if structure_type != JavaStructureType::Class {
             return Err(format!(

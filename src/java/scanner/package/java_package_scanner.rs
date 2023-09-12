@@ -100,7 +100,6 @@ pub fn get_src_main_java_dir(path: &Path) -> Option<PathBuf> {
     None
 }
 
-
 pub fn should_scan_dir(dir_path: &Path) -> bool {
     if dir_path.ends_with("java") {
         return !dir_path.ends_with("src/test/java");

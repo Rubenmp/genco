@@ -27,7 +27,10 @@ impl JavaFile {
         if let Some(base_java_project_dir) = base_java_project_dir_opt {
             java_dependency_scanner::recursive_scan_dir_unchecked(&base_java_project_dir);
         } else {
-            return Err(format!("Invalid java project file:\n\"{}\"\n", to_absolute_path_str(java_file_path)));
+            return Err(format!(
+                "Invalid java project file:\n\"{}\"\n",
+                to_absolute_path_str(java_file_path)
+            ));
         }
 
         let root_java_node = java_parser::parse(java_file_path)?;
@@ -56,7 +59,7 @@ impl JavaFile {
                 "Java internal structure not found in file:\n\t\"{}\"\n",
                 path_helper::to_absolute_path_str(java_file_path)
             )
-                .as_str(),
+            .as_str(),
         )?;
 
         if !java_file_import.match_type_id(structure.get_name()) {
@@ -100,7 +103,7 @@ impl JavaFile {
                     expected_package_decl,
                     found_package_decl
                 )
-                    .as_str(),
+                .as_str(),
             )
         }
     }

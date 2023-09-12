@@ -91,8 +91,10 @@ impl JavaInterface {
 
 impl JavaInterface {
     // Crate or private methods
-    pub(crate) fn from_import(_import: &JavaImport) -> Result<Self, String> {
-        todo!()
+    pub(crate) fn from_import(import: &JavaImport) -> Result<Self, String> {
+        let file_path = import.get_specific_file()?;
+        let java_file = JavaFile::from_user_input_path(&file_path)?;
+        Self::from_java_file(java_file)
     }
     pub(crate) fn from_structure(structure: JavaStructure) -> Self {
         Self { structure }
@@ -112,6 +114,19 @@ impl JavaInterface {
 
     pub(crate) fn get_self_import(&self) -> JavaImport {
         self.get_structure().get_self_import()
+    }
+
+    fn from_java_file(java_file: JavaFile) -> Result<Self, String> {
+        let structure_type = java_file.get_main_structure_type();
+        if structure_type != JavaStructureType::Interface {
+            return Err(format!(
+                "Expected java interface, found java {:?} in file:\n{}\n",
+                structure_type,
+                to_absolute_path_str(java_file.get_file_path())
+            ));
+        }
+
+        Ok(Self::from_structure(java_file.get_structure().to_owned()))
     }
 }
 
