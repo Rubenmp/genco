@@ -151,7 +151,7 @@ impl JavaStructure {
         self.is_root_structure
     }
 
-    pub(crate) fn insert_method(&self, _method: &JavaMethod) -> Result<(), String> {
+    pub(crate) fn insert_method(&mut self, _method: &JavaMethod) -> Result<(), String> {
         todo!()
     }
 

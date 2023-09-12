@@ -106,7 +106,6 @@ mod tests {
 
         scan_result.expect("Scan must be ok");
         let result_imports = db_java_import_route_search::by_last_type_id("DemoApplication");
-        dbg!(result_imports.get(0).unwrap());
         assert_eq!(1, result_imports.len());
         if let Some(result_import) = result_imports.get(0) {
             assert_eq!("DemoApplication", result_import.get_last_type_id());

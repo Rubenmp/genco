@@ -13,7 +13,7 @@ use crate::java::scanner::file::java_structure::JavaStructure;
 use crate::java::scanner::file::java_structure_type::JavaStructureType;
 use crate::java::scanner::package::{java_dependency_scanner, java_package_scanner};
 
-#[allow(unused)]
+#[derive(Debug)]
 pub(crate) struct JavaFile {
     self_import: JavaImport,
     imports: JavaImportsScan,

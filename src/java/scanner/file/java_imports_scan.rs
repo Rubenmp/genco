@@ -1,7 +1,7 @@
 use crate::core::observability::logger;
 use crate::java::dto::java_import::JavaImport;
 
-#[allow(unused)]
+#[derive(Debug)]
 pub struct JavaImportsScan {
     explicit_imports: Vec<JavaImport>,
     wildcard_imports: Vec<JavaImport>,

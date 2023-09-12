@@ -123,7 +123,7 @@ impl JavaClass {
     /// # insert_method
     /// Insert a new method into the class and write it to the file.
     pub fn insert_method(&mut self, method: &JavaMethod) -> Result<(), String> {
-        self.get_structure().insert_method(method)
+        self.get_structure_mut().insert_method(method)
     }
 }
 
@@ -158,6 +158,10 @@ impl JavaClass {
 
     pub(crate) fn get_structure(&self) -> &JavaStructure {
         &self.scanned_structure
+    }
+
+    pub(crate) fn get_structure_mut(&mut self) -> &mut JavaStructure {
+        &mut self.scanned_structure
     }
 
     #[cfg(test)]
