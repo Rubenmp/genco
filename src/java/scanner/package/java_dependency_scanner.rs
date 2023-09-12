@@ -80,13 +80,18 @@ mod tests {
 
     #[test]
     fn scan_java_project_test() {
-        let dir_path = get_test_dir(get_current_file_path(), "basic_project");
+        let dir_path = get_test_dir(get_current_file_path(), "java_dependency_scanner").join("basic_project");
 
         let scan_result = java_dependency_scanner::scan(&dir_path);
 
         scan_result.expect("Scan must be ok");
-        let n_demo_app = db_java_import_route_search::by_last_type_id("DemoApplication").len();
-        assert_eq!(1, n_demo_app);
+        let result_imports = db_java_import_route_search::by_last_type_id("DemoApplication");
+        assert_eq!(1, result_imports.len());
+        if let Some(result_import) = result_imports.get(0) {
+            assert_eq!("DemoApplication", result_import.get_last_type_id());
+            assert_eq!("org.test.DemoApplication", result_import.get_route());
+            assert!(result_import.get_base_package().ends_with("genco/src/java/scanner/package/test/java_dependency_scanner/basic_project"));
+        }
     }
 
     #[test]
