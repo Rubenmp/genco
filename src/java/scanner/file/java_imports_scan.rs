@@ -43,6 +43,7 @@ impl JavaImportsScan {
         }
     }
 
+    #[cfg(test)]
     pub(crate) fn count(&self) -> usize {
         self.explicit_imports.len() + self.wildcard_imports.len()
     }

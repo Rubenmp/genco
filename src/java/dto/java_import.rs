@@ -68,12 +68,13 @@ impl JavaImport {
         } else if let Some(java_import_route) = imports.get(0) {
             let java_import_route_path = java_import_route.to_file_path();
             let java_file_path_absolute_path_str = to_absolute_path_str(java_file_path);
-            return Self::new_explicit_import_from_file(&java_import_route_path).expect(
-                format!(
-                    "Explicit import must be returned for import \"{}\" in file:\n\"{}\"\n",
-                    import_route, java_file_path_absolute_path_str
-                )
-                .as_str(),
+            return Self::new_explicit_import_from_file(&java_import_route_path).unwrap_or_else(
+                |_| {
+                    panic!(
+                        "Explicit import must be returned for import \"{}\" in file:\n\"{}\"\n",
+                        import_route, java_file_path_absolute_path_str
+                    )
+                },
             );
         }
 

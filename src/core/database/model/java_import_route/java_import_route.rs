@@ -58,7 +58,7 @@ impl JavaImportRouteCreate {
             return vec![];
         }
         let base_package_path = java_package_scanner::get_base_package_unchecked(
-            &java_files_in_same_dir_unchecked
+            java_files_in_same_dir_unchecked
                 .get(0)
                 .expect("JavaImportRoute::from failed"),
         );
