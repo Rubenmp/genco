@@ -1,7 +1,7 @@
 package org.test;
 
-import org.springframework.stereotype.Service;
 import org.test.JavaClassFrom;
+import org.springframework.stereotype.Service;
 import org.test.JavaInterfaceForClass;
 
 @Service

@@ -14,6 +14,8 @@ pub struct JavaImportRoute {
     last_type_id: String,
 }
 
+impl JavaImportRoute {}
+
 impl JavaImportRoute {
     pub(crate) fn get_id(&self) -> i32 {
         self.id
@@ -26,6 +28,12 @@ impl JavaImportRoute {
     }
     pub(crate) fn get_last_type_id(&self) -> String {
         self.last_type_id.to_owned()
+    }
+
+    pub(crate) fn to_file_path(&self) -> PathBuf {
+        let route_dot_replaces = self.get_route().replace('.', "/");
+        let result_absolute_path = format!("{}{}{}.java", self.get_base_package(), "/src/main/java/", route_dot_replaces);
+        Path::new(&result_absolute_path).to_path_buf()
     }
 }
 

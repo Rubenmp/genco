@@ -3,15 +3,24 @@ use std::path::{Component, Path, PathBuf};
 
 use crate::core::file_system::file_browser::file_browser;
 use crate::core::file_system::path_helper;
+use crate::core::file_system::path_helper::to_absolute_path_str;
 use crate::core::observability::logger;
 use crate::core::parser::parser_node_trait::ParserNode;
 use crate::java::parser::dto::java_node::JavaNode;
 use crate::java::parser::dto::java_node_type::JavaNodeType;
+use crate::java::scanner::package::java_dependency_scanner;
 
+/// At the moment JavaImport only supports explicit references to files (i.e. classes, interfaces, enums).
+/// Class methods and substructures are not supported yet.
 #[allow(unused)]
 #[derive(Debug, Clone)]
 pub struct JavaImport {
-    // Case 1: hard coded imports without explicit file references
+    /// Case 1: hard coded imports without explicit file references
+    /// (i.e. "org.test.JavaClassFrom")
+    ///
+    /// TODO: try to store origin file, a route is not unique, it depends
+    /// on the file where it is declared because not all packages are available from all files
+    /// -> Still need to implement multi-module support for inconsistencies.
     fake_non_checked_route: String,
 
     // Case 2: imports from specific file/folder with verified java project
@@ -38,13 +47,23 @@ impl JavaImport {
         })
     }
 
-    /// TODO: integrate with JavaDependencyTree
     pub(crate) fn from_file_import_decl(
         import_decl_node: &JavaNode,
-        _java_file_path: &Path,
+        java_file_path: &Path,
     ) -> JavaImport {
-        let content = get_nodes_content(import_decl_node.to_owned());
-        Self::new_from_route(&content)
+        let import_route = get_nodes_content(import_decl_node.to_owned());
+
+        // Warning: this method java_dependency_scanner::search_imports can handle only imports
+        // in the same java project than java_file_path (multi-module not supported)
+        let imports = java_dependency_scanner::search_imports(&import_route, java_file_path);
+        if imports.len() > 1 {
+            logger::log_warning(format!("Several import possibilities found for import \"{}\" in file:\n\"{}\"\n", import_route, to_absolute_path_str(java_file_path)).as_str());
+        } else if let Some(java_import_route) = imports.get(0) {
+            let file = java_import_route.to_file_path();
+            return Self::new_explicit_import_from_file(&file).expect(format!("Explicit import must be returned for import \"{}\" in file:\n\"{}\"\n", import_route, to_absolute_path_str(java_file_path)).as_str());
+        }
+
+        Self::new_from_route(&import_route)
     }
 
     pub(crate) fn new_wildcard_import_from_dir(dir_path: &Path) -> Result<JavaImport, String> {
@@ -95,6 +114,7 @@ impl JavaImport {
                 return Ok(folder.join(format!("{}.java", first_node)));
             }
         }
+
         Err(format!("Specific file not found for import \"{}\"", self))
     }
     pub(crate) fn is_explicit_import(&self) -> bool {

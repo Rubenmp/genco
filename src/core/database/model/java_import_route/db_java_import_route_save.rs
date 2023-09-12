@@ -34,10 +34,10 @@ fn save_internal(entity: JavaImportRouteCreate) -> Result<(), String> {
 
 #[cfg(test)]
 mod tests {
-    use crate::core::database::model::java_import_route::java_import_route::JavaImportRouteCreate;
     use crate::core::database::model::java_import_route::{
         db_java_import_route_save, db_java_import_route_search,
     };
+    use crate::core::database::model::java_import_route::java_import_route::JavaImportRouteCreate;
 
     #[test]
     fn save_test() {
@@ -55,10 +55,10 @@ mod tests {
         let result = db_java_import_route_search::by_last_type_id(last_type_id);
 
         assert_eq!(1, result.len());
-        let result_item = result.get(0).expect("Result item must exist");
-        assert_eq!(base_package, result_item.get_base_package());
-        assert_eq!(base_package, result_item.get_base_package());
-        assert_eq!(route, result_item.get_route());
-        assert_eq!(last_type_id, result_item.get_last_type_id());
+        if let Some(result_item) = result.get(0) {
+            assert_eq!(base_package, result_item.get_base_package());
+            assert_eq!(route, result_item.get_route());
+            assert_eq!(last_type_id, result_item.get_last_type_id());
+        }
     }
 }

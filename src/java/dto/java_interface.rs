@@ -96,6 +96,7 @@ impl JavaInterface {
         let java_file = JavaFile::from_user_input_path(&file_path)?;
         Self::from_java_file(java_file)
     }
+
     pub(crate) fn from_structure(structure: JavaStructure) -> Self {
         Self { structure }
     }
