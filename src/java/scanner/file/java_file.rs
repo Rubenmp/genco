@@ -78,14 +78,12 @@ impl JavaFile {
         })
     }
 
-    pub(crate) fn from_import(_import: &JavaImport) -> Result<Self, String> {
-        todo!()
+    pub(crate) fn get_file_path(&self) -> PathBuf {
+        self.get_import()
+            .get_specific_file()
+            .expect("Explicit self java file import always exists")
     }
 
-    pub(crate) fn get_file_path(&self) -> &Path {
-        // TODO using base_import
-        todo!()
-    }
     fn check_package_def(java_file_import: &JavaImport, child: &JavaNode) {
         let expected_package = java_file_import.get_package_route();
         let expected_package_decl = format!("package {};", expected_package);

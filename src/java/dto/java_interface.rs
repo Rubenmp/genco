@@ -123,7 +123,7 @@ impl JavaInterface {
             return Err(format!(
                 "Expected java interface, found java {:?} in file:\n{}\n",
                 structure_type,
-                to_absolute_path_str(java_file.get_file_path())
+                to_absolute_path_str(&java_file.get_file_path())
             ));
         }
 
