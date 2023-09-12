@@ -109,7 +109,7 @@ fn find_word_matches(upper_camel_case_str: &str) -> Vec<Match> {
     matches
 }
 
-pub(crate) fn to_str(buf: &Vec<u8>) -> String {
+pub(crate) fn to_str(buf: &[u8]) -> String {
     let s = match str::from_utf8(buf) {
         Ok(content) => content,
         Err(e) => panic!("Invalid UTF-8 sequence: {}", e),

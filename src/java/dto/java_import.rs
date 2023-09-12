@@ -3,7 +3,7 @@ use std::path::{Component, Path, PathBuf};
 
 use crate::core::file_system::file_browser::file_browser;
 use crate::core::file_system::path_helper;
-use crate::core::observability::logger::logger;
+use crate::core::observability::logger;
 use crate::core::parser::parser_node_trait::ParserNode;
 use crate::java::parser::dto::java_node::JavaNode;
 use crate::java::parser::dto::java_node_type::JavaNodeType;

@@ -7,7 +7,7 @@ use crate::domain::usecase::avro::parser::dto::avro_item::AvroItem;
 use crate::domain::usecase::avro::parser::dto::avro_item_type::AvroItemType;
 use crate::domain::usecase::json::parser::dto::json_node::JsonNode;
 use crate::domain::usecase::json::parser::dto::json_node_type::JsonNodeType;
-use crate::domain::usecase::json::parser::json_parser::json_parser;
+use crate::domain::usecase::json::parser::parser::json_parser;
 
 pub fn parse(json_file_path: &PathBuf) -> Vec<AvroItem> {
     let json_root_node = json_parser::parse(json_file_path);
@@ -195,9 +195,9 @@ mod tests {
     use std::path::PathBuf;
 
     use crate::core::testing::test_path::get_test_file;
-    use crate::domain::usecase::avro::parser::avro_parser::avro_parser;
     use crate::domain::usecase::avro::parser::dto::avro_item::AvroItem;
     use crate::domain::usecase::avro::parser::dto::avro_item_type::AvroItemType;
+    use crate::domain::usecase::avro::parser::parser::avro_parser;
 
     #[test]
     #[ignore = "ArrayItems not yet implemented"]

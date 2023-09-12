@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 use crate::core::file_system::file_creator::file_creator;
 use crate::core::file_system::file_overwriting::file_overwriting::FileOverwriting;
 use crate::core::file_system::path_helper::to_absolute_path_str;
-use crate::core::observability::logger::logger;
+use crate::core::observability::logger;
 use crate::core::parser::parser_node_trait::ParserNode;
 use crate::java::dto::java_annotation_usage::JavaAnnotationUsage;
 use crate::java::dto::java_class::JavaClass;
@@ -279,7 +279,7 @@ impl JavaStructure {
         *result += format!("{}}}\n", java_indentation.get_current_indentation()).as_str();
     }
 
-    fn write_to_file_internal(&self, result: &mut String) {
+    fn write_to_file_internal(&self, result: &mut str) {
         let file_path = self.get_file();
         if file_path.exists() && file_path.is_file() {
             file_creator::remove_file_if_exists(file_path);
@@ -671,7 +671,8 @@ impl JavaStructureBuilder {
     fn get_extended_class_imports(&mut self) -> Vec<JavaImport> {
         self.extended_class
             .to_owned()
-            .into_iter()
+            .iter()
+            .clone()
             .map(|class| class.get_self_import())
             .collect()
     }
@@ -679,7 +680,8 @@ impl JavaStructureBuilder {
     fn get_interfaces_imports(&mut self) -> Vec<JavaImport> {
         self.implemented_interfaces
             .to_owned()
-            .into_iter()
+            .iter()
+            .clone()
             .map(|class| class.get_self_import())
             .collect()
     }
@@ -706,7 +708,7 @@ fn log_unrecognized_super_class(super_class_node: &JavaNode, input_java_file: &P
     logger::log_warning(&log);
 }
 
-fn is_second_child_an_extended_class_id(children: &Vec<JavaNode>) -> bool {
+fn is_second_child_an_extended_class_id(children: &[JavaNode]) -> bool {
     is_first_child_of_type(children, JavaNodeType::Extends)
         && Some(JavaNodeType::TypeIdentifier) == children.get(1).and_then(|t| t.get_node_type_opt())
 }
@@ -755,7 +757,7 @@ fn extract_interfaces(
     Vec::new()
 }
 
-fn is_first_child_of_type(children: &Vec<JavaNode>, node_type: JavaNodeType) -> bool {
+fn is_first_child_of_type(children: &[JavaNode], node_type: JavaNodeType) -> bool {
     Some(node_type) == children.get(0).and_then(|t| t.get_node_type_opt())
 }
 

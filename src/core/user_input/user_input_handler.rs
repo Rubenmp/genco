@@ -21,7 +21,7 @@ impl UserInput {
         }
     }
 
-    pub fn new(file: &PathBuf) -> Self {
+    pub fn new(file: &Path) -> Self {
         let mut new_entity = UserInput::new_empty();
         new_entity.add_variables_from(file);
         new_entity
@@ -50,17 +50,13 @@ impl UserInput {
         }
     }
 
-    pub fn write_output(&self, input_file: &PathBuf, output_file: &PathBuf) {
+    pub fn write_output(&self, input_file: &Path, output_file: &Path) {
         let mut file_overwriting = self.generate_file_overwriting(input_file, output_file);
         file_overwriting.write_all_to_file(output_file);
     }
 
     // TODO: update structure (?)
-    fn generate_file_overwriting(
-        &self,
-        input_file: &PathBuf,
-        output_file: &PathBuf,
-    ) -> FileOverwriting {
+    fn generate_file_overwriting(&self, input_file: &Path, output_file: &Path) -> FileOverwriting {
         create_file_with_content(output_file, input_file);
         let mut result = FileOverwriting::new(output_file);
         for variable_usage in self.get_variables().values() {
@@ -118,8 +114,7 @@ impl VariableUsage {
         file: &Path,
     ) -> Option<Self> {
         let var_name_opt = parse_user_input_var(&raw_var_pattern);
-        let mut instantiations = Vec::new();
-        instantiations.push(VariableInstantiation::new(file, var_def_bytes));
+        let instantiations = vec![VariableInstantiation::new(file, var_def_bytes)];
         if let Some(var_name) = var_name_opt {
             return Some(VariableUsage {
                 raw_user_input_value: None,
@@ -268,7 +263,7 @@ fn get_var_usage(file: &Path, var_def_bytes: (usize, usize)) -> Option<VariableU
     VariableUsage::new(content.to_string(), var_def_bytes, file)
 }
 
-fn find_next_variable(file_content: &String, initial_index: usize) -> Option<(usize, usize)> {
+fn find_next_variable(file_content: &str, initial_index: usize) -> Option<(usize, usize)> {
     let mut start_var_pattern_with_var = get_start_variable_pattern().to_string();
     start_var_pattern_with_var.push_str("var=");
     if let Some(start_index) = find_index(
@@ -285,7 +280,7 @@ fn find_next_variable(file_content: &String, initial_index: usize) -> Option<(us
     None
 }
 
-fn find_index(file_content: &String, start_index: usize, pattern: &str) -> Option<usize> {
+fn find_index(file_content: &str, start_index: usize, pattern: &str) -> Option<usize> {
     file_content[start_index..]
         .find(pattern)
         .map(|i| i + start_index)

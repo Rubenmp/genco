@@ -1,4 +1,4 @@
-use crate::core::observability::logger::logger;
+use crate::core::observability::logger;
 use crate::java::dto::java_import::JavaImport;
 
 #[allow(unused)]

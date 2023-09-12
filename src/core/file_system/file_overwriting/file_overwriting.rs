@@ -1,6 +1,6 @@
 use std::fs::{File, OpenOptions};
 use std::io::{BufReader, Read, Seek, SeekFrom, Write};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::{fs, io};
 
 use crate::core::file_system::file_creator::file_creator::{
@@ -14,7 +14,7 @@ pub struct FileOverwriting {
 }
 
 impl FileOverwriting {
-    pub fn new(file_path: &PathBuf) -> FileOverwriting {
+    pub fn new(file_path: &Path) -> FileOverwriting {
         if !file_path.exists() || !file_path.is_file() {
             panic!(
                 "Error creating FileOverwriting with invalid resource \"{}\"",
@@ -70,7 +70,7 @@ impl FileOverwriting {
         self.content_nodes.push(item);
     }
 
-    pub fn write_all_to_file(&mut self, output_file: &PathBuf) {
+    pub fn write_all_to_file(&mut self, output_file: &Path) {
         let input_file = &self.get_file_path().clone();
         self.write_all_internal(input_file, output_file);
     }
@@ -80,7 +80,7 @@ impl FileOverwriting {
         self.write_all_internal(file_path, file_path);
     }
 
-    fn write_all_internal(&mut self, input_file: &PathBuf, output_file: &PathBuf) {
+    fn write_all_internal(&mut self, input_file: &Path, output_file: &Path) {
         let (internal_items, items_to_append) = self.prepare_to_overwrite();
         let file = self.open_file(input_file);
         let mut reader = BufReader::new(file);
@@ -176,7 +176,7 @@ impl FileOverwriting {
         temporal_buffer
     }
 
-    fn open_file(&mut self, output_file: &PathBuf) -> File {
+    fn open_file(&mut self, output_file: &Path) -> File {
         OpenOptions::new()
             .read(true)
             .write(true)
@@ -249,7 +249,7 @@ impl FileOverwriting {
 
     fn get_required_bytes_to_write(
         &self,
-        file: &PathBuf,
+        file: &Path,
         internal_items: &Vec<FileOverwritingItem>,
         to_append_items: &Vec<FileOverwritingItem>,
     ) -> usize {
@@ -278,7 +278,7 @@ fn get_bytes_required(items: &Vec<FileOverwritingItem>) -> i64 {
     sum
 }
 
-fn get_max_end_byte(items: &Vec<FileOverwritingItem>) -> usize {
+fn get_max_end_byte(items: &[FileOverwritingItem]) -> usize {
     items
         .iter()
         .map(|item| item.get_end_byte().unwrap_or(0))
@@ -347,7 +347,7 @@ impl FileOverwritingItem {
     }
 }
 
-fn write_initial_new_line(buffer: &mut Vec<u8>) {
+fn write_initial_new_line(buffer: &mut [u8]) {
     buffer[0..get_new_line_number_of_bytes()].clone_from_slice(&get_new_line_as_bytes());
 }
 

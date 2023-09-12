@@ -39,7 +39,7 @@ pub struct JavaImportRouteCreate {
 impl JavaImportRouteCreate {
     pub(crate) fn new(file_path: &PathBuf) -> Self {
         let dir_path = Self::get_dir_path(file_path);
-        let last_type_id = new_last_type_id(&file_path);
+        let last_type_id = new_last_type_id(file_path);
         let (base_package, dir_route) =
             java_package_scanner::get_base_package_and_route_from_dir_no_check(&dir_path);
 

@@ -15,7 +15,7 @@ mod tests {
 
     use crate::core::testing::test_assert::{assert_dir_is, assert_fail};
     use crate::core::testing::test_path::{get_java_test_file, get_test_dir, get_test_file};
-    use crate::java::parser::java_parser::java_parser;
+    use crate::java::parser::parser::java_parser;
 
     #[test]
     fn parse_single_file_recognizes_all_tokens() {

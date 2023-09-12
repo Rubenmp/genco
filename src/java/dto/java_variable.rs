@@ -1,7 +1,7 @@
 use std::fmt;
 use std::path::Path;
 
-use crate::core::observability::logger::logger;
+use crate::core::observability::logger;
 use crate::core::parser::parser_node_trait::ParserNode;
 use crate::java::dto::java_data_type::JavaDataType::Basic;
 use crate::java::dto::java_data_type::{JavaBasicDataType, JavaDataType};

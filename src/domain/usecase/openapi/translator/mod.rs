@@ -1,1 +1,1 @@
-mod openapi_from_avro_translator;
+mod from_avro;

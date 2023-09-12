@@ -5,7 +5,7 @@ use std::str::FromStr;
 use tree_sitter::{Node, Parser};
 
 use crate::core::file_system::file_reader;
-use crate::core::observability::logger::logger;
+use crate::core::observability::logger;
 use crate::core::parser::parser_node_trait::ParserNode;
 use crate::java::parser::dto::java_node_type::JavaNodeType;
 

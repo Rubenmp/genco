@@ -4,7 +4,7 @@ use crate::core::file_system::directory_browser::directory_browser;
 use crate::core::file_system::file_browser::file_browser;
 use crate::core::file_system::path_helper;
 use crate::core::file_system::path_helper::to_absolute_path_str;
-use crate::core::observability::logger::logger::log_unrecoverable_error;
+use crate::core::observability::logger::log_unrecoverable_error;
 
 pub(crate) fn get_base_package_and_route_from_dir_no_check(dir_path: &Path) -> (String, String) {
     for ancestor in dir_path.ancestors() {

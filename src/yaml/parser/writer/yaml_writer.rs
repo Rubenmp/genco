@@ -6,7 +6,7 @@ use crate::core::file_system::file_overwriting::file_overwriting::FileOverwritin
 use crate::core::parser::parser_node_trait::ParserNode;
 use crate::yaml::parser::dto::yaml_node::YamlNode;
 use crate::yaml::parser::dto::yaml_node_type::YamlNodeType;
-use crate::yaml::parser::yaml_parser::yaml_parser::parse;
+use crate::yaml::parser::parser::yaml_parser::parse;
 
 /// Overrides a YAML resource [original_yaml_file] adding the tree structure from another YAML resource
 /// [to_add_yaml_file]. In case of YAML properties collision, the previous properties in
@@ -22,7 +22,7 @@ pub fn overwrite(original_yaml_file: &PathBuf, to_add_yaml_file: &PathBuf) {
 }
 
 fn write_yaml(original: &YamlNode, to_add: &YamlNode) {
-    let mut overwriting = FileOverwriting::new(&original.get_file_path().to_path_buf());
+    let mut overwriting = FileOverwriting::new(&original.get_file_path());
     include_nodes_to_overwrite(&mut overwriting, original, to_add, 0);
 
     overwriting.write_all();
@@ -105,7 +105,7 @@ fn filter_sequence_items_to_add<'a>(
 }
 
 fn find_missing<'a>(
-    current_sequence_items: &Vec<&YamlNode>,
+    current_sequence_items: &[&YamlNode],
     result_sequence_items: Vec<&'a YamlNode>,
 ) -> Vec<&'a YamlNode> {
     let current_sequence_items_str: Vec<String> = current_sequence_items
@@ -323,7 +323,7 @@ mod tests {
     };
     use crate::core::testing::test_assert::assert_same_as_file;
     use crate::core::testing::test_path::get_non_existing_test_file;
-    use crate::yaml::parser::yaml_writer::yaml_writer::overwrite;
+    use crate::yaml::parser::writer::yaml_writer::overwrite;
 
     #[test]
     fn overwrite_test() {

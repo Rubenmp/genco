@@ -1,2 +1,2 @@
-pub mod avro_parser;
 pub mod dto;
+pub mod parser;

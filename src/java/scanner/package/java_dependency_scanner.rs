@@ -27,10 +27,8 @@ fn insert_java_import_routes_in_db(java_files: Vec<PathBuf>) {
         return;
     }
 
-    let routes_to_save: Vec<JavaImportRouteCreate> = java_files
-        .iter()
-        .map(|file| JavaImportRouteCreate::new(file))
-        .collect();
+    let routes_to_save: Vec<JavaImportRouteCreate> =
+        java_files.iter().map(JavaImportRouteCreate::new).collect();
 
     db_java_import_route_save::save(routes_to_save)
         .expect("JavaImportRoute batch save must succeed")
@@ -65,7 +63,7 @@ fn get_files_and_dirs_to_scan(path: &Path) -> (Vec<PathBuf>, Vec<PathBuf>) {
     (files, dirs)
 }
 
-fn is_java_file(file_name: &PathBuf) -> bool {
+fn is_java_file(file_name: &Path) -> bool {
     match file_name.extension() {
         None => false,
         Some(extension) => extension.eq("java"),

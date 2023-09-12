@@ -2,7 +2,7 @@ use std::fmt;
 use std::path::Path;
 
 use crate::core::file_system::path_helper;
-use crate::core::observability::logger::logger;
+use crate::core::observability::logger;
 use crate::core::parser::parser_node_trait::ParserNode;
 use crate::java::dto::java_import::JavaImport;
 use crate::java::dto::java_indentation_config::JavaIndentation;

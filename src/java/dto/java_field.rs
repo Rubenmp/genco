@@ -1,7 +1,7 @@
 use std::path::Path;
 
 use crate::core::file_system::path_helper::to_absolute_path_str;
-use crate::core::observability::logger::logger;
+use crate::core::observability::logger;
 use crate::core::parser::parser_node_trait::ParserNode;
 use crate::java::dto::java_annotation_usage::JavaAnnotationUsage;
 use crate::java::dto::java_data_type::JavaDataType;

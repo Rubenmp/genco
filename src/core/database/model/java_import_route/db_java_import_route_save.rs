@@ -1,6 +1,6 @@
 use crate::core::database::model::java_import_route::java_import_route::JavaImportRouteCreate;
 use crate::core::database::setup;
-use crate::core::observability::logger::logger;
+use crate::core::observability::logger;
 
 pub(crate) fn save(java_files: Vec<JavaImportRouteCreate>) -> Result<(), String> {
     for java_file in java_files {

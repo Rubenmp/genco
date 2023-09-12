@@ -1,3 +1,3 @@
 pub mod dto;
-pub mod yaml_parser;
-pub mod yaml_writer;
+pub mod parser;
+pub mod writer;

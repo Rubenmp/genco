@@ -55,7 +55,7 @@ pub fn to_lowercase_space_separated_internal(upper_camel_case_str: String) -> St
     result
 }
 
-fn find_word_matches(upper_camel_case_str: &String) -> Vec<Match> {
+fn find_word_matches(upper_camel_case_str: &str) -> Vec<Match> {
     let mut matches = Vec::new();
     let re = Regex::new(r"([A-Z][a-z]+)").expect("Unable to create regex pattern");
     for field in re.find_iter(upper_camel_case_str) {
@@ -106,7 +106,7 @@ impl UserInputFunction {
     }
 }
 
-fn check_valid_function_string(_input: &String) {}
+fn check_valid_function_string(_input: &str) {}
 
 fn get_function_reference(function_name: &str) -> fn(String) -> String {
     match function_name {
