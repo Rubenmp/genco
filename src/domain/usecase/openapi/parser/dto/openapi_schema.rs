@@ -123,11 +123,9 @@ impl OpenapiSchema {
 fn write_openapi_schema(fmt: &mut Formatter, depth: usize, schema: &OpenapiSchema) {
     fmt.write_str(format!("{}{}:\n", get_indentation(depth), schema.get_name().clone()).as_str())
         .expect("Error writing OpenapiSchema name");
-    if let Some(schema_type) = get_object_name_schema(schema) {
-        if let OpenapiDataType::ObjectName(object_name) = schema_type {
-            write_ref(fmt, depth, object_name);
-            return;
-        }
+    if let Some(OpenapiDataType::ObjectName(object_name)) = get_object_name_schema(schema) {
+        write_ref(fmt, depth, object_name);
+        return;
     }
 
     if let Some(description) = &schema.get_description() {

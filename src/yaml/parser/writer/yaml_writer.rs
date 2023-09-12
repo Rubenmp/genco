@@ -22,7 +22,7 @@ pub fn overwrite(original_yaml_file: &PathBuf, to_add_yaml_file: &PathBuf) {
 }
 
 fn write_yaml(original: &YamlNode, to_add: &YamlNode) {
-    let mut overwriting = FileOverwriting::new(&original.get_file_path());
+    let mut overwriting = FileOverwriting::new(original.get_file_path());
     include_nodes_to_overwrite(&mut overwriting, original, to_add, 0);
 
     overwriting.write_all();

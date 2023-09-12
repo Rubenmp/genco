@@ -27,7 +27,7 @@ pub(crate) fn search_imports(
     import_route: &str,
     java_file_containing_route: &Path,
 ) -> Vec<JavaImportRoute> {
-    let base_package_path_opt = java_package_scanner::get_base_package(&java_file_containing_route);
+    let base_package_path_opt = java_package_scanner::get_base_package(java_file_containing_route);
     if let Some(base_package_path) = base_package_path_opt {
         return db_java_import_route_search::by_base_package_and_route(
             &base_package_path,

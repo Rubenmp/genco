@@ -69,7 +69,7 @@ pub fn create_file_with_content(output_file: &Path, content_path: &Path) {
     write_buffer(&mut file, &mut buffer);
 }
 
-fn write_buffer(file: &mut File, buffer: &mut Vec<u8>) {
+fn write_buffer(file: &mut File, buffer: &mut [u8]) {
     file.seek(io::SeekFrom::Start(0))
         .expect("Seek resource to the beginning");
     file.write_all(buffer).expect("Write resource failed.");

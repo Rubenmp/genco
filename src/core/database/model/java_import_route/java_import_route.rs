@@ -94,7 +94,7 @@ fn get_import_route(base_package_path: &String, file_path: String) -> String {
         .to_owned()
         .drain(base_package_path.len() + initial_offset..until)
         .as_str()
-        .replace("/", ".")
+        .replace('/', ".")
         .to_string()
 }
 

@@ -121,7 +121,7 @@ mod tests {
     use crate::core::file_system::file_creator::file_creator;
     use crate::core::testing::test_assert::assert_same_as_file;
     use crate::core::testing::test_path::{get_non_existing_test_file, get_test_file};
-    use crate::domain::usecase::avro::parser::parser::avro_parser;
+    use crate::domain::usecase::avro::parser::avro_parser;
     use crate::domain::usecase::openapi::translator::from_avro::openapi_from_avro_translator::avro_to_openapi_str;
 
     #[test]

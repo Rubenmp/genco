@@ -14,7 +14,7 @@ mod tests {
     use crate::core::parser::parser_node_trait::ParserNode;
     use crate::core::testing::test_assert::assert_same_as_file;
     use crate::core::testing::test_path::get_test_file;
-    use crate::domain::usecase::json::parser::parser::json_parser::parse;
+    use crate::domain::usecase::json::parser::json_parser::parse;
 
     #[test]
     fn parse_single_file_recognizes_all_tokens() {
