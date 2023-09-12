@@ -89,11 +89,9 @@ pub fn get_src_main_java_dir(path: &Path) -> Option<PathBuf> {
 }
 
 pub fn check_base_java_project(path: &Path) {
-    let mut files = Vec::new();
-    files.push("build.gradle");
-    files.push("pom.xml");
+    let files = vec!["build.gradle", "pom.xml"];
 
-    if file_browser::get_first_file_if_exists(path, files).is_none() {
+    if file_browser::get_first_file_from_dir_if_exists(path, files).is_none() {
         panic!("Invalid java project root path found: {:?}", path);
     }
 }

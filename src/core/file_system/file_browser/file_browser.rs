@@ -4,14 +4,16 @@ use std::path::{Path, PathBuf};
 use std::vec::Vec;
 
 use crate::core::file_system::directory_browser::directory_browser;
+use crate::core::observability::logger;
 
 #[allow(unused)]
-pub fn get_first_file_if_exists(path: &Path, filenames: Vec<&str>) -> Option<PathBuf> {
+pub fn get_first_file_from_dir_if_exists(path: &Path, filenames: Vec<&str>) -> Option<PathBuf> {
     if !path.exists() || !path.is_dir() {
-        panic!(
-            "Function \"get_first_file_if_exists\" requires a directory, found: {:?}",
-            path
+        logger::log_warning(
+            format!("Function \"get_first_file_if_exists\" requires a directory, found: {:?}",
+                    path).as_str()
         );
+        return None;
     }
     let paths_result = fs::read_dir(path).unwrap();
 
@@ -65,7 +67,7 @@ mod tests {
     use std::path::PathBuf;
 
     use crate::core::file_system::file_browser::file_browser::{
-        get_file_map, get_first_file_if_exists,
+        get_file_map, get_first_file_from_dir_if_exists,
     };
     use crate::core::testing::test_assert::assert_file_is;
     use crate::core::testing::test_path::get_test_dir;
@@ -77,7 +79,7 @@ mod tests {
         files.push("build.gradle");
         files.push("pom.xml");
 
-        let pom_opt = get_first_file_if_exists(&dir_path, files);
+        let pom_opt = get_first_file_from_dir_if_exists(&dir_path, files);
 
         if let Some(pom) = pom_opt {
             assert_file_is(&pom, "pom.xml");
@@ -92,7 +94,7 @@ mod tests {
         let mut files = Vec::new();
         files.push("build.gradle");
 
-        let pom_opt = get_first_file_if_exists(&dir_path, files);
+        let pom_opt = get_first_file_from_dir_if_exists(&dir_path, files);
 
         assert!(pom_opt.is_none());
     }
