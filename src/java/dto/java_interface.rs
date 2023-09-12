@@ -46,7 +46,7 @@ impl JavaInterface {
     /// // let java_interface = JavaInterface::from(&existing_file);
     /// ```
     pub fn from(file_path: &Path) -> Result<Self, String> {
-        let java_file = JavaFile::from_path(file_path)?;
+        let java_file = JavaFile::from_user_input_path(file_path)?;
         let structure_type = java_file.get_main_structure_type();
         if structure_type != JavaStructureType::Interface {
             return Err(format!(

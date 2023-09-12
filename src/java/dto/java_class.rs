@@ -50,7 +50,7 @@ impl JavaClass {
     /// // let java_class = JavaClass::from(&existing_file);
     /// ```
     pub fn from(file_path: &Path) -> Result<Self, String> {
-        let java_file = JavaFile::from_path(file_path)?;
+        let java_file = JavaFile::from_user_input_path(file_path)?;
         Self::from_java_file(java_file)
     }
 

@@ -777,7 +777,7 @@ mod tests {
     use crate::java::scanner::file::java_structure_type::JavaStructureType;
 
     #[test]
-    fn builder() {
+    fn builder_test() {
         let file_path = get_test_file("JavaChildServiceImpl");
         let expected_file_content = get_test_file("ExpectedJavaChildServiceImpl");
 

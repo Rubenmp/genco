@@ -20,7 +20,7 @@ pub enum JavaDataType {
 
 impl JavaDataType {
     pub fn new_from_path(java_file_path: &Path) -> JavaDataType {
-        let java_file = JavaFile::from_path(java_file_path).unwrap();
+        let java_file = JavaFile::from_user_input_path(java_file_path).unwrap();
         let import = java_file.get_import();
 
         JavaDataType::FromImport(import)

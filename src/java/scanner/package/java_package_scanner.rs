@@ -7,27 +7,44 @@ use crate::core::file_system::path_helper::to_absolute_path_str;
 use crate::core::observability::logger::log_unrecoverable_error;
 
 /// This method will panic if the input path is not a valid dir within a java project (mvn/gradle)
-pub(crate) fn get_base_package_uncheck(input_dir_path: &Path) -> PathBuf {
-    for ancestor in input_dir_path.ancestors() {
-        if ancestor.ends_with("java") {
-            if let Some(second_ancestor) = ancestor.parent() {
-                if second_ancestor.ends_with("main") {
-                    if let Some(third_ancestor) = second_ancestor.parent() {
-                        if third_ancestor.ends_with("src") {
-                            let mut third_ancestor_buf = third_ancestor.to_path_buf();
-                            third_ancestor_buf.pop();
-                            return third_ancestor_buf;
-                        }
-                    }
-                }
-            }
-        }
+pub(crate) fn get_base_package_unchecked(input_dir_path: &Path) -> PathBuf {
+    if let Some(value) = get_base_package(input_dir_path) {
+        return value;
     }
 
     panic!(
         "get_base_package_uncheck must exist, failed for  path: {}",
         to_absolute_path_str(input_dir_path)
     )
+}
+
+pub(crate) fn get_base_package(input_dir_path: &Path) -> Option<PathBuf> {
+    for ancestor in input_dir_path.ancestors() {
+        if ancestor.ends_with("java") {
+            if let Some(second_ancestor) = ancestor.parent() {
+                if second_ancestor.ends_with("main") {
+                    if let Some(third_ancestor) = second_ancestor.parent() {
+                        if third_ancestor.ends_with("src") {
+                            let mut base_java_project_buf = third_ancestor.to_path_buf();
+                            base_java_project_buf.pop();
+                            if !contains_base_java_project_build_file(&base_java_project_buf) {
+                                return None;
+                            }
+
+                            return Some(base_java_project_buf);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    None
+}
+
+fn contains_base_java_project_build_file(path: &Path) -> bool {
+    let files = vec!["build.gradle", "pom.xml"];
+
+    file_browser::get_first_file_from_dir_if_exists(path, files).is_some()
 }
 
 pub(crate) fn get_package_from_dir(dir_path: &Path) -> String {
@@ -83,13 +100,6 @@ pub fn get_src_main_java_dir(path: &Path) -> Option<PathBuf> {
     None
 }
 
-pub fn check_base_java_project(path: &Path) {
-    let files = vec!["build.gradle", "pom.xml"];
-
-    if file_browser::get_first_file_from_dir_if_exists(path, files).is_none() {
-        panic!("Invalid java project root path found: {:?}", path);
-    }
-}
 
 pub fn should_scan_dir(dir_path: &Path) -> bool {
     if dir_path.ends_with("java") {

@@ -1,6 +1,7 @@
 use std::path::{Path, PathBuf};
 
 use crate::core::file_system::path_helper;
+use crate::core::file_system::path_helper::to_absolute_path_str;
 use crate::core::observability::logger;
 use crate::core::parser::parser_node_trait::ParserNode;
 use crate::java::dto::java_import::JavaImport;
@@ -10,17 +11,25 @@ use crate::java::parser::java_parser;
 use crate::java::scanner::file::java_imports_scan::JavaImportsScan;
 use crate::java::scanner::file::java_structure::JavaStructure;
 use crate::java::scanner::file::java_structure_type::JavaStructureType;
+use crate::java::scanner::package::{java_dependency_scanner, java_package_scanner};
 
 #[allow(unused)]
 pub(crate) struct JavaFile {
-    base_import: JavaImport,
+    self_import: JavaImport,
     imports: JavaImportsScan,
     structure: JavaStructure,
     java_file_path: PathBuf,
 }
 
 impl JavaFile {
-    pub(crate) fn from_path(java_file_path: &Path) -> Result<Self, String> {
+    pub(crate) fn from_user_input_path(java_file_path: &Path) -> Result<Self, String> {
+        let base_java_project_dir_opt = java_package_scanner::get_base_package(java_file_path);
+        if let Some(base_java_project_dir) = base_java_project_dir_opt {
+            java_dependency_scanner::recursive_scan_dir_unchecked(&base_java_project_dir);
+        } else {
+            return Err(format!("Invalid java project file:\n\"{}\"\n", to_absolute_path_str(java_file_path)));
+        }
+
         let root_java_node = java_parser::parse(java_file_path)?;
         let mut package_found = false;
         let mut imports = JavaImportsScan::new();
@@ -47,7 +56,7 @@ impl JavaFile {
                 "Java internal structure not found in file:\n\t\"{}\"\n",
                 path_helper::to_absolute_path_str(java_file_path)
             )
-            .as_str(),
+                .as_str(),
         )?;
 
         if !java_file_import.match_type_id(structure.get_name()) {
@@ -59,7 +68,7 @@ impl JavaFile {
         }
 
         Ok(JavaFile {
-            base_import: java_file_import,
+            self_import: java_file_import,
             imports,
             structure,
             java_file_path: java_file_path.to_path_buf(),
@@ -91,7 +100,7 @@ impl JavaFile {
                     expected_package_decl,
                     found_package_decl
                 )
-                .as_str(),
+                    .as_str(),
             )
         }
     }
@@ -107,7 +116,7 @@ impl JavaFile {
     }
 
     pub(crate) fn get_import(&self) -> JavaImport {
-        self.base_import.to_owned()
+        self.self_import.to_owned()
     }
     fn get_imports(&self) -> &JavaImportsScan {
         &self.imports
@@ -152,7 +161,7 @@ mod tests {
     fn scan_basic_application() {
         let dir_path = get_test_folder().join("BasicApplication.java");
 
-        match JavaFile::from_path(&dir_path) {
+        match JavaFile::from_user_input_path(&dir_path) {
             Ok(java_file) => {
                 check_basic_application_java_file(java_file);
             }
@@ -177,7 +186,7 @@ mod tests {
     fn scan_basic_enum() {
         let dir_path = get_test_folder().join("BasicEnumName.java");
 
-        match JavaFile::from_path(&dir_path) {
+        match JavaFile::from_user_input_path(&dir_path) {
             Ok(java_file) => {
                 check_basic_enum_java_file(java_file);
             }
@@ -201,7 +210,7 @@ mod tests {
     fn scan_invalid() {
         let dir_path = get_test_folder().join("Invalid.java");
 
-        match JavaFile::from_path(&dir_path) {
+        match JavaFile::from_user_input_path(&dir_path) {
             Ok(_) => assert_fail("It should not return a valid java file struct"),
             Err(e) => assert!(e.contains("Java package not found in file")),
         }

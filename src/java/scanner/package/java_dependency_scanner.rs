@@ -6,9 +6,8 @@ use crate::core::database::model::java_import_route::java_import_route::JavaImpo
 use crate::core::file_system::path_helper::to_absolute_path_str;
 use crate::java::scanner::package::java_package_scanner;
 
-pub(crate) fn scan(base_java_path: &Path) -> Result<(), String> {
-    java_package_scanner::check_base_java_project(base_java_path);
-    recursive_scan(base_java_path);
+pub(crate) fn recursive_scan_dir_unchecked(base_java_project_dir: &Path) -> Result<(), String> {
+    recursive_scan(base_java_project_dir);
 
     Ok(())
 }
@@ -77,7 +76,7 @@ mod tests {
     fn scan_java_project_test() {
         let dir_path = get_local_test_dir().join("basic_project");
 
-        let scan_result = java_dependency_scanner::scan(&dir_path);
+        let scan_result = java_dependency_scanner::recursive_scan_dir_unchecked(&dir_path);
 
         scan_result.expect("Scan must be ok");
         let result_imports = db_java_import_route_search::by_last_type_id("DemoApplication");
