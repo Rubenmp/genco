@@ -70,7 +70,7 @@ impl JavaImportRouteCreate {
             let file_path_str = to_absolute_path_str(&file);
             let import = Self {
                 base_package: base_package_path_str.to_string(),
-                route: get_import_route(&base_package_path_str, file_path_str),
+                route: get_import_route(base_package_path_str.to_string(), file_path_str),
                 last_type_id: file_browser::remove_java_extension(java_file_name),
             };
 
@@ -87,12 +87,23 @@ impl JavaImportRouteCreate {
     }
 }
 
-fn get_import_route(base_package_path: &String, file_path: String) -> String {
-    let until = file_path.len() - 5; // Remove ".java" extension
-    let initial_offset = "/src/main/java/".len();
+fn get_import_route(base_package_path: String, file_path: String) -> String {
+    let until = file_path.bytes().len() - 5; // Remove ".java" extension
+    let initial_offset = "/src/main/java/".bytes().len();
+    let start = base_package_path.bytes().len() + initial_offset;
+    let end = file_path.bytes().len() - 5; // Remove ".java" extension
+    if start > end {
+        let format = format!(
+            "Unexpected start {} > end {} for \nbase_package_path: {}\nfile_path: {}\n",
+            start, end, base_package_path, file_path
+        );
+        let a = 0;
+        let b = 0;
+        //panic!(format.as_str());
+    }
     file_path
         .to_owned()
-        .drain(base_package_path.len() + initial_offset..until)
+        .drain(start..end)
         .as_str()
         .replace('/', ".")
         .to_string()

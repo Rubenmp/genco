@@ -217,11 +217,10 @@ impl JavaStructure {
             .collect()
     }
 
-    /// # write
-    /// Export JavaClass into a specific directory "export_directory"
-    /// that must be inside a java project.
-    /// This method creates a java file named "JavaClass::get_name()"
-    /// inside "export_directory".
+    /// # write_to_file
+    /// Export java structure into a specific directory "export_directory"
+    /// that must be inside a java project, creating a java file with
+    /// the name of the structure.
     pub(crate) fn write_to_file(&self) -> Result<(), String> {
         self.validate_output_file()?;
         let mut result = self.write_package();

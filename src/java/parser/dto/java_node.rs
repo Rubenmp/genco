@@ -147,7 +147,7 @@ impl ParserNode for JavaNode {
                     | JavaNodeType::Equals
                     | JavaNodeType::StringLiteral
                     | JavaNodeType::At
-                    | JavaNodeType::VoidType
+                    | JavaNodeType::Void
                     | JavaNodeType::Int
                     | JavaNodeType::Boolean
             );

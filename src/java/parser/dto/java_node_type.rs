@@ -42,7 +42,7 @@ pub enum JavaNodeType {
     // ->
     ObjectCreationExpression,
     // Ex: "file_overwriting File("filename.txt")"
-    New,
+    FileOverwriting,
     AssignmentExpression,
     // Ex: "boolVarCompound |= boolVarNameInit"
     TernaryExpression,
@@ -172,11 +172,15 @@ pub enum JavaNodeType {
     // Types
     Final,
     VoidType,
+    Void,
     GenericType,
     // Ex: "List<Integer>"
     TypeArguments,
     // Ex: "<Integer>"
     ArrayType,
+    New,
+    // Ex: "System.out.println"
+    ScopedTypeIdentifier,
     // Ex: String[]
     TypeIdentifier,
     // Ex: String
@@ -248,6 +252,7 @@ pub enum JavaNodeType {
     SwitchExpression,
     SwitchBlock,
     Switch,
+    SwitchStatement,
     SwitchBlockStatementGroup,
     SwitchLabel,
     // Ex: "case 6"
@@ -365,7 +370,7 @@ impl FromStr for JavaNodeType {
             "lambda_expression" => Ok(JavaNodeType::LambdaExpression),
             "->" => Ok(JavaNodeType::LambdaArrow),
             "object_creation_expression" => Ok(JavaNodeType::ObjectCreationExpression),
-            "file_overwriting" => Ok(JavaNodeType::New),
+            "file_overwriting" => Ok(JavaNodeType::FileOverwriting),
             "assignment_expression" => Ok(JavaNodeType::AssignmentExpression),
             "ternary_expression" => Ok(JavaNodeType::TernaryExpression),
             "instanceof_expression" => Ok(JavaNodeType::InstanceofExpression),
@@ -456,9 +461,12 @@ impl FromStr for JavaNodeType {
             // Types
             "final" => Ok(JavaNodeType::Final),
             "void_type" => Ok(JavaNodeType::VoidType),
+            "void" => Ok(JavaNodeType::Void),
             "generic_type" => Ok(JavaNodeType::GenericType),
             "type_arguments" => Ok(JavaNodeType::TypeArguments),
             "array_type" => Ok(JavaNodeType::ArrayType),
+            "new" => Ok(JavaNodeType::New),
+            "scoped_type_identifier" => Ok(JavaNodeType::ScopedTypeIdentifier),
             "type_identifier" => Ok(JavaNodeType::TypeIdentifier),
             "dimensions" => Ok(JavaNodeType::Dimensions),
             "integral_type" => Ok(JavaNodeType::IntegralType),
@@ -510,6 +518,7 @@ impl FromStr for JavaNodeType {
             "switch_expression" => Ok(JavaNodeType::SwitchExpression),
             "switch_block" => Ok(JavaNodeType::SwitchBlock),
             "switch" => Ok(JavaNodeType::Switch),
+            "switch_statement" => Ok(JavaNodeType::SwitchStatement),
             "switch_block_statement_group" => Ok(JavaNodeType::SwitchBlockStatementGroup),
             "switch_label" => Ok(JavaNodeType::SwitchLabel),
             "case" => Ok(JavaNodeType::Case),

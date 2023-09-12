@@ -41,7 +41,7 @@ impl JavaDataType {
             || &JavaNodeType::IntegralType == node_type
             || &JavaNodeType::FloatingPointType == node_type
             || &JavaNodeType::Boolean == node_type
-            || &JavaNodeType::VoidType == node_type
+            || &JavaNodeType::Void == node_type
     }
     pub(crate) fn is_data_type_node_opt(node_type_opt: &Option<JavaNodeType>) -> bool {
         if let Some(node_type) = node_type_opt {
