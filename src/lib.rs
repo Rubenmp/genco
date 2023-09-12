@@ -1,4 +1,4 @@
-pub mod core;
+pub(crate) mod core;
 mod domain;
 pub mod java;
 pub mod yaml;

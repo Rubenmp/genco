@@ -6,7 +6,7 @@ use crate::core::parser::parser_node_trait::ParserNode;
 use crate::java::dto::java_import::JavaImport;
 use crate::java::parser::dto::java_node::JavaNode;
 use crate::java::parser::dto::java_node_type::JavaNodeType;
-use crate::java::parser::parser::java_parser;
+use crate::java::parser::java_parser;
 use crate::java::scanner::file::java_imports_scan::JavaImportsScan;
 use crate::java::scanner::file::java_structure::JavaStructure;
 use crate::java::scanner::file::java_structure_type::JavaStructureType;

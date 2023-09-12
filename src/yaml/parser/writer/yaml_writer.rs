@@ -6,7 +6,7 @@ use crate::core::file_system::file_overwriting::file_overwriting::FileOverwritin
 use crate::core::parser::parser_node_trait::ParserNode;
 use crate::yaml::parser::dto::yaml_node::YamlNode;
 use crate::yaml::parser::dto::yaml_node_type::YamlNodeType;
-use crate::yaml::parser::parser::yaml_parser::parse;
+use crate::yaml::parser::yaml_parser::parse;
 
 /// Overrides a YAML resource [original_yaml_file] adding the tree structure from another YAML resource
 /// [to_add_yaml_file]. In case of YAML properties collision, the previous properties in
