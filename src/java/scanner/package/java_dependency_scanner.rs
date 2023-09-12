@@ -6,7 +6,7 @@ use crate::core::database::model::java_import_route::java_import_route::JavaImpo
 use crate::core::file_system::path_helper::to_absolute_path_str;
 use crate::java::scanner::package::java_package_scanner;
 
-pub fn scan(base_java_path: &Path) -> Result<(), String> {
+pub(crate) fn scan(base_java_path: &Path) -> Result<(), String> {
     java_package_scanner::check_base_java_project(base_java_path);
     recursive_scan(base_java_path);
 
@@ -23,12 +23,7 @@ fn recursive_scan(path: &Path) {
 }
 
 fn insert_java_import_routes_in_db(java_files: Vec<PathBuf>) {
-    if java_files.is_empty() {
-        return;
-    }
-
-    let routes_to_save: Vec<JavaImportRouteCreate> =
-        java_files.iter().map(JavaImportRouteCreate::new).collect();
+    let routes_to_save: Vec<JavaImportRouteCreate> = JavaImportRouteCreate::from(java_files);
 
     db_java_import_route_save::save(routes_to_save)
         .expect("JavaImportRoute batch save must succeed")
@@ -80,12 +75,13 @@ mod tests {
 
     #[test]
     fn scan_java_project_test() {
-        let dir_path = get_test_dir(get_current_file_path(), "java_dependency_scanner").join("basic_project");
+        let dir_path = get_local_test_dir().join("basic_project");
 
         let scan_result = java_dependency_scanner::scan(&dir_path);
 
         scan_result.expect("Scan must be ok");
         let result_imports = db_java_import_route_search::by_last_type_id("DemoApplication");
+        dbg!(result_imports.get(0).unwrap());
         assert_eq!(1, result_imports.len());
         if let Some(result_import) = result_imports.get(0) {
             assert_eq!("DemoApplication", result_import.get_last_type_id());
@@ -96,12 +92,16 @@ mod tests {
 
     #[test]
     fn get_files_and_dirs_to_scan_test() {
-        let dir_path = get_test_dir(get_current_file_path(), "basic_project");
+        let dir_path = get_local_test_dir().join("basic_project");
 
         let (files, dirs) = java_dependency_scanner::get_files_and_dirs_to_scan(&dir_path);
 
         assert_eq!(0, files.len());
         assert_eq!(1, dirs.len());
+    }
+
+    fn get_local_test_dir() -> PathBuf {
+        get_test_dir(get_current_file_path(), "java_dependency_scanner")
     }
 
     fn get_current_file_path() -> PathBuf {

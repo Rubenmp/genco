@@ -6,8 +6,9 @@ use crate::core::file_system::path_helper;
 use crate::core::file_system::path_helper::to_absolute_path_str;
 use crate::core::observability::logger::log_unrecoverable_error;
 
-pub(crate) fn get_base_package_and_route_from_dir_no_check(dir_path: &Path) -> (String, String) {
-    for ancestor in dir_path.ancestors() {
+/// This method will panic if the input path is not a valid dir within a java project (mvn/gradle)
+pub(crate) fn get_base_package_uncheck(input_dir_path: &Path) -> PathBuf {
+    for ancestor in input_dir_path.ancestors() {
         if ancestor.ends_with("java") {
             if let Some(second_ancestor) = ancestor.parent() {
                 if second_ancestor.ends_with("main") {
@@ -15,9 +16,7 @@ pub(crate) fn get_base_package_and_route_from_dir_no_check(dir_path: &Path) -> (
                         if third_ancestor.ends_with("src") {
                             let mut third_ancestor_buf = third_ancestor.to_path_buf();
                             third_ancestor_buf.pop();
-                            let base_package = get_base_package(third_ancestor_buf);
-                            let route = get_package_route(dir_path, ancestor);
-                            return (base_package, route);
+                            return third_ancestor_buf;
                         }
                     }
                 }
@@ -26,10 +25,11 @@ pub(crate) fn get_base_package_and_route_from_dir_no_check(dir_path: &Path) -> (
     }
 
     panic!(
-        "base_package_and_route_from_dir must exist, faile for  path: {}",
-        to_absolute_path_str(dir_path)
+        "get_base_package_uncheck must exist, failed for  path: {}",
+        to_absolute_path_str(input_dir_path)
     )
 }
+
 
 fn get_base_package(base_java_package_dir: PathBuf) -> String {
     to_absolute_path_str(&base_java_package_dir)

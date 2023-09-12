@@ -1,9 +1,9 @@
-use std::ops::Add;
 use std::path::{Path, PathBuf};
 
 use rusqlite::Row;
 
 use crate::core::file_system::file_browser::file_browser;
+use crate::core::file_system::path_helper::to_absolute_path_str;
 use crate::java::scanner::package::java_package_scanner;
 
 #[derive(Debug)]
@@ -37,17 +37,31 @@ pub struct JavaImportRouteCreate {
 }
 
 impl JavaImportRouteCreate {
-    pub(crate) fn new(file_path: &PathBuf) -> Self {
-        let dir_path = Self::get_dir_path(file_path);
-        let last_type_id = new_last_type_id(file_path);
-        let (base_package, dir_route) =
-            java_package_scanner::get_base_package_and_route_from_dir_no_check(&dir_path);
-
-        JavaImportRouteCreate {
-            base_package,
-            route: dir_route.add(".").add(&last_type_id),
-            last_type_id,
+    /// Preconditions:
+    /// - All the input paths are in the same dir which is within a java project
+    /// - All files have a ".java" extension
+    pub(crate) fn from(java_files_in_same_dir_unchecked: Vec<PathBuf>) -> Vec<Self> {
+        if java_files_in_same_dir_unchecked.is_empty() {
+            return vec![];
         }
+        let base_package_path =
+            java_package_scanner::get_base_package_uncheck(&java_files_in_same_dir_unchecked.get(0).expect("JavaImportRoute::from failed"));
+
+        let base_package_path_str = to_absolute_path_str(&base_package_path);
+        let mut result = Vec::with_capacity(java_files_in_same_dir_unchecked.len());
+        for file in java_files_in_same_dir_unchecked {
+            let java_file_name = get_last_item_str_unchecked(&file);
+            let file_path_str = to_absolute_path_str(&file);
+            let import = Self {
+                base_package: base_package_path_str.to_string(),
+                route: get_import_route(&base_package_path_str, file_path_str),
+                last_type_id: file_browser::remove_java_extension(java_file_name),
+            };
+
+            result.push(import);
+        }
+
+        result
     }
 
     fn get_dir_path(file_path: &PathBuf) -> PathBuf {
@@ -57,15 +71,21 @@ impl JavaImportRouteCreate {
     }
 }
 
-fn new_last_type_id(file_path: &Path) -> String {
-    let file_name = file_path
+fn get_import_route(base_package_path: &String, file_path: String) -> String {
+    let until = file_path.len() - 5; // Remove ".java" extension
+    let initial_offset = "/src/main/java/".len();
+    file_path.to_owned().drain(base_package_path.len() + initial_offset..until).as_str().replace("/", ".").to_string()
+}
+
+
+fn get_last_item_str_unchecked(file_path: &Path) -> String {
+    file_path
         .iter()
         .last()
         .expect("Last type id must exist to transform path to JavaImportRoute")
         .to_str()
         .expect("Last type id must be transformed to string to convert it to JavaImportRoute")
-        .to_string();
-    file_browser::remove_java_extension(file_name)
+        .to_string()
 }
 
 impl JavaImportRoute {
