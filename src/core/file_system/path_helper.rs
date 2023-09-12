@@ -7,7 +7,6 @@ pub fn to_absolute_path_str(file: &Path) -> String {
     file.canonicalize().unwrap().to_string_lossy().to_string()
 }
 
-
 #[cfg(test)]
 mod tests {
     use std::path::PathBuf;

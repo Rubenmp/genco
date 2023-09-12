@@ -10,8 +10,11 @@ use crate::core::observability::logger;
 pub fn get_first_file_from_dir_if_exists(path: &Path, filenames: Vec<&str>) -> Option<PathBuf> {
     if !path.exists() || !path.is_dir() {
         logger::log_warning(
-            format!("Function \"get_first_file_if_exists\" requires a directory, found: {:?}",
-                    path).as_str()
+            format!(
+                "Function \"get_first_file_if_exists\" requires a directory, found: {:?}",
+                path
+            )
+            .as_str(),
         );
         return None;
     }
@@ -58,7 +61,11 @@ pub fn do_last_element_in_path_ends_with(path: &Path, ending: &str) -> bool {
 
 pub(crate) fn remove_java_extension(java_file_name: String) -> String {
     let until = java_file_name.len() - 5; // Remove ".java" extension
-    java_file_name.to_owned().drain(0..until).as_str().to_string()
+    java_file_name
+        .to_owned()
+        .drain(0..until)
+        .as_str()
+        .to_string()
 }
 
 #[cfg(test)]

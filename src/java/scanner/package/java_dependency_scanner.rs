@@ -86,7 +86,9 @@ mod tests {
         if let Some(result_import) = result_imports.get(0) {
             assert_eq!("DemoApplication", result_import.get_last_type_id());
             assert_eq!("org.test.DemoApplication", result_import.get_route());
-            assert!(result_import.get_base_package().ends_with("genco/src/java/scanner/package/test/java_dependency_scanner/basic_project"));
+            assert!(result_import.get_base_package().ends_with(
+                "genco/src/java/scanner/package/test/java_dependency_scanner/basic_project"
+            ));
         }
     }
 

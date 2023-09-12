@@ -30,11 +30,6 @@ pub(crate) fn get_base_package_uncheck(input_dir_path: &Path) -> PathBuf {
     )
 }
 
-
-fn get_base_package(base_java_package_dir: PathBuf) -> String {
-    to_absolute_path_str(&base_java_package_dir)
-}
-
 pub(crate) fn get_package_from_dir(dir_path: &Path) -> String {
     if !dir_path.exists() || !dir_path.is_dir() {
         log_unrecoverable_error(

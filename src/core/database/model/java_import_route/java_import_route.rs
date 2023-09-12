@@ -44,8 +44,11 @@ impl JavaImportRouteCreate {
         if java_files_in_same_dir_unchecked.is_empty() {
             return vec![];
         }
-        let base_package_path =
-            java_package_scanner::get_base_package_uncheck(&java_files_in_same_dir_unchecked.get(0).expect("JavaImportRoute::from failed"));
+        let base_package_path = java_package_scanner::get_base_package_uncheck(
+            &java_files_in_same_dir_unchecked
+                .get(0)
+                .expect("JavaImportRoute::from failed"),
+        );
 
         let base_package_path_str = to_absolute_path_str(&base_package_path);
         let mut result = Vec::with_capacity(java_files_in_same_dir_unchecked.len());
@@ -74,9 +77,13 @@ impl JavaImportRouteCreate {
 fn get_import_route(base_package_path: &String, file_path: String) -> String {
     let until = file_path.len() - 5; // Remove ".java" extension
     let initial_offset = "/src/main/java/".len();
-    file_path.to_owned().drain(base_package_path.len() + initial_offset..until).as_str().replace("/", ".").to_string()
+    file_path
+        .to_owned()
+        .drain(base_package_path.len() + initial_offset..until)
+        .as_str()
+        .replace("/", ".")
+        .to_string()
 }
-
 
 fn get_last_item_str_unchecked(file_path: &Path) -> String {
     file_path
