@@ -68,13 +68,15 @@ impl JavaImportRouteCreate {
         for file in java_files_in_same_dir_unchecked {
             let java_file_name = get_last_item_str_unchecked(&file);
             let file_path_str = to_absolute_path_str(&file);
-            let import = Self {
-                base_package: base_package_path_str.to_string(),
-                route: get_import_route(base_package_path_str.to_string(), file_path_str),
-                last_type_id: file_browser::remove_java_extension(java_file_name),
-            };
+            if let Some(route) = get_import_route(&base_package_path_str, &file_path_str) {
+                let import = Self {
+                    base_package: base_package_path_str.to_string(),
+                    route,
+                    last_type_id: file_browser::remove_java_extension(java_file_name),
+                };
 
-            result.push(import);
+                result.push(import);
+            }
         }
 
         result
@@ -87,26 +89,27 @@ impl JavaImportRouteCreate {
     }
 }
 
-fn get_import_route(base_package_path: String, file_path: String) -> String {
-    let until = file_path.bytes().len() - 5; // Remove ".java" extension
-    let initial_offset = "/src/main/java/".bytes().len();
-    let start = base_package_path.bytes().len() + initial_offset;
-    let end = file_path.bytes().len() - 5; // Remove ".java" extension
-    if start > end {
-        let format = format!(
-            "Unexpected start {} > end {} for \nbase_package_path: {}\nfile_path: {}\n",
-            start, end, base_package_path, file_path
-        );
-        let a = 0;
-        let b = 0;
-        //panic!(format.as_str());
-    }
-    file_path
-        .to_owned()
-        .drain(start..end)
-        .as_str()
-        .replace('/', ".")
-        .to_string()
+/// There is probably a better way to handle this that I am not aware of.
+/// This method never return a None due to the preconditions applied by the caller to the parameters.
+/// Input examples:
+/// - base_package_path: "/home/<user>/genco/src/java/dto/test/java_class"
+/// - file_path: "/home/<user>/genco/src/java/dto/test/java_class/src/main/java/org/test/JavaClassFrom.java"
+///
+/// Expected result: "org.test.JavaClassFrom"
+fn get_import_route(base_package_path: &str, file_path: &str) -> Option<String> {
+    let file_path_string = file_path.to_string();
+    let file_path_without_base_package: Vec<&str> =
+        file_path_string.split(base_package_path).collect();
+    let file_path_without_base_package = file_path_without_base_package.get(1)?.to_string();
+    let route_with_slash_and_extension: Vec<&str> = file_path_without_base_package
+        .split("/src/main/java/")
+        .collect();
+    let route_with_slash_and_extension = route_with_slash_and_extension.get(1)?.to_string();
+    let route_with_slash: Vec<&str> = route_with_slash_and_extension.split(".java").collect();
+    let route_with_slash = route_with_slash.get(0)?;
+
+    let route = route_with_slash.replace('/', ".");
+    Some(route)
 }
 
 fn get_last_item_str_unchecked(file_path: &Path) -> String {
