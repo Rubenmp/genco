@@ -119,6 +119,8 @@ impl JavaFile {
     pub(crate) fn get_import(&self) -> JavaImport {
         self.self_import.to_owned()
     }
+
+    #[cfg(test)]
     fn get_imports(&self) -> &JavaImportsScan {
         &self.imports
     }

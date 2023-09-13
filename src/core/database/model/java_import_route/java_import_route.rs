@@ -106,7 +106,7 @@ fn get_import_route(base_package_path: &str, file_path: &str) -> Option<String> 
         .collect();
     let route_with_slash_and_extension = route_with_slash_and_extension.get(1)?.to_string();
     let route_with_slash: Vec<&str> = route_with_slash_and_extension.split(".java").collect();
-    let route_with_slash = route_with_slash.get(0)?;
+    let route_with_slash = route_with_slash.first()?;
 
     let route = route_with_slash.replace('/', ".");
     Some(route)

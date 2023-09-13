@@ -105,10 +105,12 @@ impl JavaInterface {
         &self.structure
     }
 
+    #[cfg(test)]
     pub(crate) fn get_file(&self) -> &PathBuf {
         self.get_structure().get_file()
     }
 
+    #[cfg(test)]
     pub(crate) fn get_imports(&self) -> Vec<JavaImport> {
         self.get_structure().get_imports()
     }
