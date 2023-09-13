@@ -136,3 +136,18 @@ impl JavaImportRoute {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::core::database::model::java_import_route::java_import_route;
+
+    #[test]
+    fn get_import_route_test() {
+        let base_package_path = "/home/<user>/genco/src/java/dto/test/java_class";
+        let file_path = "/home/<user>/genco/src/java/dto/test/java_class/src/main/java/org/test/JavaClassFrom.java";
+
+        let result = java_import_route::get_import_route(base_package_path, file_path);
+
+        assert_eq!(Some("org.test.JavaClassFrom".to_string()), result);
+    }
+}
