@@ -88,10 +88,10 @@ pub(crate) fn check_dir_exist(input_dir: &Path, start_error_message: &str) {
 mod tests {
     use std::path::PathBuf;
 
-    use crate::core::file_system::directory_browser::directory_browser::{
+    use crate::core::file_system::directory_browsing::directory_browser::{
         check_dir_exist, get_dir, get_dir_ending_with, get_dir_map,
     };
-    use crate::core::testing::test_assert::assert_dir_is;
+    use crate::core::testing::test_assert::{assert_dir_is, assert_fail};
     use crate::core::testing::test_path::get_test_dir;
 
     #[test]
@@ -105,7 +105,7 @@ mod tests {
         if let Some(dir) = boot_dir {
             assert_eq!(expected_test_dir.to_string_lossy(), dir.to_string_lossy());
         } else {
-            assert!(false, "boot_dir not found");
+            assert_fail("boot_dir not found");
         }
     }
 
@@ -120,7 +120,7 @@ mod tests {
         if let Some(dir) = boot_dir {
             assert_eq!(expected_test_dir.to_string_lossy(), dir.to_string_lossy());
         } else {
-            assert!(false, "code directory not found");
+            assert_fail("code directory not found");
         }
     }
 
@@ -136,12 +136,12 @@ mod tests {
         if let Some(first_dir) = dir_map.get("first_dir") {
             assert_dir_is(first_dir, "first_dir");
         } else {
-            assert!(false, "Expected dir_map entry \"first_dir\" not found.");
+            assert_fail("Expected dir_map entry \"first_dir\" not found.");
         }
         if let Some(first_dir) = dir_map.get("second_dir") {
             assert_dir_is(first_dir, "second_dir");
         } else {
-            assert!(false, "Expected dir_map entry \"second_dir\" not found.");
+            assert_fail("Expected dir_map entry \"second_dir\" not found.");
         }
     }
 

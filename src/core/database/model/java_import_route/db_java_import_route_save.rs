@@ -1,4 +1,4 @@
-use crate::core::database::model::java_import_route::java_import_route::JavaImportRouteCreate;
+use crate::core::database::model::java_import_route::java_import_route_entity::JavaImportRouteCreate;
 use crate::core::database::setup;
 use crate::core::observability::logger;
 
@@ -34,7 +34,7 @@ fn save_internal(entity: JavaImportRouteCreate) -> Result<(), String> {
 
 #[cfg(test)]
 mod tests {
-    use crate::core::database::model::java_import_route::java_import_route::JavaImportRouteCreate;
+    use crate::core::database::model::java_import_route::java_import_route_entity::JavaImportRouteCreate;
     use crate::core::database::model::java_import_route::{
         db_java_import_route_save, db_java_import_route_search,
     };

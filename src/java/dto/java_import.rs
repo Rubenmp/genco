@@ -1,7 +1,7 @@
 use std::fmt;
 use std::path::{Component, Path, PathBuf};
 
-use crate::core::file_system::file_browser::file_browser;
+use crate::core::file_system::file_browsing::file_browser;
 use crate::core::file_system::path_helper;
 use crate::core::file_system::path_helper::try_to_absolute_path;
 use crate::core::observability::logger;

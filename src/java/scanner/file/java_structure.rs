@@ -1,7 +1,7 @@
 use std::path::{Path, PathBuf};
 
-use crate::core::file_system::file_creator::file_creator;
-use crate::core::file_system::file_overwriting::file_overwriting::FileOverwriting;
+use crate::core::file_system::file_creation::file_creator;
+use crate::core::file_system::file_overwriting::file_overwriter::FileOverwriting;
 use crate::core::file_system::path_helper::try_to_absolute_path;
 use crate::core::observability::logger;
 use crate::core::parser::parser_node_trait::ParserNode;
@@ -298,7 +298,7 @@ impl JavaStructure {
     }
 
     fn write_visibility(&self, result: &mut String) {
-        *result += self.get_visibility().to_file_string().as_str();
+        *result += self.get_visibility().as_file_string().as_str();
         if self.is_static() {
             *result += "static ";
         }
@@ -764,7 +764,7 @@ fn is_first_child_of_type(children: &[JavaNode], node_type: JavaNodeType) -> boo
 mod tests {
     use std::path::PathBuf;
 
-    use crate::core::file_system::file_creator::file_creator::remove_file_if_exists;
+    use crate::core::file_system::file_creation::file_creator::remove_file_if_exists;
     use crate::core::file_system::path_helper::try_to_absolute_path;
     use crate::core::testing::test_assert::{assert_fail, assert_same_file};
     use crate::core::testing::test_path;

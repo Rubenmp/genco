@@ -2,21 +2,20 @@ use std::path::{Path, PathBuf};
 
 use rusqlite::Row;
 
-use crate::core::file_system::file_browser::file_browser;
+use crate::core::file_system::file_browsing::file_browser;
 use crate::core::file_system::path_helper::try_to_absolute_path;
 use crate::java::scanner::package::java_package_scanner;
 
 #[derive(Debug)]
-pub struct JavaImportRoute {
+pub struct JavaImportRouteEntity {
     id: i32,
     base_package: String,
     route: String,
     last_type_id: String,
 }
 
-impl JavaImportRoute {}
 
-impl JavaImportRoute {
+impl JavaImportRouteEntity {
     pub(crate) fn get_id(&self) -> i32 {
         self.id
     }
@@ -122,7 +121,7 @@ fn get_last_item_str_unchecked(file_path: &Path) -> String {
         .to_string()
 }
 
-impl JavaImportRoute {
+impl JavaImportRouteEntity {
     pub(crate) fn from_row(row: &Row) -> Self {
         Self {
             id: row.get(0).expect("JavaImportRoute field \"id\" missing"),
@@ -139,14 +138,14 @@ impl JavaImportRoute {
 
 #[cfg(test)]
 mod tests {
-    use crate::core::database::model::java_import_route::java_import_route;
+    use crate::core::database::model::java_import_route::java_import_route_entity;
 
     #[test]
     fn get_import_route_test() {
         let base_package_path = "/home/<user>/genco/src/java/dto/test/java_class";
         let file_path = "/home/<user>/genco/src/java/dto/test/java_class/src/main/java/org/test/JavaClassFrom.java";
 
-        let result = java_import_route::get_import_route(base_package_path, file_path);
+        let result = java_import_route_entity::get_import_route(base_package_path, file_path);
 
         assert_eq!(Some("org.test.JavaClassFrom".to_string()), result);
     }

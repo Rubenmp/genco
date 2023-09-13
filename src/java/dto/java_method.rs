@@ -240,7 +240,7 @@ impl JavaMethod {
 
     fn write_visibility(&self, result: &mut String, indentation: &JavaIndentation) {
         *result += indentation.get_current_indentation().as_str();
-        *result += &self.get_visibility().to_file_string();
+        *result += &self.get_visibility().as_file_string();
     }
 }
 
@@ -323,7 +323,7 @@ impl JavaMethodBuilder {
 mod tests {
     use std::path::PathBuf;
 
-    use crate::core::file_system::file_creator::file_creator::remove_file_if_exists;
+    use crate::core::file_system::file_creation::file_creator::remove_file_if_exists;
     use crate::core::testing::test_assert::assert_same_as_file;
     use crate::core::testing::test_path;
     use crate::java::dependency::org::junit::jupiter::junit_jupiter_api::java_junit_jupiter_api_factory;

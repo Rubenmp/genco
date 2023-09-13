@@ -1,10 +1,10 @@
 use std::path::Path;
 
-use crate::core::database::model::java_import_route::java_import_route::JavaImportRoute;
+use crate::core::database::model::java_import_route::java_import_route_entity::JavaImportRouteEntity;
 use crate::core::database::setup;
 use crate::core::file_system::path_helper::try_to_absolute_path;
 
-pub(crate) fn by_last_type_id(type_id: &str) -> Vec<JavaImportRoute> {
+pub(crate) fn by_last_type_id(type_id: &str) -> Vec<JavaImportRouteEntity> {
     let conn = setup::get_db_connection();
 
     let mut stmt = conn
@@ -15,7 +15,7 @@ pub(crate) fn by_last_type_id(type_id: &str) -> Vec<JavaImportRoute> {
         )
         .expect("Database statement preparation failed (\"by_last_type_id\")");
 
-    stmt.query_map([type_id], |row| Ok(JavaImportRoute::from_row(row)))
+    stmt.query_map([type_id], |row| Ok(JavaImportRouteEntity::from_row(row)))
         .expect("Search JavaImportRoute by_last_type_id query failed")
         .filter_map(|row| row.ok())
         .collect()
@@ -24,7 +24,7 @@ pub(crate) fn by_last_type_id(type_id: &str) -> Vec<JavaImportRoute> {
 pub(crate) fn by_base_package_and_route(
     base_package: &Path,
     import_route: &str,
-) -> Vec<JavaImportRoute> {
+) -> Vec<JavaImportRouteEntity> {
     let conn = setup::get_db_connection();
 
     let base_package_str = try_to_absolute_path(base_package);
@@ -37,7 +37,7 @@ pub(crate) fn by_base_package_and_route(
         .expect("Database statement preparation failed (\"by_base_package_and_route\")");
 
     stmt.query_map([base_package_str, import_route.to_owned()], |row| {
-        Ok(JavaImportRoute::from_row(row))
+        Ok(JavaImportRouteEntity::from_row(row))
     })
     .expect("Search JavaImportRoute by_base_package_and_route query failed")
     .filter_map(|row| row.ok())

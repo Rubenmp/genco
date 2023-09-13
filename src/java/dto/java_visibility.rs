@@ -11,7 +11,7 @@ pub enum JavaVisibility {
 }
 
 impl JavaVisibility {
-    pub(crate) fn to_file_string(&self) -> String {
+    pub(crate) fn as_file_string(&self) -> String {
         let visibility = self.to_string().to_lowercase();
         if visibility == "package" {
             return "".to_string();

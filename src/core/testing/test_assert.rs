@@ -1,3 +1,4 @@
+use std::fmt::format;
 use std::fs;
 use std::path::Path;
 
@@ -32,7 +33,7 @@ pub fn assert_file_is(result: &Path, expected_file: &str) {
     if let Some(file_str) = result.iter().map(|i| i.to_str()).last() {
         assert_eq!(Some(expected_file), file_str);
     } else {
-        assert!(false, "Expected \"{}\" resource not found.", expected_file);
+        assert_fail(format!("Expected \"{}\" resource not found.", expected_file).as_str());
     }
 }
 
@@ -42,10 +43,10 @@ pub fn assert_dir_is(result: &Path, expected_file: &str) {
     if let Some(dir_entry_str) = result.iter().map(|i| i.to_str()).last() {
         assert_eq!(Some(expected_file), dir_entry_str);
     } else {
-        assert!(false, "Expected \"{}\" directory not found.", expected_file);
+        assert_fail(format!("Expected \"{}\" directory not found.", expected_file).as_str());
     }
 }
 
 pub fn assert_fail(error_message: &str) {
-    assert!(false, "{}", error_message);
+    panic!("{}", error_message);
 }

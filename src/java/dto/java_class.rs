@@ -306,7 +306,7 @@ impl JavaClassBuilder {
 mod tests {
     use std::path::PathBuf;
 
-    use crate::core::file_system::file_creator::file_creator::remove_file_if_exists;
+    use crate::core::file_system::file_creation::file_creator::remove_file_if_exists;
     use crate::core::testing::test_assert::{assert_fail, assert_same_file};
     use crate::core::testing::test_path;
     use crate::java::dependency::org::springframework::spring_context::java_spring_context_factory;

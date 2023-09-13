@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 use std::path::PathBuf;
 
-use crate::core::file_system::file_creator::file_creator;
-use crate::core::file_system::file_overwriting::file_overwriting::FileOverwriting;
+use crate::core::file_system::file_creation::file_creator;
+use crate::core::file_system::file_overwriting::file_overwriter::FileOverwriting;
 use crate::core::parser::parser_node_trait::ParserNode;
 use crate::yaml::parser::dto::yaml_node::YamlNode;
 use crate::yaml::parser::dto::yaml_node_type::YamlNodeType;
@@ -318,7 +318,7 @@ mod tests {
     use std::fs;
     use std::path::PathBuf;
 
-    use crate::core::file_system::file_creator::file_creator::{
+    use crate::core::file_system::file_creation::file_creator::{
         create_file_with_content, remove_file_if_exists,
     };
     use crate::core::testing::test_assert::assert_same_as_file;

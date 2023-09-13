@@ -148,7 +148,7 @@ impl JavaField {
         }
 
         result += initial_indentation.get_current_indentation().as_str();
-        result += self.get_visibility().to_file_string().as_str();
+        result += self.get_visibility().as_file_string().as_str();
         if self.is_static {
             result += "static ";
         }

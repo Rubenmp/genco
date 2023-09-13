@@ -3,7 +3,7 @@ use std::io::{BufReader, Read, Seek, SeekFrom, Write};
 use std::path::{Path, PathBuf};
 use std::{fs, io};
 
-use crate::core::file_system::file_creator::file_creator::{
+use crate::core::file_system::file_creation::file_creator::{
     create_file_if_not_exist, remove_file_if_exists,
 };
 use crate::core::file_system::file_reader::get_number_of_bytes_of;
@@ -388,10 +388,10 @@ fn check_valid_bytes_to_overwrite(
 mod tests {
     use std::path::PathBuf;
 
-    use crate::core::file_system::file_creator::file_creator::{
+    use crate::core::file_system::file_creation::file_creator::{
         create_file_with_content, remove_file_if_exists,
     };
-    use crate::core::file_system::file_overwriting::file_overwriting::FileOverwriting;
+    use crate::core::file_system::file_overwriting::file_overwriter::FileOverwriting;
     use crate::core::testing::test_assert::assert_same_file;
     use crate::core::testing::test_path::{get_non_existing_test_file, get_test_file};
 

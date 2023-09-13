@@ -3,7 +3,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::vec::Vec;
 
-use crate::core::file_system::directory_browser::directory_browser;
+use crate::core::file_system::directory_browsing::directory_browser;
 use crate::core::observability::logger;
 
 #[allow(unused)]
@@ -72,10 +72,10 @@ pub(crate) fn remove_java_extension(java_file_name: String) -> String {
 mod tests {
     use std::path::PathBuf;
 
-    use crate::core::file_system::file_browser::file_browser::{
+    use crate::core::file_system::file_browsing::file_browser::{
         get_file_map, get_first_file_from_dir_if_exists,
     };
-    use crate::core::testing::test_assert::assert_file_is;
+    use crate::core::testing::test_assert::{assert_fail, assert_file_is};
     use crate::core::testing::test_path::get_test_dir;
 
     #[test]
@@ -90,7 +90,7 @@ mod tests {
         if let Some(pom) = pom_opt {
             assert_file_is(&pom, "pom.xml");
         } else {
-            assert!(false, "pom.xml resource not found");
+            assert_fail("pom.xml resource not found");
         }
     }
 
@@ -115,7 +115,7 @@ mod tests {
         if let Some(gitignore) = file_map.get(".gitignore") {
             assert_file_is(gitignore, ".gitignore");
         } else {
-            assert!(false, "Expected \".gitignore\" resource not found.");
+            assert_fail("Expected \".gitignore\" resource not found.");
         }
     }
 

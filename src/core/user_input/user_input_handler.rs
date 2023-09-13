@@ -2,8 +2,8 @@ use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use crate::core::file_system::file_creator::file_creator::create_file_with_content;
-use crate::core::file_system::file_overwriting::file_overwriting::FileOverwriting;
+use crate::core::file_system::file_creation::file_creator::create_file_with_content;
+use crate::core::file_system::file_overwriting::file_overwriter::FileOverwriting;
 use crate::core::file_system::file_reader::read_string;
 use crate::core::user_input::cli_query;
 

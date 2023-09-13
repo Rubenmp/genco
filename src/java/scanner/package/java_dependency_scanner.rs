@@ -1,19 +1,17 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use crate::core::database::model::java_import_route::java_import_route::{
-    JavaImportRoute, JavaImportRouteCreate,
-};
 use crate::core::database::model::java_import_route::{
     db_java_import_route_save, db_java_import_route_search,
+};
+use crate::core::database::model::java_import_route::java_import_route_entity::{
+    JavaImportRouteEntity, JavaImportRouteCreate,
 };
 use crate::core::file_system::path_helper::try_to_absolute_path;
 use crate::java::scanner::package::java_package_scanner;
 
-pub(crate) fn recursive_scan_dir_unchecked(base_java_project_dir: &Path) -> Result<(), String> {
+pub(crate) fn recursive_scan_dir_unchecked(base_java_project_dir: &Path) {
     recursive_scan(base_java_project_dir);
-
-    Ok(())
 }
 
 ///
@@ -26,7 +24,7 @@ pub(crate) fn recursive_scan_dir_unchecked(base_java_project_dir: &Path) -> Resu
 pub(crate) fn search_imports(
     import_route: &str,
     java_file_containing_route: &Path,
-) -> Vec<JavaImportRoute> {
+) -> Vec<JavaImportRouteEntity> {
     let base_package_path_opt = java_package_scanner::get_base_package(java_file_containing_route);
     if let Some(base_package_path) = base_package_path_opt {
         return db_java_import_route_search::by_base_package_and_route(
@@ -102,9 +100,8 @@ mod tests {
     fn scan_java_project_test() {
         let dir_path = get_local_test_dir().join("basic_project");
 
-        let scan_result = java_dependency_scanner::recursive_scan_dir_unchecked(&dir_path);
+        java_dependency_scanner::recursive_scan_dir_unchecked(&dir_path);
 
-        scan_result.expect("Scan must be ok");
         let result_imports = db_java_import_route_search::by_last_type_id("DemoApplication");
         assert_eq!(1, result_imports.len());
         if let Some(result_import) = result_imports.get(0) {

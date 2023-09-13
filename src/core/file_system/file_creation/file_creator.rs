@@ -86,7 +86,7 @@ mod tests {
     use std::fs;
     use std::path::PathBuf;
 
-    use crate::core::file_system::file_creator::file_creator::{
+    use crate::core::file_system::file_creation::file_creator::{
         create_file_if_not_exist, create_file_with_content, remove_file_if_exists,
     };
     use crate::core::testing::test_assert::assert_same_file;
