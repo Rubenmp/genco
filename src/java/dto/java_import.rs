@@ -81,22 +81,6 @@ impl JavaImport {
         Self::new_from_route(&import_route)
     }
 
-    pub(crate) fn new_wildcard_import_from_dir(dir_path: &Path) -> Result<JavaImport, String> {
-        check_dir_for_new_wildcard_import(dir_path)?;
-        if get_package_nodes_vec_from_dir(dir_path).is_empty() {
-            return Err(format!(
-                "Invalid attempt to create a wildcard java import using folder:\n\t\"{:?}\"",
-                path_helper::try_to_absolute_path(dir_path)
-            ));
-        }
-
-        Ok(JavaImport {
-            fake_non_checked_route: "".to_string(),
-            folder_path: Some(dir_path.to_owned()),
-            nodes: vec![],
-        })
-    }
-
     // This method lacks contest from the definition route of the class/interface/enum
     // i.e. which submodule is this route coming from? -> Not possible to detect with this header
     // It is used to create well-known imports like "org.springframework.stereotype.Service"
@@ -458,20 +442,6 @@ mod tests {
         get_java_project_test_folder(get_current_file_path(), "java_import")
     }
 
-    #[test]
-    fn new_wildcard_import_from_dir_test() {
-        let dir_path = get_test_folder();
-
-        match JavaImport::new_wildcard_import_from_dir(&dir_path) {
-            Ok(import) => {
-                assert!(import.is_wildcard_import());
-                assert!(!import.is_explicit_import());
-                assert_eq!("org.test.*", import.get_route());
-                assert_eq!("import org.test.*;", import.to_string());
-            }
-            Err(err) => assert_fail(&err),
-        };
-    }
 
     fn get_current_file_path() -> PathBuf {
         PathBuf::from(file!())
