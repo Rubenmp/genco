@@ -4,11 +4,11 @@ use std::io::{BufReader, Read, Seek, SeekFrom};
 use std::path::Path;
 use std::str;
 
-use crate::core::file_system::path_helper::to_absolute_path_str;
+use crate::core::file_system::path_helper::try_to_absolute_path;
 
 pub fn read_to_string(file: &Path) -> String {
     fs::read_to_string(file)
-        .unwrap_or_else(|_| panic!("Unable to read file:\n{}\n", to_absolute_path_str(file)))
+        .unwrap_or_else(|_| panic!("Unable to read file:\n{}\n", try_to_absolute_path(file)))
 }
 
 pub fn read_string(file: &Path, start_byte: usize, end_byte: usize) -> String {
@@ -43,7 +43,7 @@ pub fn get_number_of_bytes_of(file: &Path) -> usize {
         .unwrap_or_else(|_| {
             panic!(
                 "Can not get bytes from file:\n{}\n",
-                to_absolute_path_str(file)
+                try_to_absolute_path(file)
             )
         })
         .len() as usize

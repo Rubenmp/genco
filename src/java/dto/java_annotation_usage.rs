@@ -69,7 +69,7 @@ impl JavaAnnotationUsage {
         let result_name = name_opt.ok_or(format!(
             "Unexpected java annotation name parsing:\n\"{:?}\"in file:\n\"{}\"\n",
             root_java_node.get_content(),
-            path_helper::to_absolute_path_str(input_java_file)
+            path_helper::try_to_absolute_path(input_java_file)
         ))?;
 
         let explicit_import =
@@ -89,7 +89,7 @@ impl JavaAnnotationUsage {
             Err(_) => Err(format!(
                 "Unexpected java annotation \"{}\" without import in file:\n\"{}\"\n",
                 root_java_node.get_content(),
-                path_helper::to_absolute_path_str(input_java_file)
+                path_helper::try_to_absolute_path(input_java_file)
             )),
         }
     }

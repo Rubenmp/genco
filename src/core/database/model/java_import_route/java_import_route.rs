@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 use rusqlite::Row;
 
 use crate::core::file_system::file_browser::file_browser;
-use crate::core::file_system::path_helper::to_absolute_path_str;
+use crate::core::file_system::path_helper::try_to_absolute_path;
 use crate::java::scanner::package::java_package_scanner;
 
 #[derive(Debug)]
@@ -63,11 +63,11 @@ impl JavaImportRouteCreate {
                 .expect("JavaImportRoute::from failed"),
         );
 
-        let base_package_path_str = to_absolute_path_str(&base_package_path);
+        let base_package_path_str = try_to_absolute_path(&base_package_path);
         let mut result = Vec::with_capacity(java_files_in_same_dir_unchecked.len());
         for file in java_files_in_same_dir_unchecked {
             let java_file_name = get_last_item_str_unchecked(&file);
-            let file_path_str = to_absolute_path_str(&file);
+            let file_path_str = try_to_absolute_path(&file);
             if let Some(route) = get_import_route(&base_package_path_str, &file_path_str) {
                 let import = Self {
                     base_package: base_package_path_str.to_string(),

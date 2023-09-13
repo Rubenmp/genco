@@ -1,7 +1,7 @@
 use std::fmt;
 use std::path::Path;
 
-use crate::core::file_system::path_helper::to_absolute_path_str;
+use crate::core::file_system::path_helper::try_to_absolute_path;
 use crate::core::parser::parser_node_trait::ParserNode;
 use crate::java::dto::java_import::JavaImport;
 use crate::java::parser::dto::java_node::JavaNode;
@@ -76,7 +76,7 @@ impl JavaDataType {
         Err(format!(
             "Unrecognized JavaNodeType parsing \"{}\" in file:\n{}\n",
             data_type_node.get_content().as_str(),
-            to_absolute_path_str(input_java_file)
+            try_to_absolute_path(input_java_file)
         ))
     }
 
@@ -95,7 +95,7 @@ impl JavaDataType {
             Err(format!(
                 "Unrecognized FloatingPointType JavaNodeType parsing \"{}\" in file:\n{}\n",
                 data_type_node.get_content().as_str(),
-                to_absolute_path_str(input_java_file)
+                try_to_absolute_path(input_java_file)
             ))
         }
     }
@@ -107,12 +107,12 @@ impl JavaDataType {
         let child_node = data_type_node.get_children().get(0).ok_or(format!(
             "Missing mandatory child node building IntegralType JavaNodeType \"{}\" in file:\n{}\n",
             data_type_node.get_content(),
-            to_absolute_path_str(input_java_file)
+            try_to_absolute_path(input_java_file)
         ))?;
         let child_node_type = child_node.get_node_type_opt().ok_or(format!(
             "Missing mandatory node type building IntegralType JavaNodeType \"{}\" in file:\n{}\n",
             data_type_node.get_content(),
-            to_absolute_path_str(input_java_file)
+            try_to_absolute_path(input_java_file)
         ))?;
 
         if JavaNodeType::Int == child_node_type {
@@ -129,7 +129,7 @@ impl JavaDataType {
             Err(format!(
                 "Unrecognized Integral JavaNodeType parsing \"{}\" in file:\n{}\n",
                 data_type_node.get_content().as_str(),
-                to_absolute_path_str(input_java_file)
+                try_to_absolute_path(input_java_file)
             ))
         }
     }

@@ -3,7 +3,7 @@ use std::path::{Component, Path, PathBuf};
 
 use crate::core::file_system::file_browser::file_browser;
 use crate::core::file_system::path_helper;
-use crate::core::file_system::path_helper::to_absolute_path_str;
+use crate::core::file_system::path_helper::try_to_absolute_path;
 use crate::core::observability::logger;
 use crate::core::parser::parser_node_trait::ParserNode;
 use crate::java::parser::dto::java_node::JavaNode;
@@ -61,13 +61,13 @@ impl JavaImport {
                 format!(
                     "Several import possibilities found for import \"{}\" in file:\n\"{}\"\n",
                     import_route,
-                    to_absolute_path_str(java_file_path)
+                    try_to_absolute_path(java_file_path)
                 )
                 .as_str(),
             );
         } else if let Some(java_import_route) = imports.get(0) {
             let java_import_route_path = java_import_route.to_file_path();
-            let java_file_path_absolute_path_str = to_absolute_path_str(java_file_path);
+            let java_file_path_absolute_path_str = try_to_absolute_path(java_file_path);
             return Self::new_explicit_import_from_file(&java_import_route_path).unwrap_or_else(
                 |_| {
                     panic!(
@@ -86,7 +86,7 @@ impl JavaImport {
         if get_package_nodes_vec_from_dir(dir_path).is_empty() {
             return Err(format!(
                 "Invalid attempt to create a wildcard java import using folder:\n\t\"{:?}\"",
-                path_helper::to_absolute_path_str(dir_path)
+                path_helper::try_to_absolute_path(dir_path)
             ));
         }
 
@@ -250,7 +250,7 @@ impl JavaImport {
 fn invalid_explicit_import_msg(file_path: &&Path) -> String {
     format!(
         "Invalid attempt to create an explicit java import using a file not associated to a java project:\n\"{:?}\"",
-        path_helper::to_absolute_path_str(file_path)
+        path_helper::try_to_absolute_path(file_path)
     )
 }
 
@@ -267,21 +267,21 @@ fn check_file_for_new_explicit_import(file_path: &Path) -> Result<(), String> {
     if !file_path.exists() {
         return Err(format!(
             "Can not create an explicit java import using a file that does not exist:\n\t\"{:?}\"\n",
-            path_helper::to_absolute_path_str(file_path)
+            path_helper::try_to_absolute_path(file_path)
         ));
     }
 
     if !file_path.is_file() {
         return Err(format!(
             "Can not create an explicit java import using non file input:\n\t\"{:?}\"\n",
-            path_helper::to_absolute_path_str(file_path)
+            path_helper::try_to_absolute_path(file_path)
         ));
     }
 
     if !file_browser::do_last_element_in_path_ends_with(file_path, ".java") {
         return Err(format!(
             "Can not create an explicit java import using non java file:\n\t\"{:?}\"\n",
-            path_helper::to_absolute_path_str(file_path)
+            path_helper::try_to_absolute_path(file_path)
         ));
     }
     Ok(())
@@ -291,13 +291,13 @@ fn check_dir_for_new_wildcard_import(dir_path: &Path) -> Result<(), String> {
     if !dir_path.is_dir() {
         return Err(format!(
             "Can not create a wildcard java import using non-dir input:\n\t\"{:?}\"\n",
-            path_helper::to_absolute_path_str(dir_path)
+            path_helper::try_to_absolute_path(dir_path)
         ));
     }
     if !dir_path.exists() {
         return Err(format!(
             "Can not create a wildcard java import using a folder that does not exist:\n\t\"{:?}\"\n",
-            path_helper::to_absolute_path_str(dir_path)
+            path_helper::try_to_absolute_path(dir_path)
         ));
     }
     Ok(())
@@ -308,7 +308,7 @@ pub fn get_package_nodes_vec_from_dir(dir_path: &Path) -> Vec<String> {
         logger::log_unrecoverable_error(
             format!(
                 "Java import related to an invalid folder:\n\t\"{}\"\n",
-                path_helper::to_absolute_path_str(dir_path)
+                path_helper::try_to_absolute_path(dir_path)
             )
             .as_str(),
         );
@@ -342,7 +342,7 @@ pub fn get_package_nodes_vec_from_dir(dir_path: &Path) -> Vec<String> {
     logger::log_unrecoverable_error(
         format!(
             "Trying to create a java import that does not belong to any java project:\n\t\"{}\"\n",
-            path_helper::to_absolute_path_str(dir_path)
+            path_helper::try_to_absolute_path(dir_path)
         )
         .as_str(),
     );

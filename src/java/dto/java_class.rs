@@ -1,7 +1,7 @@
 #[allow(unused)]
 use std::path::{Path, PathBuf};
 
-use crate::core::file_system::path_helper::to_absolute_path_str;
+use crate::core::file_system::path_helper::try_to_absolute_path;
 use crate::java::dto::java_annotation_usage::JavaAnnotationUsage;
 use crate::java::dto::java_field::JavaField;
 use crate::java::dto::java_import::JavaImport;
@@ -149,7 +149,7 @@ impl JavaClass {
             return Err(format!(
                 "Expected java class, found java {:?} in file:\n{}\n",
                 structure_type,
-                to_absolute_path_str(&java_file.get_file_path())
+                try_to_absolute_path(&java_file.get_file_path())
             ));
         }
 
@@ -278,7 +278,7 @@ impl JavaClassBuilder {
             return Err(format!(
                 "Invalid java class \"{}\" build, expected dir:\n{}\n",
                 name,
-                to_absolute_path_str(folder)
+                try_to_absolute_path(folder)
             ));
         }
 
@@ -413,7 +413,7 @@ mod tests {
     }
 
     #[test]
-    fn new_from_path() {
+    fn new_from_path_class() {
         let file_path = get_test_file("ExpectedFullJavaService");
 
         match JavaClass::from(&file_path) {

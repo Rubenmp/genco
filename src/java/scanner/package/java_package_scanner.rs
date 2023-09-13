@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 use crate::core::file_system::directory_browser::directory_browser;
 use crate::core::file_system::file_browser::file_browser;
 use crate::core::file_system::path_helper;
-use crate::core::file_system::path_helper::to_absolute_path_str;
+use crate::core::file_system::path_helper::try_to_absolute_path;
 use crate::core::observability::logger::log_unrecoverable_error;
 
 /// This method will panic if the input path is not a valid dir within a java project (mvn/gradle)
@@ -14,7 +14,7 @@ pub(crate) fn get_base_package_unchecked(input_dir_path: &Path) -> PathBuf {
 
     panic!(
         "get_base_package_uncheck must exist, failed for  path: {}",
-        to_absolute_path_str(input_dir_path)
+        try_to_absolute_path(input_dir_path)
     )
 }
 
@@ -52,7 +52,7 @@ pub(crate) fn get_package_from_dir(dir_path: &Path) -> String {
         log_unrecoverable_error(
             format!(
                 "Java package scanner called with an invalid folder parameter:\n\t\"{}\"",
-                path_helper::to_absolute_path_str(dir_path)
+                path_helper::try_to_absolute_path(dir_path)
             )
             .as_str(),
         );

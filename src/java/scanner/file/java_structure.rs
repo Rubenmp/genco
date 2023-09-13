@@ -2,7 +2,7 @@ use std::path::{Path, PathBuf};
 
 use crate::core::file_system::file_creator::file_creator;
 use crate::core::file_system::file_overwriting::file_overwriting::FileOverwriting;
-use crate::core::file_system::path_helper::to_absolute_path_str;
+use crate::core::file_system::path_helper::try_to_absolute_path;
 use crate::core::observability::logger;
 use crate::core::parser::parser_node_trait::ParserNode;
 use crate::java::dto::java_annotation_usage::JavaAnnotationUsage;
@@ -344,7 +344,7 @@ impl JavaStructure {
         if file.exists() && file.is_dir() {
             return Err(format!(
                 "expecting an output file but a dir was found:\n{}\n",
-                to_absolute_path_str(file)
+                try_to_absolute_path(file)
             ));
         }
 
@@ -497,7 +497,7 @@ fn log_invalid_method_decl(input_java_file: &Path, err: String) {
         format!(
             "Invalid method ({}) in file:\n{}\n",
             err,
-            to_absolute_path_str(input_java_file)
+            try_to_absolute_path(input_java_file)
         )
         .as_str(),
     )
@@ -693,7 +693,7 @@ fn log_unrecognized_super_class_type_id_import(
     let log = format!(
         "Unrecognized superclass type id \"{}\" in file:\n{}\n",
         super_class_node.get_content(),
-        to_absolute_path_str(input_java_file)
+        try_to_absolute_path(input_java_file)
     );
     logger::log_warning(&log);
 }
@@ -702,7 +702,7 @@ fn log_unrecognized_super_class(super_class_node: &JavaNode, input_java_file: &P
     let log = format!(
         "Unrecognized superclass \"{}\" in file:\n{}\n",
         super_class_node.get_content(),
-        to_absolute_path_str(input_java_file)
+        try_to_absolute_path(input_java_file)
     );
     logger::log_warning(&log);
 }
@@ -739,7 +739,7 @@ fn extract_interfaces(
                 let log = format!(
                     "Unrecognized interface type id \"{}\" in file:\n{}\n",
                     interface_type.get_content(),
-                    to_absolute_path_str(input_java_file)
+                    try_to_absolute_path(input_java_file)
                 );
                 logger::log_warning(&log);
             }
@@ -750,7 +750,7 @@ fn extract_interfaces(
     let log = format!(
         "Unrecognized interfaces \"{}\" in file:\n{}\n",
         super_interfaces_node.get_content(),
-        to_absolute_path_str(input_java_file)
+        try_to_absolute_path(input_java_file)
     );
     logger::log_warning(&log);
     Vec::new()
@@ -765,7 +765,7 @@ mod tests {
     use std::path::PathBuf;
 
     use crate::core::file_system::file_creator::file_creator::remove_file_if_exists;
-    use crate::core::file_system::path_helper::to_absolute_path_str;
+    use crate::core::file_system::path_helper::try_to_absolute_path;
     use crate::core::testing::test_assert::{assert_fail, assert_same_file};
     use crate::core::testing::test_path;
     use crate::java::dependency::org::springframework::spring_context::java_spring_context_factory;
@@ -973,7 +973,7 @@ mod tests {
             format!(
                 "Invalid java class \"{}\" found in file:\n{:?}",
                 class_name,
-                to_absolute_path_str(&parent_class_path)
+                try_to_absolute_path(&parent_class_path)
             )
             .as_str(),
         )

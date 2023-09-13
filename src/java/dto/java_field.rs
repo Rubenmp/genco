@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use crate::core::file_system::path_helper::to_absolute_path_str;
+use crate::core::file_system::path_helper::try_to_absolute_path;
 use crate::core::observability::logger;
 use crate::core::parser::parser_node_trait::ParserNode;
 use crate::java::dto::java_annotation_usage::JavaAnnotationUsage;
@@ -119,13 +119,13 @@ impl JavaField {
             return Err(format!(
                 "Invalid java field declaration (name is empty) \"{:?}\" in file\n\"{}\"\n",
                 root_node.get_content(),
-                to_absolute_path_str(input_java_file)
+                try_to_absolute_path(input_java_file)
             ));
         }
         let data_type = data_type_opt.ok_or(&format!(
             "Invalid java field declaration (data_type is empty) \"{:?}\" in file:\n\"{}\"\n",
             root_node.get_content(),
-            to_absolute_path_str(input_java_file)
+            try_to_absolute_path(input_java_file)
         ))?;
 
         Ok(JavaField {

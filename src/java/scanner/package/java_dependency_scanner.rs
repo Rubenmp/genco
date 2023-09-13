@@ -7,7 +7,7 @@ use crate::core::database::model::java_import_route::java_import_route::{
 use crate::core::database::model::java_import_route::{
     db_java_import_route_save, db_java_import_route_search,
 };
-use crate::core::file_system::path_helper::to_absolute_path_str;
+use crate::core::file_system::path_helper::try_to_absolute_path;
 use crate::java::scanner::package::java_package_scanner;
 
 pub(crate) fn recursive_scan_dir_unchecked(base_java_project_dir: &Path) -> Result<(), String> {
@@ -60,7 +60,7 @@ fn get_files_and_dirs_to_scan(path: &Path) -> (Vec<PathBuf>, Vec<PathBuf>) {
     let paths_result = fs::read_dir(path).unwrap_or_else(|_| {
         panic!(
             "Error scanning directory:\n\"{}\"\n",
-            to_absolute_path_str(path)
+            try_to_absolute_path(path)
         )
     });
 

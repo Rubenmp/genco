@@ -2,7 +2,7 @@ use std::path::Path;
 
 use crate::core::database::model::java_import_route::java_import_route::JavaImportRoute;
 use crate::core::database::setup;
-use crate::core::file_system::path_helper::to_absolute_path_str;
+use crate::core::file_system::path_helper::try_to_absolute_path;
 
 pub(crate) fn by_last_type_id(type_id: &str) -> Vec<JavaImportRoute> {
     let conn = setup::get_db_connection();
@@ -27,7 +27,7 @@ pub(crate) fn by_base_package_and_route(
 ) -> Vec<JavaImportRoute> {
     let conn = setup::get_db_connection();
 
-    let base_package_str = to_absolute_path_str(base_package);
+    let base_package_str = try_to_absolute_path(base_package);
     let mut stmt = conn
         .prepare(
             "SELECT id, base_package, route, last_type_id \

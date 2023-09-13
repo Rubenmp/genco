@@ -1,7 +1,7 @@
 use std::path::{Path, PathBuf};
 
 use crate::core::file_system::path_helper;
-use crate::core::file_system::path_helper::to_absolute_path_str;
+use crate::core::file_system::path_helper::try_to_absolute_path;
 use crate::core::observability::logger;
 use crate::core::parser::parser_node_trait::ParserNode;
 use crate::java::dto::java_import::JavaImport;
@@ -29,7 +29,7 @@ impl JavaFile {
         } else {
             return Err(format!(
                 "Invalid java project file:\n\"{}\"\n",
-                to_absolute_path_str(java_file_path)
+                try_to_absolute_path(java_file_path)
             ));
         }
 
@@ -57,7 +57,7 @@ impl JavaFile {
         let structure = structure_opt.ok_or(
             format!(
                 "Java internal structure not found in file:\n\t\"{}\"\n",
-                path_helper::to_absolute_path_str(java_file_path)
+                path_helper::try_to_absolute_path(java_file_path)
             )
             .as_str(),
         )?;
@@ -66,7 +66,7 @@ impl JavaFile {
             logger::log_warning(&format!(
                 "Mismatch between the identifier \"{}\" and its java file:\n\t\"{}\"\n",
                 structure.get_name(),
-                path_helper::to_absolute_path_str(java_file_path)
+                path_helper::try_to_absolute_path(java_file_path)
             ));
         }
 
@@ -93,7 +93,7 @@ impl JavaFile {
             logger::log_warning(
                 format!(
                     "Unrecognized package in file:\n\t\"{}\"\n\nExpected: \"{}\"\nFound: \"{}\"\n",
-                    path_helper::to_absolute_path_str(
+                    path_helper::try_to_absolute_path(
                         &java_file_import
                             .get_specific_file()
                             .expect("Java file import is associated to a path")
@@ -135,13 +135,13 @@ impl JavaFile {
         if !package_found {
             return Err(format!(
                 "Java package not found in file:\n\t\"{}\"\n",
-                path_helper::to_absolute_path_str(java_file_path)
+                path_helper::try_to_absolute_path(java_file_path)
             ));
         }
         if structure.is_none() {
             return Err(format!(
                 "Java structure not found in file:\n\t\"{}\"\n",
-                path_helper::to_absolute_path_str(java_file_path)
+                path_helper::try_to_absolute_path(java_file_path)
             ));
         }
 
