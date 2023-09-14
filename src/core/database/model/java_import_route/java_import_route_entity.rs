@@ -87,7 +87,6 @@ impl JavaImportRouteCreate {
     }
 }
 
-/// There is probably a better way to handle this that I am not aware of.
 /// This method never return a None due to the preconditions applied by the caller to the parameters.
 /// Input examples:
 /// - base_package_path: "/home/<user>/genco/src/java/dto/test/java_class"
@@ -95,19 +94,13 @@ impl JavaImportRouteCreate {
 ///
 /// Expected result: "org.test.JavaClassFrom"
 fn get_import_route(base_package_path: &str, file_path: &str) -> Option<String> {
-    let file_path_string = file_path.to_string();
-    let file_path_without_base_package: Vec<&str> =
-        file_path_string.split(base_package_path).collect();
-    let file_path_without_base_package = file_path_without_base_package.get(1)?.to_string();
-    let route_with_slash_and_extension: Vec<&str> = file_path_without_base_package
-        .split("/src/main/java/")
-        .collect();
-    let route_with_slash_and_extension = route_with_slash_and_extension.get(1)?.to_string();
-    let route_with_slash: Vec<&str> = route_with_slash_and_extension.split(".java").collect();
-    let route_with_slash = route_with_slash.first()?;
-
-    let route = route_with_slash.replace('/', ".");
-    Some(route)
+    let start = base_package_path.as_bytes().len() + "/src/main/java/".as_bytes().len();
+    let end = file_path.as_bytes().len() - ".java".as_bytes().len();
+    if start >= end {
+        return None;
+    }
+    let result = file_path[start..end].to_string().replace('/', ".");
+    Some(result)
 }
 
 fn get_last_item_str_unchecked(file_path: &Path) -> String {
