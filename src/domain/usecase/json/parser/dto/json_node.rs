@@ -40,7 +40,7 @@ impl JsonNode {
 }
 
 impl ParserNode for JsonNode {
-    fn new(file_path: &Path) -> Self {
+    fn new(file_path: &Path) -> Result<Self, String> {
         let file_path_str = file_path.to_str().unwrap();
         let file_content = fs::read_to_string(file_path_str).unwrap_or_else(|_| {
             panic!(
@@ -50,7 +50,8 @@ impl ParserNode for JsonNode {
         });
 
         let _tree = parse_json(file_content.as_str());
-        JsonNode::new_internal(_tree.root_node(), file_path)
+        let new_json_node = JsonNode::new_internal(_tree.root_node(), file_path);
+        Ok(new_json_node)
     }
 
     fn get_start_byte(&self) -> usize {

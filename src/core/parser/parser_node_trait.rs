@@ -8,10 +8,7 @@ use crate::core::parser::string_helper;
 use crate::core::parser::string_helper::escape_str_for_json;
 
 pub trait ParserNode: Sized {
-    fn new(file_path: &Path) -> Self;
-    fn new_with_result(_file_path: &Path) -> Result<Self, String> {
-        todo!();
-    }
+    fn new(_file_path: &Path) -> Result<Self, String>;
 
     fn get_start_byte(&self) -> usize;
     fn get_end_byte(&self) -> usize;

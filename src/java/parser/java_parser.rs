@@ -6,7 +6,7 @@ use crate::core::parser::parser_node_trait::ParserNode;
 use crate::java::parser::dto::java_node::JavaNode;
 
 pub fn parse(java_file_path: &Path) -> Result<JavaNode, String> {
-    JavaNode::new_with_result(java_file_path)
+    JavaNode::new(java_file_path)
 }
 
 #[cfg(test)]

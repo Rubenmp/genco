@@ -1,11 +1,11 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
+use crate::core::database::model::java_import_route::java_import_route_entity::{
+    JavaImportRouteCreate, JavaImportRouteEntity,
+};
 use crate::core::database::model::java_import_route::{
     db_java_import_route_save, db_java_import_route_search,
-};
-use crate::core::database::model::java_import_route::java_import_route_entity::{
-    JavaImportRouteEntity, JavaImportRouteCreate,
 };
 use crate::core::file_system::path_helper::try_to_absolute_path;
 use crate::java::scanner::package::java_package_scanner;

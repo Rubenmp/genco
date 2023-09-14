@@ -14,7 +14,6 @@ pub struct JavaImportRouteEntity {
     last_type_id: String,
 }
 
-
 impl JavaImportRouteEntity {
     pub(crate) fn get_id(&self) -> i32 {
         self.id

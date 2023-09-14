@@ -5,9 +5,6 @@ use crate::core::file_system::file_browsing::file_browser;
 use crate::core::file_system::path_helper;
 use crate::core::file_system::path_helper::try_to_absolute_path;
 use crate::core::observability::logger;
-use crate::core::parser::parser_node_trait::ParserNode;
-use crate::java::parser::dto::java_node::JavaNode;
-use crate::java::parser::dto::java_node_type::JavaNodeType;
 use crate::java::scanner::package::java_dependency_scanner;
 
 /// At the moment JavaImport only supports explicit references to files (i.e. classes, interfaces, enums).
@@ -47,12 +44,9 @@ impl JavaImport {
         })
     }
 
-    pub(crate) fn from_file_import_decl(
-        import_decl_node: &JavaNode,
-        java_file_path: &Path,
-    ) -> JavaImport {
-        let import_route = get_nodes_content(import_decl_node.to_owned());
-
+    /// Warning: this method java_dependency_scanner::search_imports can handle only imports
+    /// in the same java project than java_file_path (multi-module not supported)
+    pub(crate) fn from_file_import_decl(import_route: String, java_file_path: &Path) -> JavaImport {
         // Warning: this method java_dependency_scanner::search_imports can handle only imports
         // in the same java project than java_file_path (multi-module not supported)
         let imports = java_dependency_scanner::search_imports(&import_route, java_file_path);
@@ -84,6 +78,8 @@ impl JavaImport {
     // This method lacks contest from the definition route of the class/interface/enum
     // i.e. which submodule is this route coming from? -> Not possible to detect with this header
     // It is used to create well-known imports like "org.springframework.stereotype.Service"
+    // but should not be used in real code.
+    #[allow(dead_code)]
     pub(crate) fn new_explicit_import_requiring_m2_repo_scan(
         route: &str,
     ) -> Result<JavaImport, String> {
@@ -271,22 +267,6 @@ fn check_file_for_new_explicit_import(file_path: &Path) -> Result<(), String> {
     Ok(())
 }
 
-fn check_dir_for_new_wildcard_import(dir_path: &Path) -> Result<(), String> {
-    if !dir_path.is_dir() {
-        return Err(format!(
-            "Can not create a wildcard java import using non-dir input:\n\t\"{:?}\"\n",
-            path_helper::try_to_absolute_path(dir_path)
-        ));
-    }
-    if !dir_path.exists() {
-        return Err(format!(
-            "Can not create a wildcard java import using a folder that does not exist:\n\t\"{:?}\"\n",
-            path_helper::try_to_absolute_path(dir_path)
-        ));
-    }
-    Ok(())
-}
-
 pub fn get_package_nodes_vec_from_dir(dir_path: &Path) -> Vec<String> {
     if !dir_path.exists() || !dir_path.is_dir() {
         logger::log_unrecoverable_error(
@@ -336,20 +316,6 @@ pub fn get_package_nodes_vec_from_dir(dir_path: &Path) -> Vec<String> {
 // Relates to fake_non_checked_route
 fn split_to_nodes(content: &str) -> Vec<String> {
     content.split('.').map(|str| str.to_string()).collect()
-}
-
-fn get_nodes_content(import_decl_node: JavaNode) -> String {
-    if Some(JavaNodeType::ImportDecl) != import_decl_node.get_node_type_opt() {
-        panic!("Java import declaration node required")
-    }
-
-    for children_level_one in import_decl_node.get_children() {
-        if Some(JavaNodeType::ScopedIdentifier) == children_level_one.get_node_type_opt() {
-            return children_level_one.get_content();
-        }
-    }
-
-    "".to_string()
 }
 
 impl fmt::Display for JavaImport {
@@ -441,7 +407,6 @@ mod tests {
     fn get_test_folder() -> PathBuf {
         get_java_project_test_folder(get_current_file_path(), "java_import")
     }
-
 
     fn get_current_file_path() -> PathBuf {
         PathBuf::from(file!())

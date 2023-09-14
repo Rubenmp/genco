@@ -16,9 +16,9 @@ use crate::java::scanner::package::{java_dependency_scanner, java_package_scanne
 #[derive(Debug)]
 pub(crate) struct JavaFile {
     self_import: JavaImport,
+    #[cfg(test)]
     imports: JavaImportsScan,
     structure: JavaStructure,
-    java_file_path: PathBuf,
 }
 
 impl JavaFile {
@@ -42,7 +42,12 @@ impl JavaFile {
         for child in root_java_node.get_children() {
             if let Some(node_type) = child.get_node_type_opt() {
                 if JavaNodeType::ImportDecl == node_type {
-                    imports.insert(JavaImport::from_file_import_decl(child, java_file_path));
+                    let import_route = get_nodes_content(child.to_owned());
+
+                    imports.insert(JavaImport::from_file_import_decl(
+                        import_route,
+                        java_file_path,
+                    ));
                 } else if JavaNodeType::PackageDecl == node_type {
                     Self::check_package_def(&java_file_import, child);
                     package_found = true;
@@ -72,9 +77,9 @@ impl JavaFile {
 
         Ok(JavaFile {
             self_import: java_file_import,
+            #[cfg(test)]
             imports,
             structure,
-            java_file_path: java_file_path.to_path_buf(),
         })
     }
 
@@ -149,6 +154,20 @@ impl JavaFile {
 
         Ok(())
     }
+}
+
+fn get_nodes_content(import_decl_node: JavaNode) -> String {
+    if Some(JavaNodeType::ImportDecl) != import_decl_node.get_node_type_opt() {
+        panic!("Java import declaration node required")
+    }
+
+    for children_level_one in import_decl_node.get_children() {
+        if Some(JavaNodeType::ScopedIdentifier) == children_level_one.get_node_type_opt() {
+            return children_level_one.get_content();
+        }
+    }
+
+    "".to_string()
 }
 
 #[cfg(test)]

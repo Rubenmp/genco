@@ -37,7 +37,7 @@ impl JavaNode {
                         format!(
                             "Unrecognized node type \"{}\" in expression \"{:?}\"",
                             node.kind(),
-                            file_reader::read_string(file_path, node.start_byte(), node.end_byte(),)
+                            file_reader::read_string(file_path, node.start_byte(), node.end_byte())
                         )
                         .as_str(),
                     );
@@ -57,37 +57,26 @@ impl JavaNode {
 }
 
 impl ParserNode for JavaNode {
-    fn new(file_path: &Path) -> Self {
+    fn new(file_path: &Path) -> Result<Self, String> {
         let mut parser = build_parser();
 
         let file_path_str = file_path.to_str().unwrap();
-        let file_content = fs::read_to_string(file_path_str).unwrap_or_else(|_| {
-            panic!(
-                "File path \"{}\" should exists to parse java node",
-                file_path_str
-            )
-        });
-        let parsed_tree = parser.parse(file_content, None);
-        let _tree = parsed_tree.unwrap();
-        JavaNode::new_internal(_tree.root_node(), file_path)
-    }
-
-    fn new_with_result(file_path: &Path) -> Result<Self, String> {
-        let mut parser = build_parser();
-
-        let file_path_str = file_path.to_str().unwrap();
-        let file_content = fs::read_to_string(file_path_str).unwrap_or_else(|_| {
-            panic!(
-                "File path \"{}\" should exists to parse java node",
-                file_path_str
-            )
-        });
-        if let Some(parsed_tree) = parser.parse(file_content, None) {
-            let node = JavaNode::new_internal(parsed_tree.root_node(), file_path);
-            return Ok(node);
+        if let Ok(file_content) = fs::read_to_string(file_path_str) {
+            return if let Some(parsed_tree) = parser.parse(file_content, None) {
+                let node = JavaNode::new_internal(parsed_tree.root_node(), file_path);
+                Ok(node)
+            } else {
+                Err(format!(
+                    "Error parsing java in file path \"{}\"",
+                    file_path_str
+                ))
+            };
         }
 
-        Err(String::from("Error parsing java node"))
+        Err(format!(
+            "Error reading file content from \"{}\"",
+            file_path_str
+        ))
     }
 
     fn get_start_byte(&self) -> usize {

@@ -65,7 +65,7 @@ impl YamlNode {
 }
 
 impl ParserNode for YamlNode {
-    fn new(file_path: &Path) -> Self {
+    fn new(file_path: &Path) -> Result<Self, String> {
         let file_path_str = file_path.to_str().unwrap();
         let file_content = fs::read_to_string(file_path_str).unwrap_or_else(|_| {
             panic!(
@@ -75,7 +75,8 @@ impl ParserNode for YamlNode {
         });
 
         let _tree = parse_yaml(file_content.as_str());
-        YamlNode::new_internal(_tree.root_node(), file_path)
+        let new_yaml_node = YamlNode::new_internal(_tree.root_node(), file_path);
+        Ok(new_yaml_node)
     }
 
     fn get_start_byte(&self) -> usize {
