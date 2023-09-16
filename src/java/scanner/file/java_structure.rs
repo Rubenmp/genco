@@ -5,7 +5,6 @@ use crate::core::file_system::file_overwriting::file_overwriter::FileOverwriting
 use crate::core::file_system::path_helper::try_to_absolute_path;
 use crate::core::observability::logger;
 use crate::core::parser::parser_node_trait::ParserNode;
-use crate::java::dto::{java_annotation_usage, java_visibility};
 use crate::java::dto::java_annotation_usage::JavaAnnotationUsage;
 use crate::java::dto::java_class::JavaClass;
 use crate::java::dto::java_data_type::JavaDataType;
@@ -15,6 +14,7 @@ use crate::java::dto::java_indentation_config::JavaIndentation;
 use crate::java::dto::java_interface::JavaInterface;
 use crate::java::dto::java_method::JavaMethod;
 use crate::java::dto::java_visibility::JavaVisibility;
+use crate::java::dto::{java_annotation_usage, java_visibility};
 use crate::java::parser::dto::java_node::JavaNode;
 use crate::java::parser::dto::java_node_type::JavaNodeType;
 use crate::java::scanner::file::java_imports_scan::JavaImportsScan;
@@ -31,7 +31,7 @@ pub struct JavaStructure {
     struct_body_end_byte: usize,
 
     // Modifiers
-    annotations:      Vec<JavaAnnotationUsage>,
+    annotations: Vec<JavaAnnotationUsage>,
     visibility: JavaVisibility,
     is_static: bool,
     is_final: bool,
