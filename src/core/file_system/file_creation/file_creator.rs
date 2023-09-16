@@ -1,8 +1,8 @@
-use std::{fs, io};
 use std::fs::{File, OpenOptions};
 use std::io::{Seek, Write};
 use std::path::{Path, PathBuf};
 use std::vec::Vec;
+use std::{fs, io};
 
 use crate::core::file_system::file_reader::get_number_of_bytes_of;
 
@@ -22,7 +22,6 @@ pub fn create_file_if_not_exist(input_file: &Path) {
         }
     }
 }
-
 
 fn get_all_paths_to_create(file_path: &Path) -> Vec<PathBuf> {
     let mut mut_file_path = file_path.to_path_buf();

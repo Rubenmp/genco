@@ -18,11 +18,10 @@ Cargo.lock
 ## Windows
 desktop.ini
 
-# Custom scripts
-/src/cli/custom
-
 src/liblib.rlib # Generated library
-/doctest
+
 # Auxiliar folder for documentation tests files
-/database
+/doc/test
+
 # Folder to store local embedded postgresql database files
+/database

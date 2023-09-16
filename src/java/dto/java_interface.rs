@@ -26,7 +26,7 @@ impl JavaInterface {
     /// use std::env;
     /// use genco::java::dto::java_interface::JavaInterface;
     ///
-    /// let dir = &env::current_dir().unwrap().join("doctest");
+    /// let dir = &env::current_dir().unwrap().join("doc").join("test");
     /// let java_interface = JavaInterface::builder().folder(dir).name("InterfaceName").build();
     /// ```
     pub fn builder() -> JavaInterfaceBuilder {

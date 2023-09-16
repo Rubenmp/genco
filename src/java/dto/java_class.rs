@@ -30,7 +30,7 @@ impl JavaClass {
     /// use std::env;
     /// use genco::java::dto::java_class::JavaClass;
     ///
-    /// let dir = &env::current_dir().unwrap().join("doctest");
+    /// let dir = &env::current_dir().unwrap().join("doc").join("test");
     /// let java_class = JavaClass::builder().folder(dir).name("Service").build();
     /// ```
     pub fn builder() -> JavaClassBuilder {
