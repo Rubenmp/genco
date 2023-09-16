@@ -38,15 +38,16 @@ fn db_initial_migration() {
 }
 
 fn get_db_connection_without_migration_attempt() -> Connection {
-    Connection::open(get_database_file_path()).expect("connection open issue")
-}
+    let base_db_folder = get_base_folder().join("database");
+    let db_file = base_db_folder.join("test.db");
 
-fn get_database_file_path() -> PathBuf {
-    get_base_folder().join("database").join("test.db")
+    fs::create_dir_all(base_db_folder).expect("It was not possible to create the database directory");
+
+    Connection::open(db_file).expect("connection open issue")
 }
 
 fn get_base_folder() -> PathBuf {
-    std::env::current_dir().unwrap().to_path_buf()
+    std::env::current_dir().expect("It was not possible to get base_dir for database setup").to_path_buf()
 }
 
 #[cfg(test)]

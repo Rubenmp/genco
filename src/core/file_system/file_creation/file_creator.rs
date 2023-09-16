@@ -1,34 +1,42 @@
+use std::{fs, io};
 use std::fs::{File, OpenOptions};
 use std::io::{Seek, Write};
 use std::path::{Path, PathBuf};
 use std::vec::Vec;
-use std::{fs, io};
 
 use crate::core::file_system::file_reader::get_number_of_bytes_of;
 
 #[allow(unused)]
-pub fn create_file_if_not_exist(file_path: &Path) {
-    if !file_path.exists() {
-        let mut mut_file_path = file_path.clone().to_path_buf();
-        let mut all_to_create = Vec::new();
+pub fn create_file_if_not_exist(input_file: &Path) {
+    if input_file.exists() {
+        return;
+    }
 
-        for ancestor in file_path.ancestors() {
-            if mut_file_path.exists() {
-                break;
-            } else {
-                all_to_create.push(PathBuf::from(ancestor));
-                mut_file_path.pop();
-            }
-        }
-
-        for (i, to_create) in all_to_create.iter().rev().enumerate() {
-            if i < (all_to_create.len() - 1) {
-                fs::create_dir(to_create.clone());
-            } else {
-                File::create(to_create.clone());
-            }
+    let all_to_create = get_all_paths_to_create(input_file);
+    let last_path_index = (all_to_create.len() - 1);
+    for (i, to_create) in all_to_create.iter().rev().enumerate() {
+        if i < last_path_index {
+            fs::create_dir(to_create);
+        } else {
+            File::create(to_create);
         }
     }
+}
+
+
+fn get_all_paths_to_create(file_path: &Path) -> Vec<PathBuf> {
+    let mut mut_file_path = file_path.to_path_buf();
+    let mut all_to_create = Vec::new();
+
+    for ancestor in file_path.ancestors() {
+        if mut_file_path.exists() {
+            break;
+        } else {
+            all_to_create.push(PathBuf::from(ancestor));
+            mut_file_path.pop();
+        }
+    }
+    all_to_create
 }
 
 pub fn create_file_if_not_exists_with_content(output_file: &PathBuf, content: &str) {

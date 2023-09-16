@@ -461,12 +461,7 @@ mod tests {
         let file_path = folder.join("EmptyClassWithNewInsertedMethod.java");
         let expected_file_content = get_test_file("ExpectedEmptyClassWithNewInsertedMethod");
 
-        let new_method = JavaMethod::builder()
-            .return_type(JavaDataType::Basic(JavaBasicDataType::Int))
-            .visibility(JavaVisibility::Public)
-            .name("newMethod")
-            .build()
-            .expect("newMethod is expected to be valid");
+        let new_method = new_method();
 
         let mut java_class = JavaClass::builder()
             .folder(&folder)
@@ -481,6 +476,15 @@ mod tests {
             }
             Err(err) => assert_fail(&err),
         }
+    }
+
+    fn new_method() -> JavaMethod {
+        JavaMethod::builder()
+            .return_type(JavaDataType::Basic(JavaBasicDataType::Int))
+            .visibility(JavaVisibility::Public)
+            .name("newMethod")
+            .build()
+            .expect("newMethod is expected to be valid")
     }
 
     fn get_test_file(structure_name: &str) -> PathBuf {
