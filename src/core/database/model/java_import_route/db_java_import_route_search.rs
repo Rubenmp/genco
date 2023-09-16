@@ -1,7 +1,7 @@
 use std::path::Path;
 
-use crate::core::database::model::java_import_route::java_import_route_entity::JavaImportRouteEntity;
 use crate::core::database::db_setup;
+use crate::core::database::model::java_import_route::java_import_route_entity::JavaImportRouteEntity;
 use crate::core::file_system::path_helper::try_to_absolute_path;
 
 pub(crate) fn by_last_type_id(type_id: &str) -> Vec<JavaImportRouteEntity> {

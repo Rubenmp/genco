@@ -1,5 +1,5 @@
-use crate::core::database::model::java_import_route::java_import_route_entity::JavaImportRouteCreate;
 use crate::core::database::db_setup;
+use crate::core::database::model::java_import_route::java_import_route_entity::JavaImportRouteCreate;
 use crate::core::observability::logger;
 
 pub(crate) fn save(java_files: Vec<JavaImportRouteCreate>) -> Result<(), String> {

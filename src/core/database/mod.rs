@@ -1,2 +1,2 @@
-pub mod model;
 mod db_setup;
+pub mod model;
