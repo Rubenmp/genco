@@ -31,7 +31,7 @@ pub struct JavaStructure {
     struct_body_end_byte: usize,
 
     // Modifiers
-    annotations:          Vec<JavaAnnotationUsage>,
+    annotations: Vec<JavaAnnotationUsage>,
     visibility: JavaVisibility,
     is_static: bool,
     is_final: bool,
