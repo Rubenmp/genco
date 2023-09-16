@@ -24,5 +24,4 @@ desktop.ini
 src/liblib.rlib # Generated library
 /doctest
 # Auxiliar folder for documentation tests files
-/database
 # Folder to store local embedded postgresql database files

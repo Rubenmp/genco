@@ -51,7 +51,7 @@ fn get_base_folder() -> PathBuf {
 
 #[cfg(test)]
 mod tests {
-    use crate::core::database::setup::get_db_connection;
+    use crate::core::database::db_setup::get_db_connection;
 
     #[test]
     fn setup_test() {

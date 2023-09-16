@@ -1,5 +1,5 @@
 use crate::core::database::model::java_import_route::java_import_route_entity::JavaImportRouteCreate;
-use crate::core::database::setup;
+use crate::core::database::db_setup;
 use crate::core::observability::logger;
 
 pub(crate) fn save(java_files: Vec<JavaImportRouteCreate>) -> Result<(), String> {
@@ -11,7 +11,7 @@ pub(crate) fn save(java_files: Vec<JavaImportRouteCreate>) -> Result<(), String>
 }
 
 fn save_internal(entity: JavaImportRouteCreate) -> Result<(), String> {
-    let conn = setup::get_db_connection();
+    let conn = db_setup::get_db_connection();
 
     match conn.execute(
         "INSERT INTO java_import_route (base_package, route, last_type_id) VALUES (?1, ?2, ?3)",

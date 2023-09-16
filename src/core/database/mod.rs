@@ -1,2 +1,2 @@
 pub mod model;
-mod setup;
+mod db_setup;
