@@ -55,7 +55,7 @@ impl JavaInterface {
             ));
         }
 
-        Ok(Self::from_structure(java_file.get_structure().to_owned()))
+        Ok(Self::from_structure(, java_file.get_structure().to_owned()))
     }
 
     /// # get_annotations
@@ -97,7 +97,7 @@ impl JavaInterface {
         Self::from_java_file(java_file)
     }
 
-    pub(crate) fn from_structure(structure: JavaStructure) -> Self {
+    pub(crate) fn from_structure(file: Path, structure: JavaStructure) -> Result<Self, String> {
         Self { structure }
     }
 
@@ -129,7 +129,7 @@ impl JavaInterface {
             ));
         }
 
-        Ok(Self::from_structure(java_file.get_structure().to_owned()))
+        Ok(Self::from_structure(, java_file.get_structure().to_owned()))
     }
 }
 
@@ -214,8 +214,9 @@ impl JavaInterfaceBuilder {
             ));
         }
 
+        let file = folder.join(format!("{}.java", name));
         return match JavaStructure::builder()
-            .file(&folder.join(format!("{}.java", name)))
+            .file(&file)
             .structure_type(JavaStructureType::Interface)
             .annotations(self.annotations.to_owned())
             .visibility(self.visibility)
@@ -225,9 +226,9 @@ impl JavaInterfaceBuilder {
             .name(&name)
             .fields(self.fields.to_owned())
             .methods(self.methods.to_owned())
-            .write()
+            .build()
         {
-            Ok(structure) => Ok(JavaInterface::from_structure(structure)),
+            Ok(structure) => Ok(JavaInterface::from_structure(file, structure)),
             Err(err) => Err(format!(
                 "Invalid java interface \"{}\" build, {}",
                 name, err

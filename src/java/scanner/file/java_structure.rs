@@ -1,10 +1,9 @@
 use std::path::{Path, PathBuf};
 
-use crate::core::file_system::file_creation::file_creator;
-use crate::core::file_system::file_overwriting::file_overwriter::FileOverwriting;
 use crate::core::file_system::path_helper::try_to_absolute_path;
 use crate::core::observability::logger;
 use crate::core::parser::parser_node_trait::ParserNode;
+use crate::java::dto::{java_annotation_usage, java_visibility};
 use crate::java::dto::java_annotation_usage::JavaAnnotationUsage;
 use crate::java::dto::java_class::JavaClass;
 use crate::java::dto::java_data_type::JavaDataType;
@@ -14,12 +13,10 @@ use crate::java::dto::java_indentation_config::JavaIndentation;
 use crate::java::dto::java_interface::JavaInterface;
 use crate::java::dto::java_method::JavaMethod;
 use crate::java::dto::java_visibility::JavaVisibility;
-use crate::java::dto::{java_annotation_usage, java_visibility};
 use crate::java::parser::dto::java_node::JavaNode;
 use crate::java::parser::dto::java_node_type::JavaNodeType;
 use crate::java::scanner::file::java_file_imports::JavaFileImports;
 use crate::java::scanner::file::java_structure_type::JavaStructureType;
-use crate::java::scanner::package::java_package_scanner;
 
 #[allow(unused)]
 #[derive(Debug, Clone)]
@@ -66,11 +63,7 @@ impl JavaStructure {
         &self.file
     }
 
-    pub(crate) fn get_dir(&self) -> PathBuf {
-        let mut path = self.file.to_path_buf();
-        path.pop();
-        path.to_owned()
-    }
+
 
     pub(crate) fn get_type(&self) -> JavaStructureType {
         self.structure_type.to_owned()
@@ -214,33 +207,8 @@ impl JavaStructure {
             .collect()
     }
 
-    /// # write_to_file
-    /// Export java structure into a specific directory "export_directory"
-    /// that must be inside a java project, creating a java file with
-    /// the name of the structure.
-    pub(crate) fn write_to_file(&self) -> Result<(), String> {
-        self.validate_output_file()?;
-        let mut result = self.write_package();
-        self.write_imports(&mut result);
 
-        result += self.get_skeleton_without_imports().as_str();
-        self.write_body(&mut result);
-        self.write_to_file_internal(&mut result);
-        Ok(())
-    }
-
-    fn write_imports(&self, result: &mut String) {
-        let imports: Vec<JavaImport> = self.get_imports();
-
-        for import in &imports {
-            *result += import.to_string().as_str();
-            *result += "\n";
-        }
-        if !imports.is_empty() {
-            *result += "\n";
-        }
-    }
-    fn get_skeleton_without_imports(&self) -> String {
+    pub(crate) fn get_skeleton_without_imports(&self) -> String {
         let mut result = "".to_string();
         self.write_annotations(&mut result);
         self.write_visibility(&mut result);
@@ -249,7 +217,7 @@ impl JavaStructure {
         result
     }
 
-    fn write_body(&self, result: &mut String) {
+    pub(crate) fn write_body(&self, result: &mut String) {
         *result += " {\n";
         let mut java_indentation = JavaIndentation::default();
         java_indentation.increase_level();
@@ -273,25 +241,6 @@ impl JavaStructure {
 
         java_indentation.decrease_level();
         *result += format!("{}}}\n", java_indentation.get_current_indentation()).as_str();
-    }
-
-    fn write_to_file_internal(&self, result: &mut str) {
-        let file_path = self.get_file();
-        if file_path.exists() && file_path.is_file() {
-            file_creator::remove_file_if_exists(file_path);
-        }
-
-        file_creator::create_file_if_not_exist(file_path);
-        let mut overwriting = FileOverwriting::new(file_path);
-        overwriting.append(result);
-        overwriting.write_all();
-    }
-
-    fn write_package(&self) -> String {
-        let mut result = "package ".to_string();
-        result += java_package_scanner::get_package_from_dir(&self.get_dir()).as_str();
-        result += ";\n\n";
-        result
     }
 
     fn write_visibility(&self, result: &mut String) {
@@ -335,17 +284,6 @@ impl JavaStructure {
         for annotation in self.get_annotations() {
             *result += annotation.to_file_string(&indentation).as_str();
         }
-    }
-    fn validate_output_file(&self) -> Result<(), String> {
-        let file = self.get_file();
-        if file.exists() && file.is_dir() {
-            return Err(format!(
-                "expecting an output file but a dir was found:\n{}\n",
-                try_to_absolute_path(file)
-            ));
-        }
-
-        Ok(())
     }
 }
 
@@ -613,18 +551,7 @@ impl JavaStructureBuilder {
         self
     }
 
-    pub fn build_without_writing_to_file(&mut self) -> Result<JavaStructure, String> {
-        self.build_structure_internal(false)?
-    }
-
-    pub fn write(&mut self) -> Result<JavaStructure, String> {
-        self.build_structure_internal(true)?
-    }
-
-    fn build_structure_internal(
-        &mut self,
-        write_to_file: bool,
-    ) -> Result<Result<JavaStructure, String>, String> {
+    pub fn build(&mut self) -> Result<JavaStructure, String> {
         let name = self.get_name()?;
 
         // There is a better way to avoid this mapping to JavaImport
@@ -664,11 +591,7 @@ impl JavaStructureBuilder {
             substructures: self.substructures.to_owned(),
         };
 
-        if write_to_file {
-            structure.write_to_file()?;
-        }
-
-        Ok(Ok(structure))
+        Ok(structure)
     }
 
     fn get_name(&mut self) -> Result<String, String> {
@@ -790,7 +713,7 @@ mod tests {
             .name("JavaChildServiceImpl")
             .implemented_interfaces(vec![get_java_interface_import("JavaInterfaceForStructure")])
             .extended_classes(vec![get_parent_java_class_import()])
-            .write()
+            .build()
         {
             Ok(structure) => {
                 assert_same_file(&expected_file_content, &file_path);
@@ -827,7 +750,7 @@ mod tests {
             .is_abstract(true)
             .name("JavaServiceAbstract")
             .implemented_interfaces(vec![get_java_interface_import("JavaInterfaceForStructure")])
-            .write()
+            .build()
         {
             Ok(structure) => {
                 assert_same_file(&expected_file_content, &file_path);
@@ -867,7 +790,7 @@ mod tests {
             .name("PackageClassWithInterfacesAndExtension")
             .implemented_interfaces(interfaces)
             .extended_classes(vec![get_parent_java_class_import()])
-            .write()
+            .build()
         {
             Ok(structure) => {
                 assert_same_file(&expected_file_content, &file_path);
@@ -907,7 +830,7 @@ mod tests {
             .visibility(Protected)
             .name("JavaServiceBean")
             .annotations(annotations)
-            .write()
+            .build()
         {
             Ok(structure) => {
                 assert_same_file(&expected_file_content, &file_path);
@@ -942,7 +865,7 @@ mod tests {
             .visibility(Private)
             .is_final(true)
             .name("JavaFinalInterface")
-            .write()
+            .build()
         {
             Ok(structure) => {
                 assert_same_file(&expected_file_content, &file_path);

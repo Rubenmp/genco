@@ -1,5 +1,7 @@
 use std::path::{Path, PathBuf};
 
+use crate::core::file_system::file_creation::file_creator;
+use crate::core::file_system::file_overwriting::file_overwriter::FileOverwriting;
 use crate::core::file_system::path_helper;
 use crate::core::observability::logger;
 use crate::core::parser::parser_node_trait::ParserNode;
@@ -21,7 +23,7 @@ pub(crate) struct JavaFile {
 }
 
 impl JavaFile {
-    pub(crate) fn write(file: &Path, input_structure: JavaStructure) -> Self {
+    pub(crate) fn write(file: &Path, input_structure: JavaStructure) -> Result<Self, String> {
         let imports = JavaFileImports::from(input_structure.get_imports());
 
         let mut result_file = Self {
@@ -30,9 +32,9 @@ impl JavaFile {
             structure: input_structure,
         };
 
-        // TODO: write file
+        result_file.write_to_file()?;
 
-        result_file
+        JavaFile::from_user_input_path(file)
     }
 
     pub(crate) fn from_user_input_path(java_file_path: &Path) -> Result<Self, String> {
@@ -95,6 +97,70 @@ impl JavaFile {
         })
     }
 
+    /// # write_to_file
+    /// Export java structure into a specific directory "export_directory"
+    /// that must be inside a java project, creating a java file with
+    /// the name of the structure.
+    pub(crate) fn write_to_file(&self) -> Result<(), String> {
+        self.validate_output_file()?;
+        let mut result = self.write_package();
+        self.write_imports(&mut result);
+
+        result += self.get_structure().get_skeleton_without_imports().as_str();
+        self.get_structure().write_body(&mut result);
+        self.write_to_file_internal(&mut result);
+        Ok(())
+    }
+
+    fn write_package(&self) -> String {
+        let mut result = "package ".to_string();
+        result += java_package_scanner::get_package_from_dir(&self.get_dir()).as_str();
+        result += ";\n\n";
+        result
+    }
+
+    fn get_dir(&self) -> PathBuf {
+        let mut path = self.get_file_path().clone();
+        path.pop();
+        path.to_owned()
+    }
+
+    fn validate_output_file(&self) -> Result<(), String> {
+        let file = self.get_file_path();
+        if file.exists() && file.is_dir() {
+            return Err(format!(
+                "expecting an output file but a dir was found:\n{}\n",
+                path_helper::try_to_absolute_path(file)
+            ));
+        }
+
+        Ok(())
+    }
+
+    fn write_imports(&self, result: &mut String) {
+        let imports: Vec<JavaImport> = self.get_file_imports().get_sorted_imports();
+
+        for import in &imports {
+            *result += import.to_string().as_str();
+            *result += "\n";
+        }
+        if !imports.is_empty() {
+            *result += "\n";
+        }
+    }
+
+    fn write_to_file_internal(&self, result: &mut str) {
+        let file_path = self.get_file_path();
+        if file_path.exists() && file_path.is_file() {
+            file_creator::remove_file_if_exists(file_path);
+        }
+
+        file_creator::create_file_if_not_exist(file_path);
+        let mut overwriting = FileOverwriting::new(file_path);
+        overwriting.append(result);
+        overwriting.write_all();
+    }
+
     pub(crate) fn get_file_path(&self) -> &PathBuf {
         &self.file
     }
@@ -140,8 +206,7 @@ impl JavaFile {
             .expect("Java structure must have a java import associated")
     }
 
-    #[cfg(test)]
-    fn get_imports(&self) -> &JavaFileImports {
+    fn get_file_imports(&self) -> &JavaFileImports {
         &self.imports
     }
 
@@ -208,7 +273,7 @@ mod tests {
 
     fn check_basic_application_java_file(java_file: JavaFile) {
         //assert_eq!("org.test", java_file.get_package().to_string());
-        assert_eq!(2, java_file.get_imports().count());
+        assert_eq!(2, java_file.get_file_imports().count());
         let structure = java_file.get_structure();
         assert_eq!(JavaStructureType::Class, structure.get_type());
 
@@ -237,7 +302,7 @@ mod tests {
 
     fn check_basic_enum_java_file(java_file: JavaFile) {
         //assert_eq!("org.test", java_file.get_package().to_string());
-        assert_eq!(0, java_file.get_imports().count());
+        assert_eq!(0, java_file.get_file_imports().count());
         let structure = java_file.get_structure();
         assert_eq!(0, structure.get_annotations().len());
         assert_eq!(JavaStructureType::Enum, structure.get_type());

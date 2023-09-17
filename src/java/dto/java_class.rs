@@ -131,10 +131,10 @@ impl JavaClass {
 
 impl JavaClass {
     // Crate or private methods
-    fn from_structure(file: &Path, structure: JavaStructure) -> Self {
-        let scanned_file = JavaFile::write(file, structure);
+    fn from_structure(file: &Path, structure: JavaStructure) -> Result<Self, String> {
+        let scanned_file = JavaFile::write(file, structure)?;
 
-        Self { scanned_file }
+        Ok(Self { scanned_file })
     }
 
     pub(crate) fn from_import(import: &JavaImport) -> Result<Self, String> {
@@ -300,9 +300,9 @@ impl JavaClassBuilder {
             .name(&name)
             .fields(self.fields.to_owned())
             .methods(self.methods.to_owned())
-            .build_without_writing_to_file()
+            .build()
         {
-            Ok(structure) => Ok(JavaClass::from_structure(&file, structure)),
+            Ok(structure) => Ok(JavaClass::from_structure(&file, structure)?),
             Err(err) => Err(format!("Invalid java class \"{}\" build, {}", name, err)),
         };
     }
