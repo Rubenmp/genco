@@ -8,7 +8,7 @@ use crate::java::dto::java_data_type::{JavaBasicDataType, JavaDataType};
 use crate::java::dto::java_import::JavaImport;
 use crate::java::parser::dto::java_node::JavaNode;
 use crate::java::parser::dto::java_node_type::JavaNodeType;
-use crate::java::scanner::file::java_imports_scan::JavaImportsScan;
+use crate::java::scanner::file::java_file_imports::JavaFileImports;
 
 #[derive(Debug, Clone)]
 pub struct JavaVariable {
@@ -45,7 +45,7 @@ impl JavaVariable {
     // Crate or private methods
     pub(crate) fn from_formal_params_node(
         root_node: &JavaNode,
-        file_imports: &JavaImportsScan,
+        file_imports: &JavaFileImports,
         input_java_file: &Path,
     ) -> Result<Vec<Self>, String> {
         let mut params = Vec::new();
@@ -63,7 +63,7 @@ impl JavaVariable {
     }
     pub(crate) fn from_formal_param_node(
         root_node: &JavaNode,
-        file_imports: &JavaImportsScan,
+        file_imports: &JavaFileImports,
         input_java_file: &Path,
     ) -> Result<Self, String> {
         let mut is_final = false;

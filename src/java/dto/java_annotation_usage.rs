@@ -8,7 +8,7 @@ use crate::java::dto::java_import::JavaImport;
 use crate::java::dto::java_indentation_config::JavaIndentation;
 use crate::java::parser::dto::java_node::JavaNode;
 use crate::java::parser::dto::java_node_type::JavaNodeType;
-use crate::java::scanner::file::java_imports_scan::JavaImportsScan;
+use crate::java::scanner::file::java_file_imports::JavaFileImports;
 
 #[derive(Debug, Clone)]
 pub struct JavaAnnotationUsage {
@@ -50,7 +50,7 @@ impl JavaAnnotationUsage {
 
     pub(crate) fn new_from_java_node(
         root_java_node: &JavaNode,
-        file_imports: &JavaImportsScan,
+        file_imports: &JavaFileImports,
         input_java_file: &Path,
     ) -> Result<JavaAnnotationUsage, String> {
         let mut name_opt = None;
@@ -80,7 +80,7 @@ impl JavaAnnotationUsage {
 
     fn get_explicit_import(
         root_java_node: &JavaNode,
-        file_imports: &JavaImportsScan,
+        file_imports: &JavaFileImports,
         input_java_file: &Path,
         result_name: &str,
     ) -> Result<JavaImport, String> {

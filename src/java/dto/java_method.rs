@@ -12,7 +12,7 @@ use crate::java::dto::java_visibility::JavaVisibility;
 use crate::java::dto::{java_annotation_usage, java_visibility};
 use crate::java::parser::dto::java_node::JavaNode;
 use crate::java::parser::dto::java_node_type::JavaNodeType;
-use crate::java::scanner::file::java_imports_scan::JavaImportsScan;
+use crate::java::scanner::file::java_file_imports::JavaFileImports;
 
 #[derive(Debug, Clone)]
 pub struct JavaMethod {
@@ -88,7 +88,7 @@ impl JavaMethod {
 impl JavaMethod {
     pub(crate) fn new_from_node(
         root_node: &JavaNode,
-        file_imports: &JavaImportsScan,
+        file_imports: &JavaFileImports,
         input_java_file: &Path,
     ) -> Result<JavaMethod, String> {
         check_root_is_method_decl(root_node);

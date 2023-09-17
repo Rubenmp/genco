@@ -13,7 +13,7 @@ use crate::java::dto::{java_annotation_usage, java_visibility};
 use crate::java::parser::dto::java_node::JavaNode;
 use crate::java::parser::dto::java_node_type;
 use crate::java::parser::dto::java_node_type::JavaNodeType;
-use crate::java::scanner::file::java_imports_scan::JavaImportsScan;
+use crate::java::scanner::file::java_file_imports::JavaFileImports;
 
 #[derive(Debug, Clone)]
 pub struct JavaField {
@@ -60,7 +60,7 @@ impl JavaField {
 impl JavaField {
     pub(crate) fn new(
         root_node: &JavaNode,
-        file_imports: &JavaImportsScan,
+        file_imports: &JavaFileImports,
         input_java_file: &Path,
     ) -> Result<JavaField, String> {
         let mut annotations = Vec::new();

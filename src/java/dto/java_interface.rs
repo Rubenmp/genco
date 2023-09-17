@@ -116,7 +116,7 @@ impl JavaInterface {
     }
 
     pub(crate) fn get_self_import(&self) -> JavaImport {
-        self.get_structure().get_self_import()
+        self.get_structure().get_self_import() // TODO: use java file instead of structure
     }
 
     fn from_java_file(java_file: JavaFile) -> Result<Self, String> {

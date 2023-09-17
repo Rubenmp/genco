@@ -1,27 +1,40 @@
 use std::path::{Path, PathBuf};
 
 use crate::core::file_system::path_helper;
-use crate::core::file_system::path_helper::try_to_absolute_path;
 use crate::core::observability::logger;
 use crate::core::parser::parser_node_trait::ParserNode;
 use crate::java::dto::java_import::JavaImport;
+use crate::java::dto::java_method::JavaMethod;
 use crate::java::parser::dto::java_node::JavaNode;
 use crate::java::parser::dto::java_node_type::JavaNodeType;
 use crate::java::parser::java_parser;
-use crate::java::scanner::file::java_imports_scan::JavaImportsScan;
+use crate::java::scanner::file::java_file_imports::JavaFileImports;
 use crate::java::scanner::file::java_structure::JavaStructure;
 use crate::java::scanner::file::java_structure_type::JavaStructureType;
 use crate::java::scanner::package::{java_dependency_scanner, java_package_scanner};
 
 #[derive(Debug)]
 pub(crate) struct JavaFile {
-    self_import: JavaImport,
-    #[cfg(test)]
-    imports: JavaImportsScan,
+    file: PathBuf,
+    imports: JavaFileImports,
     structure: JavaStructure,
 }
 
 impl JavaFile {
+    pub(crate) fn write(file: &Path, input_structure: JavaStructure) -> Self {
+        let imports = JavaFileImports::from(input_structure.get_imports());
+
+        let mut result_file = Self {
+            file: file.to_path_buf(),
+            imports,
+            structure: input_structure,
+        };
+
+        // TODO: write file
+
+        result_file
+    }
+
     pub(crate) fn from_user_input_path(java_file_path: &Path) -> Result<Self, String> {
         let base_java_project_dir_opt = java_package_scanner::get_base_package(java_file_path);
         if let Some(base_java_project_dir) = base_java_project_dir_opt {
@@ -29,13 +42,13 @@ impl JavaFile {
         } else {
             return Err(format!(
                 "Invalid java project file:\n\"{}\"\n",
-                try_to_absolute_path(java_file_path)
+                path_helper::try_to_absolute_path(java_file_path)
             ));
         }
 
         let root_java_node = java_parser::parse(java_file_path)?;
         let mut package_found = false;
-        let mut imports = JavaImportsScan::new();
+        let mut imports = JavaFileImports::new();
         let mut structure_opt: Option<JavaStructure> = None;
         let java_file_import = JavaImport::new_explicit_import_from_file(java_file_path)?;
 
@@ -76,17 +89,18 @@ impl JavaFile {
         }
 
         Ok(JavaFile {
-            self_import: java_file_import,
-            #[cfg(test)]
+            file: java_file_path.to_path_buf(),
             imports,
             structure,
         })
     }
 
-    pub(crate) fn get_file_path(&self) -> PathBuf {
-        self.get_import()
-            .get_specific_file()
-            .expect("Explicit self java file import always exists")
+    pub(crate) fn get_file_path(&self) -> &PathBuf {
+        &self.file
+    }
+
+    pub(crate) fn insert_method(&mut self, _method: &JavaMethod) -> Result<(), String> {
+        todo!()
     }
 
     fn check_package_def(java_file_import: &JavaImport, child: &JavaNode) {
@@ -121,12 +135,13 @@ impl JavaFile {
         self.get_structure().get_type().to_owned()
     }
 
-    pub(crate) fn get_import(&self) -> JavaImport {
-        self.self_import.to_owned()
+    pub(crate) fn get_self_import(&self) -> JavaImport {
+        JavaImport::new_explicit_import_from_file(self.get_file_path())
+            .expect("Java structure must have a java import associated")
     }
 
     #[cfg(test)]
-    fn get_imports(&self) -> &JavaImportsScan {
+    fn get_imports(&self) -> &JavaFileImports {
         &self.imports
     }
 

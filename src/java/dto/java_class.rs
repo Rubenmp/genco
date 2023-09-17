@@ -15,9 +15,9 @@ use crate::java::scanner::file::java_structure_type::JavaStructureType;
 /// # JavaClass
 /// A Java Class can be used to write it into a file
 /// or as a reference for other methods.
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct JavaClass {
-    scanned_structure: JavaStructure,
+    scanned_file: JavaFile,
 }
 
 impl JavaClass {
@@ -96,7 +96,7 @@ impl JavaClass {
     /// Therefore, this method will scan (if exists) the extended class file,
     /// and return the result.
     pub fn get_extended_class(&self) -> Option<JavaClass> {
-        self.get_structure().get_extended_class().to_owned()
+        self.get_structure().get_extended_class()
     }
 
     /// # get_implemented_interfaces
@@ -123,17 +123,18 @@ impl JavaClass {
     /// # insert_method
     /// Insert a new method into the class and write it to the file.
     pub fn insert_method(&mut self, method: &JavaMethod) -> Result<(), String> {
-        self.get_structure_mut().insert_method(method)
+        self.scanned_file.insert_method(method)?;
+
+        Ok(())
     }
 }
 
 impl JavaClass {
     // Crate or private methods
+    fn from_structure(file: &Path, structure: JavaStructure) -> Self {
+        let scanned_file = JavaFile::write(file, structure);
 
-    pub(crate) fn from_structure(structure: JavaStructure) -> Self {
-        Self {
-            scanned_structure: structure,
-        }
+        Self { scanned_file }
     }
 
     pub(crate) fn from_import(import: &JavaImport) -> Result<Self, String> {
@@ -153,15 +154,14 @@ impl JavaClass {
             ));
         }
 
-        Ok(Self::from_structure(java_file.get_structure().to_owned()))
+        let java_class = Self {
+            scanned_file: java_file,
+        };
+        Ok(java_class)
     }
 
     pub(crate) fn get_structure(&self) -> &JavaStructure {
-        &self.scanned_structure
-    }
-
-    pub(crate) fn get_structure_mut(&mut self) -> &mut JavaStructure {
-        &mut self.scanned_structure
+        &self.scanned_file.get_structure()
     }
 
     #[cfg(test)]
@@ -175,7 +175,7 @@ impl JavaClass {
     }
 
     pub(crate) fn get_self_import(&self) -> JavaImport {
-        self.get_structure().get_self_import()
+        self.scanned_file.get_self_import()
     }
 }
 
@@ -187,8 +187,8 @@ pub struct JavaClassBuilder {
     is_static: bool,
     is_abstract: bool,
 
-    extended_class: Vec<JavaClass>,
-    implemented_interfaces: Vec<JavaInterface>,
+    extended_class: Vec<JavaImport>,
+    implemented_interfaces: Vec<JavaImport>,
 
     name: Option<String>,
     fields: Vec<JavaField>,
@@ -235,12 +235,15 @@ impl JavaClassBuilder {
         self
     }
     pub fn extended_class(&mut self, input: JavaClass) -> &mut Self {
-        self.extended_class = vec![input];
+        self.extended_class = vec![input.get_self_import()];
         self
     }
 
     pub fn implemented_interfaces(&mut self, input: Vec<JavaInterface>) -> &mut Self {
-        self.implemented_interfaces = input;
+        self.implemented_interfaces = input
+            .iter()
+            .map(|interface| interface.get_self_import())
+            .collect();
         self
     }
 
@@ -282,8 +285,11 @@ impl JavaClassBuilder {
             ));
         }
 
+        // TODO: validate extended_class & implemented_interfaces
+
+        let file = folder.join(format!("{}.java", name));
         return match JavaStructure::builder()
-            .file(&folder.join(format!("{}.java", name)))
+            .file(&file)
             .structure_type(JavaStructureType::Class)
             .annotations(self.annotations.to_owned())
             .visibility(self.visibility)
@@ -294,9 +300,9 @@ impl JavaClassBuilder {
             .name(&name)
             .fields(self.fields.to_owned())
             .methods(self.methods.to_owned())
-            .write()
+            .build_without_writing_to_file()
         {
-            Ok(structure) => Ok(JavaClass::from_structure(structure)),
+            Ok(structure) => Ok(JavaClass::from_structure(&file, structure)),
             Err(err) => Err(format!("Invalid java class \"{}\" build, {}", name, err)),
         };
     }

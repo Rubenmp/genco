@@ -2,14 +2,23 @@ use crate::core::observability::logger;
 use crate::java::dto::java_import::JavaImport;
 
 #[derive(Debug)]
-pub struct JavaImportsScan {
+pub struct JavaFileImports {
     explicit_imports: Vec<JavaImport>,
     wildcard_imports: Vec<JavaImport>,
 }
 
-impl JavaImportsScan {
-    pub(crate) fn new() -> JavaImportsScan {
-        JavaImportsScan {
+impl JavaFileImports {
+    pub(crate) fn from(input_imports: Vec<JavaImport>) -> Self {
+        let mut result = Self::new();
+        for input_import in input_imports {
+            result.insert(input_import);
+        }
+
+        result
+    }
+
+    pub(crate) fn new() -> Self {
+        JavaFileImports {
             explicit_imports: Vec::new(),
             wildcard_imports: Vec::new(),
         }
@@ -53,7 +62,7 @@ impl JavaImportsScan {
 mod tests {
     use crate::core::testing::test_assert::assert_fail;
     use crate::java::dto::java_import::JavaImport;
-    use crate::java::scanner::file::java_imports_scan::JavaImportsScan;
+    use crate::java::scanner::file::java_file_imports::JavaFileImports;
 
     #[test]
     fn get_explicit_import_matches() {
@@ -79,18 +88,18 @@ mod tests {
         }
     }
 
-    fn get_java_imports_scan_with(input_route: &str) -> JavaImportsScan {
+    fn get_java_imports_scan_with(input_route: &str) -> JavaFileImports {
         let imports_vec = vec![
             JavaImport::new_explicit_import_requiring_m2_repo_scan(input_route)
                 .expect("Java explicit import is valid"),
         ];
 
-        let mut imports = JavaImportsScan::new();
+        let mut imports = JavaFileImports::new();
         insert_imports(&mut imports, imports_vec);
         imports
     }
 
-    fn insert_imports(import_scan: &mut JavaImportsScan, imports: Vec<JavaImport>) {
+    fn insert_imports(import_scan: &mut JavaFileImports, imports: Vec<JavaImport>) {
         for import in imports {
             import_scan.insert(import)
         }

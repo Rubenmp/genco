@@ -7,7 +7,7 @@ use crate::java::dto::java_import::JavaImport;
 use crate::java::parser::dto::java_node::JavaNode;
 use crate::java::parser::dto::java_node_type::JavaNodeType;
 use crate::java::scanner::file::java_file::JavaFile;
-use crate::java::scanner::file::java_imports_scan::JavaImportsScan;
+use crate::java::scanner::file::java_file_imports::JavaFileImports;
 
 #[derive(Debug, Clone)]
 pub enum JavaDataType {
@@ -21,7 +21,7 @@ pub enum JavaDataType {
 impl JavaDataType {
     pub fn new_from_path(java_file_path: &Path) -> JavaDataType {
         let java_file = JavaFile::from_user_input_path(java_file_path).unwrap();
-        let import = java_file.get_import();
+        let import = java_file.get_self_import();
 
         JavaDataType::FromImport(import)
     }
@@ -52,7 +52,7 @@ impl JavaDataType {
 
     pub(crate) fn get_data_type(
         data_type_node: &JavaNode,
-        file_imports: &JavaImportsScan,
+        file_imports: &JavaFileImports,
         input_java_file: &Path,
     ) -> Result<Self, String> {
         let node_type = data_type_node.get_node_type_opt().unwrap();
@@ -136,7 +136,7 @@ impl JavaDataType {
 
     pub(crate) fn from_generic_type_id(
         type_id: &str,
-        file_imports: &JavaImportsScan,
+        file_imports: &JavaFileImports,
         input_java_file: &Path,
     ) -> Result<JavaDataType, String> {
         let basic_data_type = new_basic_data_type(type_id);
@@ -149,7 +149,7 @@ impl JavaDataType {
 
     pub(crate) fn from_import_type_id(
         type_id: &str,
-        file_imports: &JavaImportsScan,
+        file_imports: &JavaFileImports,
         _input_java_file: &Path,
     ) -> Result<JavaDataType, String> {
         match file_imports.get_explicit_import(type_id) {

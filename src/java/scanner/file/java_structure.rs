@@ -17,13 +17,13 @@ use crate::java::dto::java_visibility::JavaVisibility;
 use crate::java::dto::{java_annotation_usage, java_visibility};
 use crate::java::parser::dto::java_node::JavaNode;
 use crate::java::parser::dto::java_node_type::JavaNodeType;
-use crate::java::scanner::file::java_imports_scan::JavaImportsScan;
+use crate::java::scanner::file::java_file_imports::JavaFileImports;
 use crate::java::scanner::file::java_structure_type::JavaStructureType;
 use crate::java::scanner::package::java_package_scanner;
 
 #[allow(unused)]
 #[derive(Debug, Clone)]
-pub struct JavaStructure {
+pub(crate) struct JavaStructure {
     // Metadata
     file: PathBuf,
     structure_type: JavaStructureType,
@@ -56,7 +56,7 @@ impl JavaStructure {
 
     pub(crate) fn new(
         root_struct_decl_node: &JavaNode,
-        file_imports: &JavaImportsScan,
+        file_imports: &JavaFileImports,
         input_java_file: &Path,
     ) -> Result<Self, String> {
         new_structure_internal(root_struct_decl_node, file_imports, input_java_file, true)
@@ -151,19 +151,16 @@ impl JavaStructure {
         self.is_root_structure
     }
 
-    pub(crate) fn insert_method(&mut self, _method: &JavaMethod) -> Result<(), String> {
-        todo!()
-    }
-
     /// TODO: this is only to for parent structures, not substructures
     pub(crate) fn get_self_import(&self) -> JavaImport {
         if self.is_root_structure() {
             return JavaImport::new_explicit_import_from_file(self.get_file())
-                .expect("Import for java structure must exist");
+                .expect("Java structure must have a java import associated");
         } else {
             panic!("get_self_import of substructure is not supported");
         }
     }
+
     pub(crate) fn get_imports(&self) -> Vec<JavaImport> {
         let mut imports = Vec::new();
         for import in self.get_annotation_imports() {
@@ -354,7 +351,7 @@ impl JavaStructure {
 
 fn new_structure_internal(
     root_node: &JavaNode,
-    file_imports: &JavaImportsScan,
+    file_imports: &JavaFileImports,
     input_java_file: &Path,
     is_root_structure: bool,
 ) -> Result<JavaStructure, String> {
@@ -471,7 +468,7 @@ fn new_structure_internal(
 }
 
 fn extract_super_class(
-    file_imports: &JavaImportsScan,
+    file_imports: &JavaFileImports,
     input_java_file: &Path,
     child_node: &JavaNode,
 ) -> Option<JavaImport> {
@@ -527,7 +524,7 @@ fn get_java_structure_type(node_type_opt: Option<JavaNodeType>) -> Option<JavaSt
     None
 }
 
-pub struct JavaStructureBuilder {
+pub(crate) struct JavaStructureBuilder {
     file: Option<PathBuf>,
     structure_type: Option<JavaStructureType>,
     annotations: Vec<JavaAnnotationUsage>,
@@ -535,8 +532,8 @@ pub struct JavaStructureBuilder {
     is_static: bool,
     is_final: bool,
     is_abstract: bool,
-    extended_class: Vec<JavaClass>,
-    implemented_interfaces: Vec<JavaInterface>,
+    extended_class: Vec<JavaImport>,
+    implemented_interfaces: Vec<JavaImport>,
     name: Option<String>,
     fields: Vec<JavaField>,
     methods: Vec<JavaMethod>,
@@ -591,11 +588,11 @@ impl JavaStructureBuilder {
         self.is_abstract = input;
         self
     }
-    pub fn extended_classes(&mut self, input: Vec<JavaClass>) -> &mut Self {
+    pub fn extended_classes(&mut self, input: Vec<JavaImport>) -> &mut Self {
         self.extended_class = input;
         self
     }
-    pub fn implemented_interfaces(&mut self, input: Vec<JavaInterface>) -> &mut Self {
+    pub fn implemented_interfaces(&mut self, input: Vec<JavaImport>) -> &mut Self {
         self.implemented_interfaces = input;
         self
     }
@@ -615,7 +612,19 @@ impl JavaStructureBuilder {
         self.substructures = input;
         self
     }
+
+    pub fn build_without_writing_to_file(&mut self) -> Result<JavaStructure, String> {
+        self.build_structure_internal(false)?
+    }
+
     pub fn write(&mut self) -> Result<JavaStructure, String> {
+        self.build_structure_internal(true)?
+    }
+
+    fn build_structure_internal(
+        &mut self,
+        write_to_file: bool,
+    ) -> Result<Result<JavaStructure, String>, String> {
         let name = self.get_name()?;
 
         // There is a better way to avoid this mapping to JavaImport
@@ -655,8 +664,11 @@ impl JavaStructureBuilder {
             substructures: self.substructures.to_owned(),
         };
 
-        structure.write_to_file()?;
-        Ok(structure)
+        if write_to_file {
+            structure.write_to_file()?;
+        }
+
+        Ok(Ok(structure))
     }
 
     fn get_name(&mut self) -> Result<String, String> {
@@ -668,21 +680,11 @@ impl JavaStructureBuilder {
     }
 
     fn get_extended_class_imports(&mut self) -> Vec<JavaImport> {
-        self.extended_class
-            .to_owned()
-            .iter()
-            .clone()
-            .map(|class| class.get_self_import())
-            .collect()
+        self.extended_class.to_owned()
     }
 
     fn get_interfaces_imports(&mut self) -> Vec<JavaImport> {
-        self.implemented_interfaces
-            .to_owned()
-            .iter()
-            .clone()
-            .map(|class| class.get_self_import())
-            .collect()
+        self.implemented_interfaces.to_owned()
     }
 }
 
@@ -714,7 +716,7 @@ fn is_second_child_an_extended_class_id(children: &[JavaNode]) -> bool {
 
 fn extract_interfaces(
     super_interfaces_node: &JavaNode,
-    file_imports: &JavaImportsScan,
+    file_imports: &JavaFileImports,
     input_java_file: &Path,
 ) -> Vec<JavaImport> {
     let mut result = Vec::new();
@@ -770,6 +772,7 @@ mod tests {
     use crate::core::testing::test_path;
     use crate::java::dependency::org::springframework::spring_context::java_spring_context_factory;
     use crate::java::dto::java_class::JavaClass;
+    use crate::java::dto::java_import::JavaImport;
     use crate::java::dto::java_interface::JavaInterface;
     use crate::java::dto::java_visibility::JavaVisibility::{Package, Private, Protected, Public};
     use crate::java::scanner::file::java_structure::JavaStructure;
@@ -785,8 +788,8 @@ mod tests {
             .structure_type(JavaStructureType::Class)
             .visibility(Public)
             .name("JavaChildServiceImpl")
-            .implemented_interfaces(vec![get_java_interface("JavaInterfaceForStructure")])
-            .extended_classes(vec![get_parent_java_class()])
+            .implemented_interfaces(vec![get_java_interface_import("JavaInterfaceForStructure")])
+            .extended_classes(vec![get_parent_java_class_import()])
             .write()
         {
             Ok(structure) => {
@@ -823,7 +826,7 @@ mod tests {
             .is_static(true)
             .is_abstract(true)
             .name("JavaServiceAbstract")
-            .implemented_interfaces(vec![get_java_interface("JavaInterfaceForStructure")])
+            .implemented_interfaces(vec![get_java_interface_import("JavaInterfaceForStructure")])
             .write()
         {
             Ok(structure) => {
@@ -853,8 +856,8 @@ mod tests {
         remove_file_if_exists(&file_path);
 
         let interfaces = vec![
-            get_java_interface("JavaInterfaceForStructure1"),
-            get_java_interface("JavaInterfaceForStructure2"),
+            get_java_interface_import("JavaInterfaceForStructure1"),
+            get_java_interface_import("JavaInterfaceForStructure2"),
         ];
 
         match JavaStructure::builder()
@@ -863,7 +866,7 @@ mod tests {
             .visibility(Package)
             .name("PackageClassWithInterfacesAndExtension")
             .implemented_interfaces(interfaces)
-            .extended_classes(vec![get_parent_java_class()])
+            .extended_classes(vec![get_parent_java_class_import()])
             .write()
         {
             Ok(structure) => {
@@ -962,6 +965,10 @@ mod tests {
         };
     }
 
+    fn get_parent_java_class_import() -> JavaImport {
+        get_parent_java_class().get_self_import()
+    }
+
     fn get_parent_java_class() -> JavaClass {
         get_java_class("JavaParentClassForStructure")
     }
@@ -979,8 +986,13 @@ mod tests {
         )
     }
 
+    fn get_java_interface_import(name: &str) -> JavaImport {
+        get_java_interface(name).get_self_import()
+    }
+
     fn get_java_interface(name: &str) -> JavaInterface {
-        JavaInterface::from(&get_test_file(name)).unwrap()
+        JavaInterface::from(&get_test_file(name))
+            .expect("get_java_interface failed crating interface")
     }
 
     fn get_test_file(structure_name: &str) -> PathBuf {
