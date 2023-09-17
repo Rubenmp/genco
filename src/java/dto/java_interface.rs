@@ -10,9 +10,9 @@ use crate::java::scanner::file::java_file::JavaFile;
 use crate::java::scanner::file::java_structure::JavaStructure;
 use crate::java::scanner::file::java_structure_type::JavaStructureType;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct JavaInterface {
-    structure: JavaStructure,
+    scanned_file: JavaFile,
 }
 
 impl JavaInterface {
@@ -47,6 +47,10 @@ impl JavaInterface {
     /// ```
     pub fn from(file_path: &Path) -> Result<Self, String> {
         let java_file = JavaFile::from_user_input_path(file_path)?;
+        Self::from_java_file(java_file)
+    }
+
+    fn from_java_file(java_file: JavaFile) -> Result<Self, String> {
         let structure_type = java_file.get_main_structure_type();
         if structure_type != JavaStructureType::Interface {
             return Err(format!(
@@ -55,7 +59,11 @@ impl JavaInterface {
             ));
         }
 
-        Ok(Self::from_structure(, java_file.get_structure().to_owned()))
+        let java_interface = Self {
+            scanned_file: java_file,
+        };
+
+        Ok(java_interface)
     }
 
     /// # get_annotations
@@ -97,12 +105,14 @@ impl JavaInterface {
         Self::from_java_file(java_file)
     }
 
-    pub(crate) fn from_structure(file: Path, structure: JavaStructure) -> Result<Self, String> {
-        Self { structure }
+    pub(crate) fn from_structure(file: &Path, structure: JavaStructure) -> Result<Self, String> {
+        let scanned_file = JavaFile::write(file, structure)?;
+
+        Ok(Self { scanned_file })
     }
 
     pub(crate) fn get_structure(&self) -> &JavaStructure {
-        &self.structure
+        self.scanned_file.get_structure()
     }
 
     #[cfg(test)]
@@ -117,19 +127,6 @@ impl JavaInterface {
 
     pub(crate) fn get_self_import(&self) -> JavaImport {
         self.get_structure().get_self_import() // TODO: use java file instead of structure
-    }
-
-    fn from_java_file(java_file: JavaFile) -> Result<Self, String> {
-        let structure_type = java_file.get_main_structure_type();
-        if structure_type != JavaStructureType::Interface {
-            return Err(format!(
-                "Expected java interface, found java {:?} in file:\n{}\n",
-                structure_type,
-                try_to_absolute_path(&java_file.get_file_path())
-            ));
-        }
-
-        Ok(Self::from_structure(, java_file.get_structure().to_owned()))
     }
 }
 
@@ -228,7 +225,7 @@ impl JavaInterfaceBuilder {
             .methods(self.methods.to_owned())
             .build()
         {
-            Ok(structure) => Ok(JavaInterface::from_structure(file, structure)),
+            Ok(structure) => Ok(JavaInterface::from_structure(&file, structure)?),
             Err(err) => Err(format!(
                 "Invalid java interface \"{}\" build, {}",
                 name, err

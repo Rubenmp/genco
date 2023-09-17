@@ -7,7 +7,6 @@ pub struct JavaFileImports {
     wildcard_imports: Vec<JavaImport>,
 }
 
-
 impl JavaFileImports {
     pub(crate) fn from(input_imports: Vec<JavaImport>) -> Self {
         let mut result = Self::new();
@@ -26,9 +25,9 @@ impl JavaFileImports {
     }
 
     pub(crate) fn get_sorted_imports(&self) -> Vec<JavaImport> {
-        // TODO: actually sorting 
+        // TODO: actually sorting
         let mut result = self.explicit_imports.clone();
-        for import in self.wildcard_imports.to_owned() {
+        for import in self.wildcard_imports.iter().cloned() {
             result.push(import);
         }
 

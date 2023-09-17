@@ -150,7 +150,7 @@ impl JavaClass {
             return Err(format!(
                 "Expected java class, found java {:?} in file:\n{}\n",
                 structure_type,
-                try_to_absolute_path(&java_file.get_file_path())
+                try_to_absolute_path(java_file.get_file_path())
             ));
         }
 
@@ -161,7 +161,7 @@ impl JavaClass {
     }
 
     pub(crate) fn get_structure(&self) -> &JavaStructure {
-        &self.scanned_file.get_structure()
+        self.scanned_file.get_structure()
     }
 
     #[cfg(test)]

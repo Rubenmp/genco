@@ -26,7 +26,7 @@ impl JavaFile {
     pub(crate) fn write(file: &Path, input_structure: JavaStructure) -> Result<Self, String> {
         let imports = JavaFileImports::from(input_structure.get_imports());
 
-        let mut result_file = Self {
+        let result_file = Self {
             file: file.to_path_buf(),
             imports,
             structure: input_structure,

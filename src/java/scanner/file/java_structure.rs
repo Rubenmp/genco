@@ -3,7 +3,6 @@ use std::path::{Path, PathBuf};
 use crate::core::file_system::path_helper::try_to_absolute_path;
 use crate::core::observability::logger;
 use crate::core::parser::parser_node_trait::ParserNode;
-use crate::java::dto::{java_annotation_usage, java_visibility};
 use crate::java::dto::java_annotation_usage::JavaAnnotationUsage;
 use crate::java::dto::java_class::JavaClass;
 use crate::java::dto::java_data_type::JavaDataType;
@@ -13,6 +12,7 @@ use crate::java::dto::java_indentation_config::JavaIndentation;
 use crate::java::dto::java_interface::JavaInterface;
 use crate::java::dto::java_method::JavaMethod;
 use crate::java::dto::java_visibility::JavaVisibility;
+use crate::java::dto::{java_annotation_usage, java_visibility};
 use crate::java::parser::dto::java_node::JavaNode;
 use crate::java::parser::dto::java_node_type::JavaNodeType;
 use crate::java::scanner::file::java_file_imports::JavaFileImports;
@@ -62,8 +62,6 @@ impl JavaStructure {
     pub(crate) fn get_file(&self) -> &PathBuf {
         &self.file
     }
-
-
 
     pub(crate) fn get_type(&self) -> JavaStructureType {
         self.structure_type.to_owned()
@@ -206,7 +204,6 @@ impl JavaStructure {
             .flat_map(|annotation| annotation.get_imports())
             .collect()
     }
-
 
     pub(crate) fn get_skeleton_without_imports(&self) -> String {
         let mut result = "".to_string();
@@ -689,9 +686,8 @@ fn is_first_child_of_type(children: &[JavaNode], node_type: JavaNodeType) -> boo
 mod tests {
     use std::path::PathBuf;
 
-    use crate::core::file_system::file_creation::file_creator::remove_file_if_exists;
     use crate::core::file_system::path_helper::try_to_absolute_path;
-    use crate::core::testing::test_assert::{assert_fail, assert_same_file};
+    use crate::core::testing::test_assert::assert_fail;
     use crate::core::testing::test_path;
     use crate::java::dependency::org::springframework::spring_context::java_spring_context_factory;
     use crate::java::dto::java_class::JavaClass;
@@ -704,11 +700,11 @@ mod tests {
     #[test]
     fn builder_test() {
         let file_path = get_test_file("JavaChildServiceImpl");
-        let expected_file_content = get_test_file("ExpectedJavaChildServiceImpl");
 
         match JavaStructure::builder()
             .file(&file_path)
             .structure_type(JavaStructureType::Class)
+            .is_final(true)
             .visibility(Public)
             .name("JavaChildServiceImpl")
             .implemented_interfaces(vec![get_java_interface_import("JavaInterfaceForStructure")])
@@ -716,14 +712,12 @@ mod tests {
             .build()
         {
             Ok(structure) => {
-                assert_same_file(&expected_file_content, &file_path);
-                remove_file_if_exists(&file_path);
                 assert_eq!(&file_path, structure.get_file());
                 assert_eq!(JavaStructureType::Class, structure.get_type());
                 assert_eq!(0, structure.get_annotations().len());
                 assert_eq!(Public, structure.get_visibility());
                 assert!(!structure.is_static());
-                assert!(!structure.is_final());
+                assert!(structure.is_final());
                 assert!(!structure.is_abstract());
                 assert_eq!("JavaChildServiceImpl", structure.get_name());
                 assert!(structure.get_extended_class().is_some());
@@ -739,8 +733,6 @@ mod tests {
     #[test]
     fn generate_public_abstract_class_with_interface() {
         let file_path = get_test_file("JavaServiceAbstract");
-        let expected_file_content = get_test_file("ExpectedPublicStaticAbstractClassWithInterface");
-        remove_file_if_exists(&file_path);
 
         match JavaStructure::builder()
             .file(&file_path)
@@ -753,8 +745,6 @@ mod tests {
             .build()
         {
             Ok(structure) => {
-                assert_same_file(&expected_file_content, &file_path);
-                remove_file_if_exists(&file_path);
                 assert_eq!(&file_path, structure.get_file());
                 assert_eq!(JavaStructureType::Class, structure.get_type());
                 assert_eq!(0, structure.get_annotations().len());
@@ -775,8 +765,6 @@ mod tests {
     #[test]
     fn generate_package_class_with_interfaces_and_extension() {
         let file_path = get_test_file("PackageClassWithInterfacesAndExtension");
-        let expected_file_content = get_test_file("ExpectedPackageClassWithInterfacesAndExtension");
-        remove_file_if_exists(&file_path);
 
         let interfaces = vec![
             get_java_interface_import("JavaInterfaceForStructure1"),
@@ -793,8 +781,6 @@ mod tests {
             .build()
         {
             Ok(structure) => {
-                assert_same_file(&expected_file_content, &file_path);
-                remove_file_if_exists(&file_path);
                 assert_eq!(&file_path, structure.get_file());
                 assert_eq!(JavaStructureType::Class, structure.get_type());
                 assert_eq!(0, structure.get_annotations().len());
@@ -819,8 +805,6 @@ mod tests {
     #[test]
     fn generate_class_with_annotation() {
         let file_path = get_test_file("JavaServiceBean");
-        let expected_file_content = get_test_file("ExpectedClassSkeletonWithAnnotation");
-        remove_file_if_exists(&file_path);
 
         let annotations = vec![java_spring_context_factory::_create_service_annotation_usage()];
 
@@ -833,8 +817,6 @@ mod tests {
             .build()
         {
             Ok(structure) => {
-                assert_same_file(&expected_file_content, &file_path);
-                remove_file_if_exists(&file_path);
                 assert_eq!(&file_path, structure.get_file());
                 assert_eq!(JavaStructureType::Class, structure.get_type());
                 assert_eq!(1, structure.get_annotations().len());
@@ -856,8 +838,6 @@ mod tests {
     #[test]
     fn generate_final_interface() {
         let file_path = get_test_file("JavaFinalInterface");
-        let expected_file_content = get_test_file("ExpectedJavaFinalInterface");
-        remove_file_if_exists(&file_path);
 
         match JavaStructure::builder()
             .file(&file_path)
@@ -868,8 +848,6 @@ mod tests {
             .build()
         {
             Ok(structure) => {
-                assert_same_file(&expected_file_content, &file_path);
-                remove_file_if_exists(&file_path);
                 assert_eq!(&file_path, structure.get_file());
                 assert_eq!(JavaStructureType::Interface, structure.get_type());
                 assert_eq!(0, structure.get_annotations().len());
