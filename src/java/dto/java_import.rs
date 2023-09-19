@@ -173,7 +173,7 @@ impl JavaImport {
         get_package_nodes_vec_from_dir(&self.folder_path.to_owned().unwrap())
     }
 
-    /// The signature of this method prevents its validity
+    /// TODO: The signature of this method prevents its validity
     /// It is not possible to fully recognize an import with type_id
     /// since the type could be a substructure JavaClass.JavaSubclass, JavaClass.method...
     /// The only valid way to validate this match is to check all self.nodes with the type_id(s)

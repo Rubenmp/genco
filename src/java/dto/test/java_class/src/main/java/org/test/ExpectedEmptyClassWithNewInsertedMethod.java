@@ -1,6 +1,8 @@
 package org.test;
 
+import java.time.OffsetDateTime;
+
 public class EmptyClassWithNewInsertedMethod {
-    public int staticMethod() {
+    public OffsetDateTime newMethodInserted() {
     }
 }

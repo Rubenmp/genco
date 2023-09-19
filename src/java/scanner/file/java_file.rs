@@ -138,7 +138,7 @@ impl JavaFile {
     }
 
     fn write_imports(&self, result: &mut String) {
-        let imports: Vec<JavaImport> = self.get_file_imports().get_sorted_imports();
+        let imports: Vec<JavaImport> = self.get_file_imports().get_imports_sorted_asc();
 
         for import in &imports {
             *result += import.to_string().as_str();
@@ -166,10 +166,16 @@ impl JavaFile {
     }
 
     pub(crate) fn insert_method(&mut self, method: &JavaMethod) -> Result<JavaFile, String> {
+        // TODO: validate if java_file changed before inserting method
         let mut to_overwrite = FileOverwriting::new(self.get_file_path());
         self.imports
             .add_missing_imports(&mut to_overwrite, method.get_imports());
-        todo!()
+        todo!();
+        // Add java_method to to_overwrite variable;
+
+        to_overwrite.write_all(); // TODO: return possible error from this
+        let result_file = JavaFile::from_user_input_path(self.get_file_path())?;
+        Ok(result_file)
     }
 
     fn check_package_def(java_file_import: &JavaImport, child: &JavaNode) {

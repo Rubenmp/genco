@@ -320,6 +320,7 @@ mod tests {
     use crate::core::file_system::file_creation::file_creator::remove_file_if_exists;
     use crate::core::testing::test_assert::{assert_fail, assert_same_file};
     use crate::core::testing::test_path;
+    use crate::java::dependency::java::time::java_time_factory;
     use crate::java::dependency::org::springframework::spring_context::java_spring_context_factory;
     use crate::java::dto::java_class::JavaClass;
     use crate::java::dto::java_data_type::{JavaBasicDataType, JavaDataType};
@@ -472,7 +473,7 @@ mod tests {
         let file_path = folder.join("EmptyClassWithNewInsertedMethod.java");
         let expected_file_content = get_test_file("ExpectedEmptyClassWithNewInsertedMethod");
 
-        let new_method = new_method();
+        let new_method = new_method_returning_offset_date_time();
 
         let mut java_class = JavaClass::builder()
             .folder(&folder)
@@ -489,13 +490,13 @@ mod tests {
         }
     }
 
-    fn new_method() -> JavaMethod {
+    fn new_method_returning_offset_date_time() -> JavaMethod {
         JavaMethod::builder()
-            .return_type(JavaDataType::Basic(JavaBasicDataType::Int))
+            .return_type(java_time_factory::create_offset_date_time())
             .visibility(JavaVisibility::Public)
-            .name("newMethod")
+            .name("newMethodInserted")
             .build()
-            .expect("newMethod is expected to be valid")
+            .expect("newMethodInserted is expected to be valid")
     }
 
     fn get_test_file(structure_name: &str) -> PathBuf {

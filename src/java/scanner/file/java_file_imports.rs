@@ -25,14 +25,14 @@ impl JavaFileImports {
         }
     }
 
-    pub(crate) fn get_sorted_imports(&self) -> Vec<JavaImport> {
-        // TODO: actually sorting
+    /// TODO: actually sorting
+    pub(crate) fn get_imports_sorted_asc(&self) -> Vec<JavaImport> {
         let mut result = self.explicit_imports.clone();
         for import in self.wildcard_imports.iter().cloned() {
             result.push(import);
         }
 
-        result
+        get_sorted_asc(result)
     }
 
     pub(crate) fn get_explicit_import(&self, type_id: &str) -> Result<JavaImport, String> {
@@ -68,8 +68,22 @@ impl JavaFileImports {
         to_overwrite: &mut FileOverwriting,
         imports_to_add: Vec<JavaImport>,
     ) {
+        let sorted_imports_to_add = get_sorted_asc(imports_to_add);
+        for import_to_add in sorted_imports_to_add {
+            if let Some(start_byte) = self.get_byte_to_add_import(&import_to_add) {
+                to_overwrite
+                    .insert_content_with_previous_newline_at(start_byte, &import_to_add.to_string())
+            }
+        }
+    }
+    fn get_byte_to_add_import(&self, import_to_add: &JavaImport) -> Option<usize> {
         todo!()
     }
+}
+
+/// TODO: sort in alphabetically ascending order
+fn get_sorted_asc(result: Vec<JavaImport>) -> Vec<JavaImport> {
+    result.to_vec()
 }
 
 impl JavaFileImports {
