@@ -75,15 +75,22 @@ impl JavaImport {
         Self::new_from_route(&import_route)
     }
 
-    // This method lacks contest from the definition route of the class/interface/enum
-    // i.e. which submodule is this route coming from? -> Not possible to detect with this header
-    // It is used to create well-known imports like "org.springframework.stereotype.Service"
-    // but should not be used in real code.
+    /// TODO: scan m2 repository after parse
+    /// This method lacks contest from the definition route of the class/interface/enum
+    /// i.e. which submodule is this route coming from? -> Not possible to detect with this header
+    /// It is used to create well-known imports like "org.springframework.stereotype.Service"
+    /// but should not be used in real code.
     #[allow(dead_code)]
     pub(crate) fn new_explicit_import_requiring_m2_repo_scan(
         route: &str,
     ) -> Result<JavaImport, String> {
-        // TODO: scan m2 repository after parse
+        Self::new_explicit_import_without_m2_repo_scan(route)
+    }
+
+    #[allow(dead_code)]
+    pub(crate) fn new_explicit_import_without_m2_repo_scan(
+        route: &str,
+    ) -> Result<JavaImport, String> {
         let import = JavaImport::new_from_route(route);
         if !import.is_explicit_import() {
             return Err(format!(
