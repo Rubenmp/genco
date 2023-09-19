@@ -8,13 +8,13 @@ use crate::core::file_system::file_creation::file_creator::{
 };
 use crate::core::file_system::file_reader::get_number_of_bytes_of;
 
-pub struct FileOverwriting {
+pub(crate) struct FileOverwriting {
     file_path: PathBuf,
     content_nodes: Vec<FileOverwritingItem>,
 }
 
 impl FileOverwriting {
-    pub fn new(file_path: &Path) -> FileOverwriting {
+    pub(crate) fn new(file_path: &Path) -> FileOverwriting {
         if !file_path.exists() || !file_path.is_file() {
             panic!(
                 "Error creating FileOverwriting with invalid resource \"{}\"",

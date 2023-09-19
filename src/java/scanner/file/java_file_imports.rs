@@ -1,8 +1,9 @@
+use crate::core::file_system::file_overwriting::file_overwriter::FileOverwriting;
 use crate::core::observability::logger;
 use crate::java::dto::java_import::JavaImport;
 
 #[derive(Debug)]
-pub struct JavaFileImports {
+pub(crate) struct JavaFileImports {
     explicit_imports: Vec<JavaImport>,
     wildcard_imports: Vec<JavaImport>,
 }
@@ -62,6 +63,17 @@ impl JavaFileImports {
         }
     }
 
+    pub(crate) fn add_missing_imports(
+        &self,
+        to_overwrite: &mut FileOverwriting,
+        imports_to_add: Vec<JavaImport>,
+    ) {
+        todo!()
+    }
+}
+
+impl JavaFileImports {
+    // Test specific methods
     #[cfg(test)]
     pub(crate) fn count(&self) -> usize {
         self.explicit_imports.len() + self.wildcard_imports.len()

@@ -165,7 +165,10 @@ impl JavaFile {
         &self.file
     }
 
-    pub(crate) fn insert_method(&mut self, _method: &JavaMethod) -> Result<(), String> {
+    pub(crate) fn insert_method(&mut self, method: &JavaMethod) -> Result<JavaFile, String> {
+        let mut to_overwrite = FileOverwriting::new(self.get_file_path());
+        self.imports
+            .add_missing_imports(&mut to_overwrite, method.get_imports());
         todo!()
     }
 

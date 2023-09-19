@@ -123,7 +123,12 @@ impl JavaClass {
     /// # insert_method
     /// Insert a new method into the class and write it to the file.
     pub fn insert_method(&mut self, method: &JavaMethod) -> Result<(), String> {
-        self.scanned_file.insert_method(method)?;
+        match self.scanned_file.insert_method(method) {
+            Ok(result_java_file) => self.scanned_file = result_java_file,
+            Err(err) => {
+                return Err(err);
+            }
+        };
 
         Ok(())
     }
