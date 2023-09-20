@@ -166,10 +166,23 @@ impl JavaFile {
     }
 
     pub(crate) fn insert_method(&mut self, method: &JavaMethod) -> Result<JavaFile, String> {
-        // TODO: validate if java_file changed before inserting method
+        // TODO: validate if java_file changed before inserting method (still exist?)
         let mut to_overwrite = FileOverwriting::new(self.get_file_path());
-        self.imports
-            .add_missing_imports(&mut to_overwrite, method.get_imports());
+        let method_imports = method.get_imports();
+        let mut byte_to_insert_first_import_opt = None;
+        if method_imports.is_empty() {
+            match self.get_byte_to_insert_first_import() {
+                Ok(result_byte) => byte_to_insert_first_import_opt = Some(result_byte),
+                Err(err) => {
+                    return Err(err);
+                }
+            };
+        }
+        self.imports.add_missing_imports(
+            &mut to_overwrite,
+            method_imports,
+            byte_to_insert_first_import_opt,
+        );
         todo!();
         // Add java_method to to_overwrite variable;
 
@@ -242,6 +255,22 @@ impl JavaFile {
         }
 
         Ok(())
+    }
+    fn get_byte_to_insert_first_import(&self) -> Result<usize, String> {
+        let java_file_path = self.get_file_path();
+        let root_java_node = java_parser::parse(java_file_path)?;
+
+        for child in root_java_node.get_children() {
+            if let Some(node_type) = child.get_node_type_opt() {
+                if JavaNodeType::PackageDecl == node_type {
+                    return Ok(child.get_end_byte());
+                } else if Self::is_structure(node_type) {
+                    return Ok(child.get_start_byte());
+                }
+            }
+        }
+
+        Err("It was not possible to determine the position of the new java import".to_string())
     }
 }
 

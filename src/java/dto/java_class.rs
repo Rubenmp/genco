@@ -331,7 +331,7 @@ mod tests {
 
     #[test]
     fn build_class_empty_service() {
-        let folder = get_test_folder();
+        let folder = get_java_class_root_test_folder();
         let file_path = folder.join("EmptyService.java");
         let expected_file_content = get_test_file("ExpectedEmptyService");
 
@@ -365,7 +365,7 @@ mod tests {
 
     #[test]
     fn build_full_java_service_from_builder() {
-        let folder = get_test_folder();
+        let folder = get_java_class_root_test_folder();
         let file_path = folder.join("FullJavaServiceFromBuilder.java");
         let expected_file_content = get_test_file("ExpectedFullJavaServiceFromBuilder");
 
@@ -469,7 +469,7 @@ mod tests {
 
     #[test]
     fn insert_method_in_new_class() {
-        let folder = get_test_folder();
+        let folder = get_java_class_root_test_folder().join("insertmethod");
         let file_path = folder.join("EmptyClassWithNewInsertedMethod.java");
         let expected_file_content = get_test_file("ExpectedEmptyClassWithNewInsertedMethod");
 
@@ -494,16 +494,16 @@ mod tests {
         JavaMethod::builder()
             .return_type(java_time_factory::create_offset_date_time())
             .visibility(JavaVisibility::Public)
-            .name("newMethodInserted")
+            .name("newInsertedMethod")
             .build()
-            .expect("newMethodInserted is expected to be valid")
+            .expect("newInsertedMethod is expected to be valid")
     }
 
     fn get_test_file(structure_name: &str) -> PathBuf {
-        get_test_folder().join(format!("{}.java", structure_name).as_str())
+        get_java_class_root_test_folder().join(format!("{}.java", structure_name).as_str())
     }
 
-    fn get_test_folder() -> PathBuf {
+    fn get_java_class_root_test_folder() -> PathBuf {
         test_path::get_java_project_test_folder(get_current_file_path(), "java_class")
     }
 
