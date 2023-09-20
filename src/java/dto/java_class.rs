@@ -471,7 +471,7 @@ mod tests {
     fn insert_method_in_new_class() {
         let folder = get_java_class_root_test_folder().join("insertmethod");
         let file_path = folder.join("EmptyClassWithNewInsertedMethod.java");
-        let expected_file_content = get_test_file("ExpectedEmptyClassWithNewInsertedMethod");
+        let expected_file_content = folder.join("ExpectedEmptyClassWithNewInsertedMethod.java");
 
         let new_method = new_method_returning_offset_date_time();
 

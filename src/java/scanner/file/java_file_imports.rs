@@ -4,15 +4,38 @@ use crate::java::dto::java_import::JavaImport;
 
 #[derive(Debug)]
 pub(crate) struct JavaFileImports {
-    explicit_imports: Vec<JavaImport>,
-    wildcard_imports: Vec<JavaImport>,
+    explicit_imports: Vec<JavaFileImport>,
+    wildcard_imports: Vec<JavaFileImport>,
+}
+
+#[derive(Debug)]
+pub(crate) struct JavaFileImport {
+    import: JavaImport,
+    // TODO: need research to check if this "Option<usize>" can be just "usize"
+    file_end_byte_opt: Option<usize>,
+}
+
+impl JavaFileImport {
+    fn new(import: JavaImport, file_end_byte: usize) -> Self {
+        Self {
+            import,
+            file_end_byte_opt: Some(file_end_byte),
+        }
+    }
+
+    fn from(import: JavaImport) -> Self {
+        Self {
+            import,
+            file_end_byte_opt: None,
+        }
+    }
 }
 
 impl JavaFileImports {
     pub(crate) fn from(input_imports: Vec<JavaImport>) -> Self {
         let mut result = Self::new();
         for input_import in input_imports {
-            result.insert(input_import);
+            result.insert_raw(input_import);
         }
 
         result
@@ -31,17 +54,31 @@ impl JavaFileImports {
 
     /// TODO: actually sorting
     pub(crate) fn get_imports_sorted_asc(&self) -> Vec<JavaImport> {
-        let mut result = self.explicit_imports.clone();
-        for import in self.wildcard_imports.iter().cloned() {
+        let mut result = self.get_explicit_imports().clone();
+        for import in self.get_wildcard_imports().iter().cloned() {
             result.push(import);
         }
 
         get_sorted_asc(result)
     }
 
+    fn get_wildcard_imports(&self) -> Vec<JavaImport> {
+        self.wildcard_imports
+            .iter()
+            .map(|file_import| file_import.import.to_owned())
+            .collect()
+    }
+
+    fn get_explicit_imports(&self) -> Vec<JavaImport> {
+        self.explicit_imports
+            .iter()
+            .map(|file_import| file_import.import.to_owned())
+            .collect()
+    }
+
     pub(crate) fn get_explicit_import(&self, type_id: &str) -> Result<JavaImport, String> {
         // TODO: optimize this
-        for explicit_import in &self.explicit_imports {
+        for explicit_import in &self.get_explicit_imports() {
             if explicit_import.match_type_id(type_id) {
                 return Ok(explicit_import.clone());
             }
@@ -51,14 +88,32 @@ impl JavaFileImports {
         Err(error)
     }
 
-    pub(crate) fn insert(&mut self, import: JavaImport) {
+    pub(crate) fn insert(&mut self, import: JavaImport, import_end_byte: usize) {
         if import.is_explicit_import() {
-            self.explicit_imports.push(import);
+            self.explicit_imports
+                .push(JavaFileImport::new(import, import_end_byte));
         } else if import.is_wildcard_import() {
             logger::log_unrecoverable_error(
                 format!("Wildcard imports are not supported yet\n\"{}\"", import).as_str(),
             );
-            self.wildcard_imports.push(import);
+            self.wildcard_imports
+                .push(JavaFileImport::new(import, import_end_byte));
+        } else {
+            logger::log_unrecoverable_error(&format!(
+                "Invalid java import:\n\"{:?}\"",
+                import.to_string()
+            ));
+        }
+    }
+
+    fn insert_raw(&mut self, import: JavaImport) {
+        if import.is_explicit_import() {
+            self.explicit_imports.push(JavaFileImport::from(import));
+        } else if import.is_wildcard_import() {
+            logger::log_unrecoverable_error(
+                format!("Wildcard imports are not supported yet\n\"{}\"", import).as_str(),
+            );
+            self.wildcard_imports.push(JavaFileImport::from(import));
         } else {
             logger::log_unrecoverable_error(&format!(
                 "Invalid java import:\n\"{:?}\"",
@@ -75,6 +130,7 @@ impl JavaFileImports {
     ) {
         let sorted_imports_to_add = get_sorted_asc(imports_to_add);
         let last_import_end_byte_opt = self.get_last_import_end_byte();
+
         for import_to_add in sorted_imports_to_add {
             if let Some(last_import_end_byte) = last_import_end_byte_opt {
                 to_overwrite.insert_content_with_previous_newline_at(
@@ -91,7 +147,25 @@ impl JavaFileImports {
     }
 
     fn get_last_import_end_byte(&self) -> Option<usize> {
-        todo!()
+        let mut result = None;
+
+        for import in self
+            .explicit_imports
+            .iter()
+            .chain(self.wildcard_imports.iter())
+        {
+            if let Some(current_result) = result {
+                if let Some(file_end_byte) = import.file_end_byte_opt {
+                    if current_result < file_end_byte {
+                        result = import.file_end_byte_opt;
+                    }
+                }
+            } else {
+                result = import.file_end_byte_opt;
+            }
+        }
+
+        result
     }
 }
 
@@ -153,7 +227,7 @@ mod tests {
 
     fn insert_imports(import_scan: &mut JavaFileImports, imports: &Vec<JavaImport>) {
         for import in imports {
-            import_scan.insert(import.to_owned())
+            import_scan.insert_raw(import.to_owned())
         }
     }
 }

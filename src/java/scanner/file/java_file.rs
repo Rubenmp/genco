@@ -59,10 +59,10 @@ impl JavaFile {
                 if JavaNodeType::ImportDecl == node_type {
                     let import_route = get_nodes_content(child.to_owned());
 
-                    imports.insert(JavaImport::from_file_import_decl(
-                        import_route,
-                        java_file_path,
-                    ));
+                    imports.insert(
+                        JavaImport::from_file_import_decl(import_route, java_file_path),
+                        child.get_end_byte(),
+                    );
                 } else if JavaNodeType::PackageDecl == node_type {
                     Self::check_package_def(&java_file_import, child);
                     package_found = true;
@@ -183,7 +183,7 @@ impl JavaFile {
             method_imports,
             byte_to_insert_first_import_opt,
         );
-        todo!();
+        //todo!();
         // Add java_method to to_overwrite variable;
 
         to_overwrite.write_all(); // TODO: return possible error from this
