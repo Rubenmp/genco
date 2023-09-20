@@ -6,6 +6,7 @@ use crate::core::file_system::path_helper;
 use crate::core::observability::logger;
 use crate::core::parser::parser_node_trait::ParserNode;
 use crate::java::dto::java_import::JavaImport;
+use crate::java::dto::java_indentation_config::JavaIndentation;
 use crate::java::dto::java_method::JavaMethod;
 use crate::java::parser::dto::java_node::JavaNode;
 use crate::java::parser::dto::java_node_type::JavaNodeType;
@@ -130,8 +131,15 @@ impl JavaFile {
             method.get_imports(),
             byte_to_insert_first_import_opt,
         )?;
-        //todo!();
-        // Add java_method to to_overwrite variable;
+
+        let mut method_str = "\n".to_string();
+        let mut initial_method_indentation = JavaIndentation::default();
+        initial_method_indentation.increase_level();
+        method.write_to_string(&mut method_str, &initial_method_indentation);
+        to_overwrite.insert_content_with_previous_newline_at(
+            self.get_structure().get_start_byte(),
+            &method_str,
+        );
 
         to_overwrite.write_all(); // TODO: return possible error from this
         let result_file = JavaFile::from_user_input_path(self.get_file_path())?;

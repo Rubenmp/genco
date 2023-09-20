@@ -246,8 +246,8 @@ impl fmt::Display for JavaDataType {
         let mut string = String::new();
         if let JavaDataType::Basic(basic_data_type) = self {
             string += basic_data_type.to_string().as_str();
-        } else {
-            todo!()
+        } else if let JavaDataType::FromImport(java_import) = self {
+            string += java_import.get_last_node().as_str();
         }
 
         write!(f, "{}", string)

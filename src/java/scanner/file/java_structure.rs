@@ -65,7 +65,11 @@ impl JavaStructure {
     }
 
     pub(crate) fn get_type(&self) -> JavaStructureType {
-        self.structure_type.to_owned()
+        self.structure_type
+    }
+
+    pub(crate) fn get_start_byte(&self) -> usize {
+        self.struct_body_start_byte
     }
 
     pub(crate) fn get_annotations(&self) -> &Vec<JavaAnnotationUsage> {
