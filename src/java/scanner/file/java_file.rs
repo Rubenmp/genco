@@ -26,7 +26,7 @@ pub(crate) struct JavaFile {
 impl JavaFile {
     pub(crate) fn write(file: &Path, input_structure: JavaStructure) -> Result<Self, String> {
         let imports = input_structure.get_imports_sorted_asc();
-        Self::write_to_file_internal(&file, &imports, &input_structure)?;
+        Self::write_to_file_internal(file, &imports, &input_structure)?;
 
         JavaFile::from_user_input_path(file)
     }

@@ -36,13 +36,6 @@ impl JavaFileImports {
         self.explicit_imports.is_empty() && self.wildcard_imports.is_empty()
     }
 
-    fn get_wildcard_imports(&self) -> Vec<JavaImport> {
-        self.wildcard_imports
-            .iter()
-            .map(|file_import| file_import.import.to_owned())
-            .collect()
-    }
-
     fn get_explicit_imports(&self) -> Vec<JavaImport> {
         self.explicit_imports
             .iter()

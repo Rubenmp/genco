@@ -481,7 +481,6 @@ pub(crate) struct JavaStructureBuilder {
     name: Option<String>,
     fields: Vec<JavaField>,
     methods: Vec<JavaMethod>,
-    substructures: Vec<JavaStructure>,
 }
 
 impl JavaStructureBuilder {
@@ -499,7 +498,6 @@ impl JavaStructureBuilder {
             name: None,
             fields: vec![],
             methods: vec![],
-            substructures: vec![],
         }
     }
     pub fn file(&mut self, input: &Path) -> &mut Self {
@@ -552,10 +550,6 @@ impl JavaStructureBuilder {
         self.methods = input;
         self
     }
-    pub fn substructures(&mut self, input: Vec<JavaStructure>) -> &mut Self {
-        self.substructures = input;
-        self
-    }
 
     pub fn build(&mut self) -> Result<JavaStructure, String> {
         let name = self.get_name()?;
@@ -594,7 +588,7 @@ impl JavaStructureBuilder {
             fields: self.fields.to_owned(),
             methods: self.methods.to_owned(),
             is_root_structure: true,
-            substructures: self.substructures.to_owned(),
+            substructures: vec![],
         };
 
         Ok(structure)

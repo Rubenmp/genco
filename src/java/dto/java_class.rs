@@ -190,6 +190,7 @@ pub struct JavaClassBuilder {
     annotations: Vec<JavaAnnotationUsage>,
     visibility: JavaVisibility,
     is_static: bool,
+    is_final: bool,
     is_abstract: bool,
 
     extended_class: Vec<JavaImport>,
@@ -207,6 +208,7 @@ impl JavaClassBuilder {
             annotations: vec![],
             visibility: JavaVisibility::Package,
             is_static: false,
+            is_final: false,
             is_abstract: false,
             extended_class: Vec::new(),
             implemented_interfaces: vec![],
@@ -232,6 +234,11 @@ impl JavaClassBuilder {
     }
     pub fn is_static(&mut self, input: bool) -> &mut Self {
         self.is_static = input;
+        self
+    }
+
+    pub fn is_final(&mut self, input: bool) -> &mut Self {
+        self.is_final = input;
         self
     }
 
@@ -299,6 +306,7 @@ impl JavaClassBuilder {
             .annotations(self.annotations.to_owned())
             .visibility(self.visibility)
             .is_static(self.is_static)
+            .is_final(self.is_final)
             .is_abstract(self.is_abstract)
             .extended_classes(self.extended_class.to_owned())
             .implemented_interfaces(self.implemented_interfaces.to_owned())
@@ -492,7 +500,7 @@ mod tests {
 
     fn new_method_returning_offset_date_time() -> JavaMethod {
         JavaMethod::builder()
-            .return_type(java_time_factory::create_offset_date_time())
+            .return_type(java_time_factory::_create_offset_date_time())
             .visibility(JavaVisibility::Public)
             .name("newInsertedMethod")
             .build()
