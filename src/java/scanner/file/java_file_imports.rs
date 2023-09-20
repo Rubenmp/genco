@@ -11,22 +11,14 @@ pub(crate) struct JavaFileImports {
 #[derive(Debug)]
 pub(crate) struct JavaFileImport {
     import: JavaImport,
-    // TODO: need research to check if this "Option<usize>" can be just "usize"
-    file_end_byte_opt: Option<usize>,
+    file_end_byte: usize,
 }
 
 impl JavaFileImport {
     fn new(import: JavaImport, file_end_byte: usize) -> Self {
         Self {
             import,
-            file_end_byte_opt: Some(file_end_byte),
-        }
-    }
-
-    fn from(import: JavaImport) -> Self {
-        Self {
-            import,
-            file_end_byte_opt: None,
+            file_end_byte,
         }
     }
 }
@@ -130,13 +122,11 @@ impl JavaFileImports {
             .chain(self.wildcard_imports.iter())
         {
             if let Some(current_result) = result {
-                if let Some(file_end_byte) = import.file_end_byte_opt {
-                    if current_result < file_end_byte {
-                        result = import.file_end_byte_opt;
-                    }
+                if current_result < import.file_end_byte {
+                    result = Some(import.file_end_byte);
                 }
             } else {
-                result = import.file_end_byte_opt;
+                result = Some(import.file_end_byte);
             }
         }
 
@@ -154,23 +144,6 @@ impl JavaFileImports {
     #[cfg(test)]
     pub(crate) fn count(&self) -> usize {
         self.explicit_imports.len() + self.wildcard_imports.len()
-    }
-
-    #[cfg(test)]
-    fn insert_raw(&mut self, import: JavaImport) {
-        if import.is_explicit_import() {
-            self.explicit_imports.push(JavaFileImport::from(import));
-        } else if import.is_wildcard_import() {
-            logger::log_unrecoverable_error(
-                format!("Wildcard imports are not supported yet\n\"{}\"", import).as_str(),
-            );
-            self.wildcard_imports.push(JavaFileImport::from(import));
-        } else {
-            logger::log_unrecoverable_error(&format!(
-                "Invalid java import:\n\"{:?}\"",
-                import.to_string()
-            ));
-        }
     }
 }
 
@@ -219,7 +192,8 @@ mod tests {
 
     fn insert_imports(import_scan: &mut JavaFileImports, imports: &Vec<JavaImport>) {
         for import in imports {
-            import_scan.insert_raw(import.to_owned())
+            let irrelevant_import_end_byte_for_test_stub = 0;
+            import_scan.insert(import.to_owned(), irrelevant_import_end_byte_for_test_stub);
         }
     }
 }
