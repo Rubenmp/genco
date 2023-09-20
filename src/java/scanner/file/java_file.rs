@@ -116,9 +116,8 @@ impl JavaFile {
     pub(crate) fn insert_method(&mut self, method: &JavaMethod) -> Result<JavaFile, String> {
         // TODO: validate if java_file changed before inserting method (still exist?)
         let mut to_overwrite = FileOverwriting::new(self.get_file_path());
-        let method_imports = method.get_imports();
         let mut byte_to_insert_first_import_opt = None;
-        if method_imports.is_empty() {
+        if self.get_file_imports().is_empty() {
             match self.get_byte_to_insert_first_import() {
                 Ok(result_byte) => byte_to_insert_first_import_opt = Some(result_byte),
                 Err(err) => {
@@ -128,9 +127,9 @@ impl JavaFile {
         }
         self.imports.add_missing_imports(
             &mut to_overwrite,
-            method_imports,
+            method.get_imports(),
             byte_to_insert_first_import_opt,
-        );
+        )?;
         //todo!();
         // Add java_method to to_overwrite variable;
 

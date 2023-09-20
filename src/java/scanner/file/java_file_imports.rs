@@ -1,4 +1,5 @@
 use crate::core::file_system::file_overwriting::file_overwriter::FileOverwriting;
+use crate::core::file_system::path_helper::try_to_absolute_path;
 use crate::core::observability::logger;
 use crate::java::dto::java_import::JavaImport;
 
@@ -33,16 +34,6 @@ impl JavaFileImports {
 
     pub(crate) fn is_empty(&self) -> bool {
         self.explicit_imports.is_empty() && self.wildcard_imports.is_empty()
-    }
-
-    /// TODO: actually sorting
-    pub(crate) fn get_imports_sorted_asc(&self) -> Vec<JavaImport> {
-        let mut result = self.get_explicit_imports().clone();
-        for import in self.get_wildcard_imports().iter().cloned() {
-            result.push(import);
-        }
-
-        get_sorted_asc(result)
     }
 
     fn get_wildcard_imports(&self) -> Vec<JavaImport> {
@@ -94,7 +85,7 @@ impl JavaFileImports {
         to_overwrite: &mut FileOverwriting,
         imports_to_add: Vec<JavaImport>,
         byte_to_insert_first_import_opt: Option<usize>,
-    ) {
+    ) -> Result<(), String> {
         let sorted_imports_to_add = get_sorted_asc(imports_to_add);
         let last_import_end_byte_opt = self.get_last_import_end_byte();
 
@@ -105,12 +96,20 @@ impl JavaFileImports {
                     &import_to_add.to_string(),
                 )
             } else if let Some(byte_to_insert_first_import) = byte_to_insert_first_import_opt {
+                to_overwrite
+                    .insert_content_with_previous_newline_at(byte_to_insert_first_import, "");
                 to_overwrite.insert_content_with_previous_newline_at(
                     byte_to_insert_first_import,
                     &import_to_add.to_string(),
-                )
+                );
+            } else {
+                return Err(format!(
+                    "It was not possible to add import to file:\n{}\n",
+                    try_to_absolute_path(to_overwrite.get_file_path())
+                ));
             }
         }
+        Ok(())
     }
 
     fn get_last_import_end_byte(&self) -> Option<usize> {
