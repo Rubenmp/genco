@@ -32,15 +32,6 @@ impl JavaFileImport {
 }
 
 impl JavaFileImports {
-    pub(crate) fn from(input_imports: Vec<JavaImport>) -> Self {
-        let mut result = Self::new();
-        for input_import in input_imports {
-            result.insert_raw(input_import);
-        }
-
-        result
-    }
-
     pub(crate) fn new() -> Self {
         JavaFileImports {
             explicit_imports: Vec::new(),
@@ -106,22 +97,6 @@ impl JavaFileImports {
         }
     }
 
-    fn insert_raw(&mut self, import: JavaImport) {
-        if import.is_explicit_import() {
-            self.explicit_imports.push(JavaFileImport::from(import));
-        } else if import.is_wildcard_import() {
-            logger::log_unrecoverable_error(
-                format!("Wildcard imports are not supported yet\n\"{}\"", import).as_str(),
-            );
-            self.wildcard_imports.push(JavaFileImport::from(import));
-        } else {
-            logger::log_unrecoverable_error(&format!(
-                "Invalid java import:\n\"{:?}\"",
-                import.to_string()
-            ));
-        }
-    }
-
     pub(crate) fn add_missing_imports(
         &self,
         to_overwrite: &mut FileOverwriting,
@@ -170,7 +145,7 @@ impl JavaFileImports {
 }
 
 /// TODO: sort in alphabetically ascending order
-fn get_sorted_asc(result: Vec<JavaImport>) -> Vec<JavaImport> {
+pub(crate) fn get_sorted_asc(result: Vec<JavaImport>) -> Vec<JavaImport> {
     result.to_vec()
 }
 
@@ -179,6 +154,23 @@ impl JavaFileImports {
     #[cfg(test)]
     pub(crate) fn count(&self) -> usize {
         self.explicit_imports.len() + self.wildcard_imports.len()
+    }
+
+    #[cfg(test)]
+    fn insert_raw(&mut self, import: JavaImport) {
+        if import.is_explicit_import() {
+            self.explicit_imports.push(JavaFileImport::from(import));
+        } else if import.is_wildcard_import() {
+            logger::log_unrecoverable_error(
+                format!("Wildcard imports are not supported yet\n\"{}\"", import).as_str(),
+            );
+            self.wildcard_imports.push(JavaFileImport::from(import));
+        } else {
+            logger::log_unrecoverable_error(&format!(
+                "Invalid java import:\n\"{:?}\"",
+                import.to_string()
+            ));
+        }
     }
 }
 

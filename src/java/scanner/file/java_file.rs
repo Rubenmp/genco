@@ -24,15 +24,8 @@ pub(crate) struct JavaFile {
 
 impl JavaFile {
     pub(crate) fn write(file: &Path, input_structure: JavaStructure) -> Result<Self, String> {
-        let imports = JavaFileImports::from(input_structure.get_imports());
-
-        let result_file = Self {
-            file: file.to_path_buf(),
-            imports,
-            structure: input_structure,
-        };
-
-        result_file.write_to_file()?;
+        let imports = input_structure.get_imports_sorted_asc();
+        Self::write_to_file_internal(&file, &imports, &input_structure)?;
 
         JavaFile::from_user_input_path(file)
     }
@@ -101,64 +94,19 @@ impl JavaFile {
     /// Export java structure into a specific directory "export_directory"
     /// that must be inside a java project, creating a java file with
     /// the name of the structure.
-    pub(crate) fn write_to_file(&self) -> Result<(), String> {
-        self.validate_output_file()?;
-        let mut result = self.write_package();
-        self.write_imports(&mut result);
+    fn write_to_file_internal(
+        file_path: &Path,
+        java_file_imports: &Vec<JavaImport>,
+        structure: &JavaStructure,
+    ) -> Result<(), String> {
+        validate_output_file(file_path)?;
+        let mut result = write_package(file_path);
+        write_imports(&mut result, java_file_imports);
 
-        result += self.get_structure().get_skeleton_without_imports().as_str();
-        self.get_structure().write_body(&mut result);
-        self.write_to_file_internal(&mut result);
+        result += structure.get_skeleton_without_imports().as_str();
+        structure.write_body(&mut result);
+        write_to_file_internal(file_path, &result);
         Ok(())
-    }
-
-    fn write_package(&self) -> String {
-        let mut result = "package ".to_string();
-        result += java_package_scanner::get_package_from_dir(&self.get_dir()).as_str();
-        result += ";\n\n";
-        result
-    }
-
-    fn get_dir(&self) -> PathBuf {
-        let mut path = self.get_file_path().clone();
-        path.pop();
-        path.to_owned()
-    }
-
-    fn validate_output_file(&self) -> Result<(), String> {
-        let file = self.get_file_path();
-        if file.exists() && file.is_dir() {
-            return Err(format!(
-                "expecting an output file but a dir was found:\n{}\n",
-                path_helper::try_to_absolute_path(file)
-            ));
-        }
-
-        Ok(())
-    }
-
-    fn write_imports(&self, result: &mut String) {
-        let imports: Vec<JavaImport> = self.get_file_imports().get_imports_sorted_asc();
-
-        for import in &imports {
-            *result += import.to_string().as_str();
-            *result += "\n";
-        }
-        if !imports.is_empty() {
-            *result += "\n";
-        }
-    }
-
-    fn write_to_file_internal(&self, result: &mut str) {
-        let file_path = self.get_file_path();
-        if file_path.exists() && file_path.is_file() {
-            file_creator::remove_file_if_exists(file_path);
-        }
-
-        file_creator::create_file_if_not_exist(file_path);
-        let mut overwriting = FileOverwriting::new(file_path);
-        overwriting.append(result);
-        overwriting.write_all();
     }
 
     pub(crate) fn get_file_path(&self) -> &PathBuf {
@@ -272,6 +220,51 @@ impl JavaFile {
 
         Err("It was not possible to determine the position of the new java import".to_string())
     }
+}
+
+fn validate_output_file(file: &Path) -> Result<(), String> {
+    if file.exists() && file.is_dir() {
+        return Err(format!(
+            "expecting an output file but a dir was found:\n{}\n",
+            path_helper::try_to_absolute_path(file)
+        ));
+    }
+
+    Ok(())
+}
+
+fn write_package(file_path: &Path) -> String {
+    let mut result = "package ".to_string();
+    result += java_package_scanner::get_package_from_dir(&get_dir(file_path)).as_str();
+    result += ";\n\n";
+    result
+}
+
+fn write_imports(result: &mut String, imports: &Vec<JavaImport>) {
+    for import in imports {
+        *result += import.to_string().as_str();
+        *result += "\n";
+    }
+    if !imports.is_empty() {
+        *result += "\n";
+    }
+}
+
+fn write_to_file_internal(file_path: &Path, result: &str) {
+    if file_path.exists() && file_path.is_file() {
+        file_creator::remove_file_if_exists(file_path);
+    }
+
+    file_creator::create_file_if_not_exist(file_path);
+    let mut overwriting = FileOverwriting::new(file_path);
+    overwriting.append(result);
+    overwriting.write_all();
+}
+
+fn get_dir(input_path: &Path) -> PathBuf {
+    let mut path = input_path.to_path_buf();
+    path.pop();
+    path.to_owned()
 }
 
 fn get_nodes_content(import_decl_node: JavaNode) -> String {
