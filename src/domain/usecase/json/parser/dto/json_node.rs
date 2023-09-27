@@ -9,12 +9,11 @@ use crate::core::parser::parser_node_trait::ParserNode;
 use crate::domain::usecase::json::parser::dto::json_node_type::JsonNodeType;
 
 #[derive(Debug, Clone)]
-pub struct JsonNode {
+pub(crate) struct JsonNode {
     file_path: PathBuf,
     start_byte: usize,
     end_byte: usize,
     children: Vec<JsonNode>,
-    _type_str: String,
     node_type: Option<JsonNodeType>,
 }
 
@@ -30,7 +29,6 @@ impl JsonNode {
             start_byte: node.start_byte(),
             end_byte: node.end_byte(),
             children,
-            _type_str: node.kind().to_string(),
             node_type: match JsonNodeType::from_str(node.kind()) {
                 Ok(v) => Some(v),
                 Err(_e) => panic!("Not possible to parse YamlNode: {}", node.kind()),
@@ -39,7 +37,7 @@ impl JsonNode {
     }
 }
 
-impl ParserNode for JsonNode {
+impl ParserNode<JsonNodeType> for JsonNode {
     fn new(file_path: &Path) -> Result<Self, String> {
         let file_path_str = file_path.to_str().unwrap();
         let file_content = fs::read_to_string(file_path_str).unwrap_or_else(|_| {
@@ -66,7 +64,7 @@ impl ParserNode for JsonNode {
         self.file_path.as_path()
     }
 
-    fn get_children_boxes(&self) -> Vec<Box<JsonNode>> {
+    fn get_children(&self) -> Vec<Box<JsonNode>> {
         let mut node_refs = Vec::new();
         for child in self.children.clone() {
             node_refs.push(Box::new(child.clone()));
@@ -74,9 +72,9 @@ impl ParserNode for JsonNode {
         node_refs
     }
 
-    fn get_node_type_str(&self) -> Option<String> {
+    fn get_node_type(&self) -> Option<JsonNodeType> {
         if let Some(node_type) = &self.node_type {
-            return Some(node_type.to_string());
+            return Some(node_type.to_owned());
         }
         None
     }
@@ -103,7 +101,7 @@ impl ParserNode for JsonNode {
 
 impl JsonNode {
     pub fn get_node_type(&self) -> Option<JsonNodeType> {
-        self.node_type.clone()
+        self.node_type
     }
 
     pub fn get_children(&self) -> &Vec<JsonNode> {

@@ -1,4 +1,4 @@
-use crate::java::parser::dto::java_node::JavaNode;
+use crate::java::parser::java_node::JavaNode;
 
 #[derive(Debug, Copy, Clone)]
 pub struct JavaExpression {}

@@ -1,4 +1,4 @@
 mod dependency;
 pub mod dto;
-pub(crate) mod parser;
+mod parser;
 pub mod scanner;

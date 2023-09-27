@@ -1,4 +1,4 @@
-use std::fmt::Write;
+use std::fmt::{Display, Write};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::Path;
@@ -7,20 +7,21 @@ use crate::core::file_system::file_reader;
 use crate::core::parser::string_helper;
 use crate::core::parser::string_helper::escape_str_for_json;
 
-pub trait ParserNode: Sized {
-    fn new(_file_path: &Path) -> Result<Self, String>;
+pub(crate) trait ParserNode<NodeType: Display + PartialEq + Copy>: Sized {
+    fn new(file_path: &Path) -> Result<Self, String>;
 
     fn get_start_byte(&self) -> usize;
     fn get_end_byte(&self) -> usize;
     fn get_file_path(&self) -> &Path;
-    fn get_children_boxes(&self) -> Vec<Box<Self>>;
-    fn get_node_type_str(&self) -> Option<String>;
+    fn get_children(&self) -> Vec<Box<Self>>;
+    fn get_node_type(&self) -> Option<NodeType>;
 
     #[allow(unused)]
     fn print_tree_and_panic(&self) {
         println!("{}", self.get_tree_str());
         panic!("Finished");
     }
+
     fn get_tree_str(&self) -> String {
         self.get_tree_str_internal(0, 1, false)
     }
@@ -39,8 +40,8 @@ pub trait ParserNode: Sized {
         tree_str.push_str(&"  ".repeat(depth + 1));
 
         let type_str: String;
-        if let Some(node_type_str) = self.get_node_type_str() {
-            type_str = node_type_str;
+        if let Some(node_type_str) = self.get_node_type() {
+            type_str = node_type_str.to_string();
         } else {
             type_str = "UnknownType".to_string();
         }
@@ -59,7 +60,7 @@ pub trait ParserNode: Sized {
             write!(tree_str, "\"{}. {}\"", current_child_index, type_str).unwrap();
         }
 
-        let children = self.get_children_boxes();
+        let children = self.get_children();
         if self.is_printable() {
             tree_str.push_str(": ");
             tree_str.push_str(&format!(
@@ -136,5 +137,20 @@ pub trait ParserNode: Sized {
         );
 
         string_helper::to_str(&buffer)
+    }
+
+    /// Depth First Search
+    fn depth_first_search_first_with_type(self, node_type: NodeType) -> Option<Box<Self>> {
+        if Some(node_type) == self.get_node_type() {
+            return Some(Box::new(self));
+        }
+
+        for child in self.get_children() {
+            if let Some(sub_node_search) = child.depth_first_search_first_with_type(node_type) {
+                return Some(sub_node_search);
+            }
+        }
+
+        None
     }
 }

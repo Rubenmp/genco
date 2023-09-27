@@ -13,8 +13,8 @@ use crate::java::dto::java_interface::JavaInterface;
 use crate::java::dto::java_method::JavaMethod;
 use crate::java::dto::java_visibility::JavaVisibility;
 use crate::java::dto::{java_annotation_usage, java_visibility};
-use crate::java::parser::dto::java_node::JavaNode;
-use crate::java::parser::dto::java_node_type::JavaNodeType;
+use crate::java::parser::java_node::JavaNode;
+use crate::java::parser::java_node_type::JavaNodeType;
 use crate::java::scanner::file::java_file_imports;
 use crate::java::scanner::file::java_file_imports::JavaFileImports;
 use crate::java::scanner::file::java_structure_type::JavaStructureType;
@@ -60,6 +60,7 @@ impl JavaStructure {
         new_structure_internal(root_struct_decl_node, file_imports, input_java_file, true)
     }
 
+    /// TODO: Make structure unaware of its file
     pub(crate) fn get_file(&self) -> &PathBuf {
         &self.file
     }

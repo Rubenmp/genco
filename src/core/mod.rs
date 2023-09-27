@@ -1,9 +1,9 @@
 #![allow(dead_code)]
 
-pub mod asynchronous;
-pub mod database;
-pub mod file_system;
-pub mod observability;
-pub mod parser;
-pub mod testing;
-pub mod user_input;
+pub(crate) mod asynchronous;
+pub(crate) mod database;
+pub(crate) mod file_system;
+pub(crate) mod observability;
+pub(crate) mod parser;
+pub(crate) mod testing;
+pub(crate) mod user_input;

@@ -1,8 +1,8 @@
 use std::collections::HashMap;
-use std::path::PathBuf;
+use std::path::Path;
 
-use crate::core::file_system::file_creation::file_creator;
 use crate::core::file_system::file_overwriting::file_overwriter::FileOverwriting;
+use crate::core::file_system::file_system_editor_buffer::FileSystemEditorBuffer;
 use crate::core::parser::parser_node_trait::ParserNode;
 use crate::yaml::parser::dto::yaml_node::YamlNode;
 use crate::yaml::parser::dto::yaml_node_type::YamlNodeType;
@@ -12,20 +12,28 @@ use crate::yaml::parser::yaml_parser::parse;
 /// [to_add_yaml_file]. In case of YAML properties collision, the previous properties in
 /// [original_yaml_file] will be overwritten with the file_overwriting value(s).
 /// It panics if the resource does not contain a valid YAML structure.
-pub fn overwrite(original_yaml_file: &PathBuf, to_add_yaml_file: &PathBuf) {
+pub fn overwrite(original_yaml_file: &Path, to_add_yaml_file: &Path) {
     // TODO: check original_yaml_file extension
-    file_creator::create_file_if_not_exist(original_yaml_file);
+
+    let mut fs_buffer = FileSystemEditorBuffer::new();
+    fs_buffer
+        .create_empty_file_if_not_exist(original_yaml_file)
+        .expect("Yaml file was not overwritten");
+
     let yaml_original = parse(original_yaml_file);
     let yaml_to_add = parse(to_add_yaml_file);
 
-    write_yaml(&yaml_original, &yaml_to_add);
+    let mut overwriting = get_yaml_overwriting(&yaml_original, &yaml_to_add);
+    fs_buffer
+        .write_all(&mut overwriting)
+        .expect("Yaml must be written");
 }
 
-fn write_yaml(original: &YamlNode, to_add: &YamlNode) {
-    let mut overwriting = FileOverwriting::new(original.get_file_path());
+fn get_yaml_overwriting(original: &YamlNode, to_add: &YamlNode) -> FileOverwriting {
+    let mut overwriting = FileOverwriting::from_path(original.get_file_path())
+        .expect("Original yaml file to overwrite must exist");
     include_nodes_to_overwrite(&mut overwriting, original, to_add, 0);
-
-    overwriting.write_all();
+    overwriting
 }
 
 // Requires file_overwriting line: BlockMappingPair, BlockScalar
@@ -318,7 +326,7 @@ mod tests {
     use std::fs;
     use std::path::PathBuf;
 
-    use crate::core::file_system::file_creation::file_creator::{
+    use crate::core::file_system::file_edition::file_editor::{
         create_file_with_content, remove_file_if_exists,
     };
     use crate::core::testing::test_assert::assert_same_as_file;
@@ -330,17 +338,19 @@ mod tests {
         let original_file_path = get_yaml_test_file("overwrite_base.yaml");
         let file_to_add_path = get_yaml_test_file("overwrite_base_to_add.yaml");
         let copy_file_path = get_yaml_test_file("overwrite_base_copy.yaml");
-        create_file_with_content(&copy_file_path, &original_file_path);
+        create_file_with_content(&copy_file_path, &original_file_path)
+            .expect("File should be created");
 
         overwrite(&original_file_path, &file_to_add_path);
 
         let result_data = fs::read_to_string(&original_file_path)
             .expect("Unable to read expected result resource");
-        create_file_with_content(&original_file_path, &copy_file_path);
+        create_file_with_content(&original_file_path, &copy_file_path)
+            .expect("File should be created");
 
         let expect_result_file_path = get_yaml_test_file("overwrite_base_expected_result.yaml");
         assert_same_as_file(&expect_result_file_path, &result_data);
-        remove_file_if_exists(&copy_file_path);
+        remove_file_if_exists(&copy_file_path).expect("Result file should be removed");
     }
 
     #[test]
@@ -348,18 +358,20 @@ mod tests {
         let original_file_path = get_yaml_test_file("overwrite_new_hyphen_item.yaml");
         let file_to_add_path = get_yaml_test_file("overwrite_new_hyphen_item_to_add.yaml");
         let copy_file_path = get_yaml_test_file("overwrite_new_hyphen_item_copy.yaml");
-        create_file_with_content(&copy_file_path, &original_file_path);
+        create_file_with_content(&copy_file_path, &original_file_path)
+            .expect("File should be created");
 
         overwrite(&original_file_path, &file_to_add_path);
 
         let result_data = fs::read_to_string(&original_file_path)
             .expect("Unable to read expected result resource");
-        create_file_with_content(&original_file_path, &copy_file_path);
+        create_file_with_content(&original_file_path, &copy_file_path)
+            .expect("File should be created");
 
         let expect_result_file_path =
             get_yaml_test_file("overwrite_new_hyphen_item_expected_result.yaml");
         assert_same_as_file(&expect_result_file_path, &result_data);
-        remove_file_if_exists(&copy_file_path);
+        remove_file_if_exists(&copy_file_path).expect("Result file should be removed");
     }
 
     fn get_current_file_path() -> PathBuf {

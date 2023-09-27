@@ -26,8 +26,9 @@ impl JavaInterface {
     /// use std::env;
     /// use genco::java::dto::java_interface::JavaInterface;
     ///
-    /// let dir = &env::current_dir().unwrap().join("doc").join("test");
+    /// let dir = &env::current_dir().unwrap().join("doc/test/java/interface/src/main/java/org/test");
     /// let java_interface = JavaInterface::builder().folder(dir).name("InterfaceName").build();
+    /// java_interface.expect("Java interface must be created");
     /// ```
     pub fn builder() -> JavaInterfaceBuilder {
         JavaInterfaceBuilder::new_builder()
@@ -112,12 +113,16 @@ impl JavaInterface {
     }
 
     pub(crate) fn get_structure(&self) -> &JavaStructure {
-        self.scanned_file.get_structure()
+        self.get_scanned_file().get_structure()
+    }
+
+    fn get_scanned_file(&self) -> &JavaFile {
+        &self.scanned_file
     }
 
     #[cfg(test)]
     pub(crate) fn get_file(&self) -> &PathBuf {
-        self.get_structure().get_file()
+        self.get_scanned_file().get_file_path()
     }
 
     #[cfg(test)]
@@ -185,6 +190,9 @@ impl JavaInterfaceBuilder {
         self
     }
 
+    /// # build
+    /// Create java interface writing it into a file.
+    /// This method does not create the folder structure.
     pub fn build(&mut self) -> Result<JavaInterface, String> {
         let minimal_build_usage =
             "JavaInterface::builder()\n\t.folder(/* Mandatory folder */)\n\t.name(/* Interface name */)\n\t.build()";
@@ -238,7 +246,7 @@ impl JavaInterfaceBuilder {
 mod tests {
     use std::path::PathBuf;
 
-    use crate::core::file_system::file_creation::file_creator::remove_file_if_exists;
+    use crate::core::file_system::file_edition::file_editor::remove_file_if_exists;
     use crate::core::testing::test_assert::{assert_fail, assert_same_file};
     use crate::core::testing::test_path;
     use crate::java::dto::java_interface::JavaInterface;
@@ -254,7 +262,7 @@ mod tests {
         match JavaInterface::builder().folder(&folder).name(name).build() {
             Ok(interface) => {
                 assert_same_file(&expected_file_content, &file_path);
-                remove_file_if_exists(&file_path);
+                remove_file_if_exists(&file_path).expect("Result file should be removed");
                 assert_eq!(name, interface.get_name());
                 assert_eq!(&file_path, interface.get_file());
                 assert_eq!(0, interface.get_annotations().len());

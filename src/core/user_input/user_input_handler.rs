@@ -2,7 +2,7 @@ use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use crate::core::file_system::file_creation::file_creator::create_file_with_content;
+use crate::core::file_system::file_edition::file_editor::create_file_with_content;
 use crate::core::file_system::file_overwriting::file_overwriter::FileOverwriting;
 use crate::core::file_system::file_reader::read_string;
 use crate::core::user_input::cli_query;
@@ -50,15 +50,12 @@ impl UserInput {
         }
     }
 
-    pub fn write_output(&self, input_file: &Path, output_file: &Path) {
-        let mut file_overwriting = self.generate_file_overwriting(input_file, output_file);
-        file_overwriting.write_all_to_file(output_file);
-    }
-
     // TODO: update structure (?)
     fn generate_file_overwriting(&self, input_file: &Path, output_file: &Path) -> FileOverwriting {
-        create_file_with_content(output_file, input_file);
-        let mut result = FileOverwriting::new(output_file);
+        create_file_with_content(output_file, input_file)
+            .expect("create_file_with_content must succeed");
+        let mut result =
+            FileOverwriting::from_path(output_file).expect("FileOverwriting must be created");
         for variable_usage in self.get_variables().values() {
             for instantiation in variable_usage.get_instantiations() {
                 let bytes = instantiation.get_bytes();

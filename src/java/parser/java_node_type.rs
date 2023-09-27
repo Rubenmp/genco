@@ -1,8 +1,8 @@
 use std::fmt;
 use std::str::FromStr;
 
-#[derive(Debug, PartialEq, Eq, Clone)]
-pub enum JavaNodeType {
+#[derive(Debug, PartialEq, Eq, Copy, Clone)]
+pub(crate) enum JavaNodeType {
     // Modularization
     Program,
     PackageDecl,
@@ -339,6 +339,16 @@ pub enum JavaNodeType {
     LessThan,
     // <
     GreaterThan, // >
+}
+
+// Public crate methods
+impl JavaNodeType {
+    pub(crate) fn is_structure(&self) -> bool {
+        let unreferenced = *self;
+        JavaNodeType::ClassDecl == unreferenced
+            || JavaNodeType::InterfaceDeclaration == unreferenced
+            || JavaNodeType::EnumDeclaration == unreferenced
+    }
 }
 
 impl FromStr for JavaNodeType {

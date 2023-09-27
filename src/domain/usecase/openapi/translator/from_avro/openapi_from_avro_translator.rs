@@ -118,7 +118,7 @@ pub fn to_data_type(avro_item_type: &AvroItemType) -> OpenapiDataType {
 mod tests {
     use std::path::PathBuf;
 
-    use crate::core::file_system::file_creation::file_creator;
+    use crate::core::file_system::file_edition::file_editor;
     use crate::core::testing::test_assert::assert_same_as_file;
     use crate::core::testing::test_path::{get_non_existing_test_file, get_test_file};
     use crate::domain::usecase::avro::parser::avro_parser;
@@ -174,7 +174,8 @@ mod tests {
 
         let result_file_path =
             get_non_existing_test_file(get_current_file_path(), "test_translated_to_openapi.yaml");
-        file_creator::create_file_if_not_exists_with_content(&result_file_path, &openapi_str);
+        file_editor::create_or_replace_file_with_bytes(&result_file_path, &openapi_str.as_bytes())
+            .expect("File creation must succeed");
     }
 
     fn get_current_file_path() -> PathBuf {

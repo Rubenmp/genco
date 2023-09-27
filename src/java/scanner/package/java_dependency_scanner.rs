@@ -10,6 +10,9 @@ use crate::core::database::model::java_import_route::{
 use crate::core::file_system::path_helper::try_to_absolute_path;
 use crate::java::scanner::package::java_package_scanner;
 
+/// TODO: optimize this, do not scan previously scanned dirs
+/// - Current approach: rescan always
+/// - Is it possible to detect any change within a directory to avoid rescan?
 pub(crate) fn recursive_scan_dir_unchecked(base_java_project_dir: &Path) {
     recursive_scan(base_java_project_dir);
 }

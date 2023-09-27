@@ -10,9 +10,9 @@ use crate::java::dto::java_import::JavaImport;
 use crate::java::dto::java_indentation_config::JavaIndentation;
 use crate::java::dto::java_visibility::JavaVisibility;
 use crate::java::dto::{java_annotation_usage, java_visibility};
-use crate::java::parser::dto::java_node::JavaNode;
-use crate::java::parser::dto::java_node_type;
-use crate::java::parser::dto::java_node_type::JavaNodeType;
+use crate::java::parser::java_node::JavaNode;
+use crate::java::parser::java_node_type;
+use crate::java::parser::java_node_type::JavaNodeType;
 use crate::java::scanner::file::java_file_imports::JavaFileImports;
 
 #[derive(Debug, Clone)]

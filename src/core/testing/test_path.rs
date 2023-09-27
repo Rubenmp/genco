@@ -4,7 +4,7 @@
 
 use std::path::{Path, PathBuf};
 
-pub fn get_test_dir(current_file: PathBuf, name: &str) -> PathBuf {
+pub(crate) fn get_test_dir(current_file: PathBuf, name: &str) -> PathBuf {
     let mut path = get_test_dir_raw(current_file);
     path.push(name);
 
@@ -16,14 +16,14 @@ pub fn get_test_dir(current_file: PathBuf, name: &str) -> PathBuf {
     path
 }
 
-pub fn get_test_dir_raw(current_file: PathBuf) -> PathBuf {
+pub(crate) fn get_test_dir_raw(current_file: PathBuf) -> PathBuf {
     let mut path = current_file;
     path.pop();
     path.push("test");
     path
 }
 
-pub fn get_test_file(current_file: PathBuf, name: &str) -> PathBuf {
+pub(crate) fn get_test_file(current_file: PathBuf, name: &str) -> PathBuf {
     let path = get_non_existing_test_file(current_file, name);
 
     if !path.exists() {
@@ -34,14 +34,14 @@ pub fn get_test_file(current_file: PathBuf, name: &str) -> PathBuf {
     path
 }
 
-pub fn get_non_existing_test_file(current_file: PathBuf, name: &str) -> PathBuf {
+pub(crate) fn get_non_existing_test_file(current_file: PathBuf, name: &str) -> PathBuf {
     let mut path = current_file;
     path.pop();
     path.join("test").join(name)
 }
 
 // Java
-pub fn get_java_test_file(
+pub(crate) fn get_java_test_file(
     current_dir: PathBuf,
     test_folder: &str,
     java_file_name: &str,
@@ -50,7 +50,7 @@ pub fn get_java_test_file(
     path.join(java_file_name)
 }
 
-pub fn get_java_project_test_folder(current_file: PathBuf, test_folder: &str) -> PathBuf {
+pub(crate) fn get_java_project_test_folder(current_file: PathBuf, test_folder: &str) -> PathBuf {
     let mut path = get_test_dir_raw(current_file);
 
     include_path_to_main_java_folder(&mut path, test_folder);

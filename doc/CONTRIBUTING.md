@@ -5,5 +5,7 @@ Inside the project main folder, add a file in the root ".git/hook/pre-commit" wi
 ```bash
 #!/bin/sh
 
-cargo fmt
+cargo fix --allow-dirty --allow-staged > /dev/null 2>&1
+cargo fmt > /dev/null 2>&1
+git add .
 ```

@@ -1,6 +1,6 @@
 use std::fmt;
 
-use crate::java::parser::dto::java_node_type::JavaNodeType;
+use crate::java::parser::java_node_type::JavaNodeType;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum JavaVisibility {

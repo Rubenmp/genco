@@ -1,17 +1,43 @@
 use std::fs;
-use std::fs::OpenOptions;
+use std::fs::{File, OpenOptions};
 use std::io::{BufReader, Read, Seek, SeekFrom};
 use std::path::Path;
 use std::str;
 
 use crate::core::file_system::path_helper::try_to_absolute_path;
 
-pub fn read_to_string(file: &Path) -> String {
+pub(crate) fn read_all_bytes(file_path: &Path) -> Result<Vec<u8>, String> {
+    let mut file = open_file_to_read(file_path)?;
+    let file_bytes = get_number_of_bytes(file_path)?;
+
+    let mut input_buffer = Vec::with_capacity(file_bytes);
+    file.read_to_end(&mut input_buffer).map_err(|e| {
+        format!(
+            "Can not read file ({}):\n{}\n",
+            e,
+            try_to_absolute_path(file_path)
+        )
+    })?;
+    Ok(input_buffer)
+}
+
+pub(crate) fn open_file_to_read(file: &Path) -> Result<File, String> {
+    match OpenOptions::new().read(true).write(false).open(file) {
+        Ok(file) => Ok(file),
+        Err(err) => Err(format!(
+            "File can not be opened to read ({}):\n\"{}\"\n",
+            err,
+            try_to_absolute_path(file)
+        )),
+    }
+}
+
+pub(crate) fn read_to_string(file: &Path) -> String {
     fs::read_to_string(file)
         .unwrap_or_else(|_| panic!("Unable to read file:\n{}\n", try_to_absolute_path(file)))
 }
 
-pub fn read_string(file: &Path, start_byte: usize, end_byte: usize) -> String {
+pub(crate) fn read_string(file: &Path, start_byte: usize, end_byte: usize) -> String {
     let bytes = read_bytes(file, start_byte, end_byte);
     return match str::from_utf8(&bytes) {
         Ok(str) => str.to_string(),
@@ -19,7 +45,7 @@ pub fn read_string(file: &Path, start_byte: usize, end_byte: usize) -> String {
     };
 }
 
-pub fn read_bytes(file: &Path, start_byte: usize, end_byte: usize) -> Vec<u8> {
+pub(crate) fn read_bytes(file: &Path, start_byte: usize, end_byte: usize) -> Vec<u8> {
     let file = OpenOptions::new()
         .read(true)
         .write(true)
@@ -38,13 +64,22 @@ pub fn read_bytes(file: &Path, start_byte: usize, end_byte: usize) -> Vec<u8> {
     temporal_buffer
 }
 
-pub fn get_number_of_bytes_of(file: &Path) -> usize {
-    fs::metadata(file)
-        .unwrap_or_else(|_| {
-            panic!(
-                "Can not get bytes from file:\n{}\n",
-                try_to_absolute_path(file)
-            )
-        })
-        .len() as usize
+pub(crate) fn get_number_of_bytes(file: &Path) -> Result<usize, String> {
+    match fs::metadata(file) {
+        Ok(file) => Ok(file.len() as usize),
+        Err(err) => Err(format!(
+            "Can not get bytes from file ({}):\n{}\n",
+            err,
+            try_to_absolute_path(file)
+        )),
+    }
+}
+
+pub(crate) fn get_number_of_bytes_of(file: &Path) -> usize {
+    get_number_of_bytes(file).unwrap_or_else(|_| {
+        panic!(
+            "Can not get bytes from file:\n{}\n",
+            try_to_absolute_path(file)
+        )
+    })
 }

@@ -2,65 +2,6 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-pub fn get_dir_ending_with(input_path: &Path, ending: &str) -> Option<PathBuf> {
-    let paths_result = fs::read_dir(input_path).unwrap();
-
-    for dir_entry_result in paths_result {
-        match dir_entry_result {
-            Ok(dir_entry) => {
-                let path = dir_entry.path();
-                if path.is_dir() && path.to_string_lossy().ends_with(ending) {
-                    return Some(path);
-                }
-            }
-            Err(_e) => panic!("Error get_dir_ending_with"),
-        }
-    }
-
-    None
-}
-
-pub(crate) fn get_files_and_dirs(path: &Path) -> (Vec<PathBuf>, Vec<PathBuf>) {
-    let mut files = Vec::new();
-    let mut dirs = Vec::new();
-    for path in read_dir(path) {
-        if path.is_file() {
-            files.push(path);
-        } else if path.is_dir() {
-            dirs.push(path);
-        }
-    }
-
-    (files, dirs)
-}
-
-pub(crate) fn get_dir_map(path: &Path) -> HashMap<String, PathBuf> {
-    let mut result = HashMap::new();
-    for path in read_dir(path) {
-        if path.is_dir() && path.exists() {
-            if let Some(last_dir) = path.iter().last() {
-                result.insert(last_dir.to_string_lossy().to_string(), path);
-            }
-        }
-    }
-
-    result
-}
-
-pub fn get_dir(input_dir: &Path, dir_name: &str) -> Option<PathBuf> {
-    for path in read_dir(input_dir) {
-        if path.is_dir() {
-            if let Some(found_dir_name) = path.iter().last() {
-                if dir_name.eq(&found_dir_name.to_string_lossy()) {
-                    return Some(path);
-                }
-            }
-        }
-    }
-
-    None
-}
-
 pub(crate) fn read_dir(path: &Path) -> Vec<PathBuf> {
     if !path.exists() || !path.is_dir() {
         panic!("Error: expecting directory in {:?}", path);
@@ -78,7 +19,58 @@ pub(crate) fn read_dir(path: &Path) -> Vec<PathBuf> {
     result
 }
 
-pub(crate) fn check_dir_exist(input_dir: &Path, start_error_message: &str) {
+pub(crate) fn get_dir_of_file(input_path: &Path) -> PathBuf {
+    let mut path = input_path.to_path_buf();
+    path.pop();
+    path.to_owned()
+}
+
+fn get_dir_ending_with(input_path: &Path, ending: &str) -> Option<PathBuf> {
+    let paths_result = fs::read_dir(input_path).unwrap();
+
+    for dir_entry_result in paths_result {
+        match dir_entry_result {
+            Ok(dir_entry) => {
+                let path = dir_entry.path();
+                if path.is_dir() && path.to_string_lossy().ends_with(ending) {
+                    return Some(path);
+                }
+            }
+            Err(_e) => panic!("Error get_dir_ending_with"),
+        }
+    }
+
+    None
+}
+
+fn get_dir_map(path: &Path) -> HashMap<String, PathBuf> {
+    let mut result = HashMap::new();
+    for path in read_dir(path) {
+        if path.is_dir() && path.exists() {
+            if let Some(last_dir) = path.iter().last() {
+                result.insert(last_dir.to_string_lossy().to_string(), path);
+            }
+        }
+    }
+
+    result
+}
+
+fn get_dir(input_dir: &Path, dir_name: &str) -> Option<PathBuf> {
+    for path in read_dir(input_dir) {
+        if path.is_dir() {
+            if let Some(found_dir_name) = path.iter().last() {
+                if dir_name.eq(&found_dir_name.to_string_lossy()) {
+                    return Some(path);
+                }
+            }
+        }
+    }
+
+    None
+}
+
+fn check_dir_exist(input_dir: &Path, start_error_message: &str) {
     if !input_dir.exists() || !input_dir.is_dir() {
         panic!("{}: {:?}", start_error_message, input_dir)
     }

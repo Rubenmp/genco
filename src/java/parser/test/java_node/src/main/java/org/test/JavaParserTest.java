@@ -1,4 +1,4 @@
-package org.genco.java.javafileparser.Java_17_Maven_JavaParser_Parse_BasicTest.src.main.java.org.gencotest;
+package org.test;
 
 import java.io.File;
 import java.lang.annotation.ElementType;

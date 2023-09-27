@@ -12,7 +12,7 @@ use crate::core::parser::parser_node_trait::ParserNode;
 use crate::yaml::parser::dto::yaml_node_type::YamlNodeType;
 
 #[derive(Debug, Clone)]
-pub struct YamlNode {
+pub(crate) struct YamlNode {
     file_path: PathBuf,
     start_byte: usize,
     end_byte: usize,
@@ -56,7 +56,7 @@ impl YamlNode {
     }
 
     pub fn get_node_type(&self) -> Option<YamlNodeType> {
-        self.node_type.clone()
+        self.node_type
     }
 
     pub fn get_tree_with_bytes_str(&self) -> String {
@@ -64,7 +64,7 @@ impl YamlNode {
     }
 }
 
-impl ParserNode for YamlNode {
+impl ParserNode<YamlNodeType> for YamlNode {
     fn new(file_path: &Path) -> Result<Self, String> {
         let file_path_str = file_path.to_str().unwrap();
         let file_content = fs::read_to_string(file_path_str).unwrap_or_else(|_| {
@@ -91,7 +91,7 @@ impl ParserNode for YamlNode {
         self.file_path.as_path()
     }
 
-    fn get_children_boxes(&self) -> Vec<Box<Self>> {
+    fn get_children(&self) -> Vec<Box<Self>> {
         let mut node_refs = Vec::new();
         for child in self.children.clone() {
             node_refs.push(Box::new(child.clone()));
@@ -99,9 +99,9 @@ impl ParserNode for YamlNode {
         node_refs
     }
 
-    fn get_node_type_str(&self) -> Option<String> {
+    fn get_node_type(&self) -> Option<YamlNodeType> {
         if let Some(node_type) = &self.node_type {
-            return Some(node_type.to_string());
+            return Some(node_type.to_owned());
         }
         None
     }

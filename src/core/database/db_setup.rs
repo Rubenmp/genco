@@ -16,8 +16,8 @@ pub(crate) fn get_db_connection() -> Connection {
 
 fn db_initial_migration() {
     let conn = get_db_connection_without_migration_attempt();
-
-    let paths = fs::read_dir("./src/core/database/migrations").unwrap();
+    let paths = fs::read_dir("./src/core/database/migrations")
+        .expect("Database migrations path must exist");
 
     for path in paths {
         let file_path = path.unwrap().path();

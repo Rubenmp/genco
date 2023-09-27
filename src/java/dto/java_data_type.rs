@@ -4,8 +4,8 @@ use std::path::Path;
 use crate::core::file_system::path_helper::try_to_absolute_path;
 use crate::core::parser::parser_node_trait::ParserNode;
 use crate::java::dto::java_import::JavaImport;
-use crate::java::parser::dto::java_node::JavaNode;
-use crate::java::parser::dto::java_node_type::JavaNodeType;
+use crate::java::parser::java_node::JavaNode;
+use crate::java::parser::java_node_type::JavaNodeType;
 use crate::java::scanner::file::java_file::JavaFile;
 use crate::java::scanner::file::java_file_imports::JavaFileImports;
 

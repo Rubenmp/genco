@@ -24,7 +24,22 @@ impl JavaFileImport {
     }
 }
 
+// Public crate methods
 impl JavaFileImports {
+    pub(crate) fn get_file_string_with_trailing_newline(imports: &Vec<JavaImport>) -> String {
+        let mut result = "".to_string();
+
+        for import in imports {
+            result += import.to_string().as_str();
+            result += "\n";
+        }
+        if !imports.is_empty() {
+            result += "\n";
+        }
+
+        result
+    }
+
     pub(crate) fn new() -> Self {
         JavaFileImports {
             explicit_imports: Vec::new(),
@@ -34,13 +49,6 @@ impl JavaFileImports {
 
     pub(crate) fn is_empty(&self) -> bool {
         self.explicit_imports.is_empty() && self.wildcard_imports.is_empty()
-    }
-
-    fn get_explicit_imports(&self) -> Vec<JavaImport> {
-        self.explicit_imports
-            .iter()
-            .map(|file_import| file_import.import.to_owned())
-            .collect()
     }
 
     pub(crate) fn get_explicit_import(&self, type_id: &str) -> Result<JavaImport, String> {
@@ -98,11 +106,21 @@ impl JavaFileImports {
             } else {
                 return Err(format!(
                     "It was not possible to add import to file:\n{}\n",
-                    try_to_absolute_path(to_overwrite.get_file_path())
+                    try_to_absolute_path(to_overwrite.get_input_file())
                 ));
             }
         }
         Ok(())
+    }
+}
+
+// Private methods
+impl JavaFileImports {
+    fn get_explicit_imports(&self) -> Vec<JavaImport> {
+        self.explicit_imports
+            .iter()
+            .map(|file_import| file_import.import.to_owned())
+            .collect()
     }
 
     fn get_last_import_end_byte(&self) -> Option<usize> {

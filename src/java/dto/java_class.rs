@@ -1,4 +1,3 @@
-#[allow(unused)]
 use std::path::{Path, PathBuf};
 
 use crate::core::file_system::path_helper::try_to_absolute_path;
@@ -30,8 +29,9 @@ impl JavaClass {
     /// use std::env;
     /// use genco::java::dto::java_class::JavaClass;
     ///
-    /// let dir = &env::current_dir().unwrap().join("doc").join("test");
+    /// let dir = &env::current_dir().unwrap().join("doc/test/java/class/src/main/java/org/test");
     /// let java_class = JavaClass::builder().folder(dir).name("Service").build();
+    /// java_class.expect("Java class must be created");
     /// ```
     pub fn builder() -> JavaClassBuilder {
         JavaClassBuilder::new_builder()
@@ -40,7 +40,7 @@ impl JavaClass {
     /// # from
     /// Creates a reference to a java class from a given "file_path".
     /// If the provided file does not exist or it is not a valid java class
-    /// an error is returned.
+    /// an error is returned. The input java file is not modified.
     ///
     /// ```
     /// use std::env;
@@ -52,6 +52,42 @@ impl JavaClass {
     pub fn from(file_path: &Path) -> Result<Self, String> {
         let java_file = JavaFile::from_user_input_path(file_path)?;
         Self::from_java_file(java_file)
+    }
+
+    /// # copy_to
+    /// Copy the current java class into the output_dir keeping the file name.
+    /// It returns the new referenced class or an error if data copy did not succeed.
+    ///
+    /// If the output directory does not exist it will be created if it belongs to a java project.
+    /// The output file only differs in the java package that will be adapted.
+    /// ```
+    /// use std::env;
+    /// use genco::java::dto::java_class::JavaClass;
+    ///
+    /// let base_dir = &env::current_dir().unwrap().join("doc/test/java/class/src/main/java/org/test");
+    /// let java_class = JavaClass::builder().folder(&base_dir).name("JavaClassToCopyToOutputFolder").build().expect("Valid class");
+    ///
+    /// let output_dir = base_dir.join("output_directory");
+    /// let copied_java_class = java_class.copy_to(&output_dir).expect("Java class must be copied");
+    /// // New created java class in <output_dir>/JavaClassToCopyToOutputFolder.java
+    /// ```
+    pub fn copy_to(&self, output_dir: &Path) -> Result<Self, String> {
+        let output_file = self.scanned_file.copy_to_output_folder(output_dir)?;
+
+        Self::from_java_file(output_file)
+    }
+
+    /// # insert_method
+    /// Insert a new method into the class and write it to the file.
+    pub fn insert_method(&mut self, method: &JavaMethod) -> Result<(), String> {
+        match self.scanned_file.insert_method(method) {
+            Ok(result_java_file) => self.scanned_file = result_java_file,
+            Err(err) => {
+                return Err(err);
+            }
+        };
+
+        Ok(())
     }
 
     /// # get_annotations
@@ -119,24 +155,11 @@ impl JavaClass {
     pub fn get_fields(&self) -> &Vec<JavaField> {
         self.get_structure().get_fields()
     }
-
-    /// # insert_method
-    /// Insert a new method into the class and write it to the file.
-    pub fn insert_method(&mut self, method: &JavaMethod) -> Result<(), String> {
-        match self.scanned_file.insert_method(method) {
-            Ok(result_java_file) => self.scanned_file = result_java_file,
-            Err(err) => {
-                return Err(err);
-            }
-        };
-
-        Ok(())
-    }
 }
 
 impl JavaClass {
     // Crate or private methods
-    fn from_structure(file: &Path, structure: JavaStructure) -> Result<Self, String> {
+    fn write(file: &Path, structure: JavaStructure) -> Result<Self, String> {
         let scanned_file = JavaFile::write(file, structure)?;
 
         Ok(Self { scanned_file })
@@ -166,12 +189,16 @@ impl JavaClass {
     }
 
     pub(crate) fn get_structure(&self) -> &JavaStructure {
-        self.scanned_file.get_structure()
+        self.get_scanned_file().get_structure()
+    }
+
+    fn get_scanned_file(&self) -> &JavaFile {
+        &self.scanned_file
     }
 
     #[cfg(test)]
     pub(crate) fn get_file(&self) -> &PathBuf {
-        &self.get_structure().get_file()
+        self.get_scanned_file().get_file_path()
     }
 
     #[cfg(test)]
@@ -315,7 +342,7 @@ impl JavaClassBuilder {
             .methods(self.methods.to_owned())
             .build()
         {
-            Ok(structure) => Ok(JavaClass::from_structure(&file, structure)?),
+            Ok(structure) => Ok(JavaClass::write(&file, structure)?),
             Err(err) => Err(format!("Invalid java class \"{}\" build, {}", name, err)),
         };
     }
@@ -325,7 +352,7 @@ impl JavaClassBuilder {
 mod tests {
     use std::path::PathBuf;
 
-    use crate::core::file_system::file_creation::file_creator::remove_file_if_exists;
+    use crate::core::file_system::file_edition::file_editor::remove_file_if_exists;
     use crate::core::testing::test_assert::{assert_fail, assert_same_file};
     use crate::core::testing::test_path;
     use crate::java::dependency::java::time::java_time_factory;
@@ -353,7 +380,7 @@ mod tests {
         {
             Ok(java_class) => {
                 assert_same_file(&expected_file_content, &file_path);
-                remove_file_if_exists(&file_path);
+                remove_file_if_exists(&file_path).expect("Result file should be removed");
                 assert_eq!(&file_path, java_class.get_file());
                 assert_eq!(1, java_class.get_annotations().len());
                 assert_eq!(JavaVisibility::Public, java_class.get_visibility());
@@ -397,7 +424,7 @@ mod tests {
         {
             Ok(java_class) => {
                 assert_same_file(&expected_file_content, &file_path);
-                remove_file_if_exists(&file_path);
+                remove_file_if_exists(&file_path).expect("Result file should be removed");
                 assert_eq!(&file_path, java_class.get_file());
                 assert_eq!(1, java_class.get_annotations().len());
                 assert_eq!(JavaVisibility::Public, java_class.get_visibility());
@@ -413,23 +440,6 @@ mod tests {
             }
             Err(err) => assert_fail(&err),
         }
-    }
-
-    fn get_new_method() -> JavaMethod {
-        JavaMethod::builder()
-            .return_type(JavaDataType::Basic(JavaBasicDataType::Int))
-            .name("newMethod")
-            .build()
-            .expect("newMethod is expected to be valid")
-    }
-
-    fn get_private_field() -> JavaField {
-        JavaField::builder()
-            .visibility(JavaVisibility::Private)
-            .data_type(JavaDataType::Basic(JavaBasicDataType::Boolean))
-            .name("field")
-            .build()
-            .expect("field is expected to be valid")
     }
 
     #[test]
@@ -492,10 +502,27 @@ mod tests {
         match java_class.insert_method(&new_method) {
             Ok(_) => {
                 assert_same_file(&expected_file_content, &file_path);
-                remove_file_if_exists(&file_path);
+                remove_file_if_exists(&file_path).expect("Result file should be removed");
             }
             Err(err) => assert_fail(&err),
         }
+    }
+
+    fn get_new_method() -> JavaMethod {
+        JavaMethod::builder()
+            .return_type(JavaDataType::Basic(JavaBasicDataType::Int))
+            .name("newMethod")
+            .build()
+            .expect("newMethod is expected to be valid")
+    }
+
+    fn get_private_field() -> JavaField {
+        JavaField::builder()
+            .visibility(JavaVisibility::Private)
+            .data_type(JavaDataType::Basic(JavaBasicDataType::Boolean))
+            .name("field")
+            .build()
+            .expect("field is expected to be valid")
     }
 
     fn new_method_returning_offset_date_time() -> JavaMethod {

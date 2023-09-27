@@ -1,6 +1,7 @@
-pub mod directory_browsing;
-pub mod file_browsing;
-pub mod file_creation;
-pub mod file_overwriting;
-pub mod file_reader;
-pub mod path_helper;
+pub(crate) mod directory_browsing;
+pub(crate) mod file_browsing;
+pub(crate) mod file_edition;
+pub(crate) mod file_overwriting;
+pub(crate) mod file_reader;
+pub(crate) mod file_system_editor_buffer;
+pub(crate) mod path_helper;

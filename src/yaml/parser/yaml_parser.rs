@@ -1,10 +1,9 @@
-use std::path::PathBuf;
-
 use crate::core::parser::parser_node_trait::ParserNode;
 use crate::yaml::parser::dto::yaml_node::YamlNode;
+use std::path::Path;
 
-pub fn parse(yaml_file_path: &PathBuf) -> YamlNode {
-    YamlNode::new(yaml_file_path.as_ref()).expect("Yaml node should be parsed correctly")
+pub(crate) fn parse(yaml_file_path: &Path) -> YamlNode {
+    YamlNode::new(yaml_file_path).expect("Yaml node should be parsed correctly")
 }
 
 #[cfg(test)]

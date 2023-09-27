@@ -6,8 +6,8 @@ use crate::core::parser::parser_node_trait::ParserNode;
 use crate::java::dto::java_data_type::JavaDataType::Basic;
 use crate::java::dto::java_data_type::{JavaBasicDataType, JavaDataType};
 use crate::java::dto::java_import::JavaImport;
-use crate::java::parser::dto::java_node::JavaNode;
-use crate::java::parser::dto::java_node_type::JavaNodeType;
+use crate::java::parser::java_node::JavaNode;
+use crate::java::parser::java_node_type::JavaNodeType;
 use crate::java::scanner::file::java_file_imports::JavaFileImports;
 
 #[derive(Debug, Clone)]

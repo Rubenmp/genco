@@ -10,8 +10,8 @@ use crate::java::dto::java_steps_generator::JavaStepsGenerator;
 use crate::java::dto::java_variable::JavaVariable;
 use crate::java::dto::java_visibility::JavaVisibility;
 use crate::java::dto::{java_annotation_usage, java_visibility};
-use crate::java::parser::dto::java_node::JavaNode;
-use crate::java::parser::dto::java_node_type::JavaNodeType;
+use crate::java::parser::java_node::JavaNode;
+use crate::java::parser::java_node_type::JavaNodeType;
 use crate::java::scanner::file::java_file_imports::JavaFileImports;
 
 #[derive(Debug, Clone)]
@@ -323,7 +323,7 @@ impl JavaMethodBuilder {
 mod tests {
     use std::path::PathBuf;
 
-    use crate::core::file_system::file_creation::file_creator::remove_file_if_exists;
+    use crate::core::file_system::file_edition::file_editor::remove_file_if_exists;
     use crate::core::testing::test_assert::assert_same_as_file;
     use crate::core::testing::test_path;
     use crate::java::dependency::org::junit::jupiter::junit_jupiter_api::java_junit_jupiter_api_factory;
@@ -337,7 +337,7 @@ mod tests {
         let folder_path = get_test_folder();
         let file_path = folder_path.join("newMethodToGenerate.java");
         let expected_file_content = get_test_file("ExpectedTestMethodWithParameters");
-        remove_file_if_exists(&file_path);
+        remove_file_if_exists(&file_path).expect("Result file should be removed");
 
         let annotations = vec![java_junit_jupiter_api_factory::_create_test_annotation_usage()];
         let parameters = vec![
@@ -356,7 +356,7 @@ mod tests {
         method.write_to_string(&mut result, &JavaIndentation::default());
 
         assert_same_as_file(&expected_file_content, &result);
-        remove_file_if_exists(&file_path);
+        remove_file_if_exists(&file_path).expect("Result file should be removed");
     }
 
     #[test]

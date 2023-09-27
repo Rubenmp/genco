@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use crate::core::parser::parser_node_trait::ParserNode;
 use crate::domain::usecase::json::parser::dto::json_node::JsonNode;
 
-pub fn parse(yaml_file_path: &PathBuf) -> JsonNode {
+pub(crate) fn parse(yaml_file_path: &PathBuf) -> JsonNode {
     JsonNode::new(yaml_file_path.as_ref()).expect("It should parse json correctly")
 }
 
