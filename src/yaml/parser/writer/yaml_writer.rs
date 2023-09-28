@@ -1,13 +1,20 @@
+#![allow(unused)]
+
 use std::collections::HashMap;
 use std::path::Path;
 
+use crate::core::file_system::file_edition::file_editor;
 use crate::core::file_system::file_overwriting::file_overwriter::FileOverwriting;
-use crate::core::file_system::file_system_editor_buffer::FileSystemEditorBuffer;
 use crate::core::parser::parser_node_trait::ParserNode;
 use crate::yaml::parser::dto::yaml_node::YamlNode;
 use crate::yaml::parser::dto::yaml_node_type::YamlNodeType;
-use crate::yaml::parser::yaml_parser::parse;
 
+/// TODO: change the signature of this method
+///
+/// - Return error to handle I/O issues
+/// - Uses new YamlFile with content from "original_yaml_file"
+/// - Include customizable output_yaml_file
+///
 /// Overrides a YAML resource [original_yaml_file] adding the tree structure from another YAML resource
 /// [to_add_yaml_file]. In case of YAML properties collision, the previous properties in
 /// [original_yaml_file] will be overwritten with the file_overwriting value(s).
@@ -15,25 +22,22 @@ use crate::yaml::parser::yaml_parser::parse;
 pub fn overwrite(original_yaml_file: &Path, to_add_yaml_file: &Path) {
     // TODO: check original_yaml_file extension
 
-    let mut fs_buffer = FileSystemEditorBuffer::new();
-    fs_buffer
-        .create_empty_file_if_not_exist(original_yaml_file)
+    file_editor::create_empty_file_if_not_exist_with_ancestor(original_yaml_file)
         .expect("Yaml file was not overwritten");
 
-    let yaml_original = parse(original_yaml_file);
-    let yaml_to_add = parse(to_add_yaml_file);
+    let yaml_original =
+        YamlNode::new(original_yaml_file).expect("original_yaml_file must be parseable");
+    let yaml_to_add = YamlNode::new(to_add_yaml_file).expect("to_add_yaml_file must be parseable");
 
-    let mut overwriting = get_yaml_overwriting(&yaml_original, &yaml_to_add);
-    fs_buffer
-        .write_all(&mut overwriting)
-        .expect("Yaml must be written");
+    let mut overwriting =
+        get_yaml_overwriting(&yaml_original, &yaml_to_add).expect("yaml_overwriting must succeed");
+    overwriting.write_all().expect("Yaml must be written");
 }
 
-fn get_yaml_overwriting(original: &YamlNode, to_add: &YamlNode) -> FileOverwriting {
-    let mut overwriting = FileOverwriting::from_path(original.get_file_path())
-        .expect("Original yaml file to overwrite must exist");
-    include_nodes_to_overwrite(&mut overwriting, original, to_add, 0);
-    overwriting
+fn get_yaml_overwriting(original: &YamlNode, to_add: &YamlNode) -> Result<FileOverwriting, String> {
+    let mut overwriting = FileOverwriting::from_path(original.get_file_path())?;
+    include_nodes_to_overwrite(&mut overwriting, original, to_add, 0)?;
+    Ok(overwriting)
 }
 
 // Requires file_overwriting line: BlockMappingPair, BlockScalar
@@ -43,20 +47,20 @@ fn include_nodes_to_overwrite(
     original_node: &YamlNode,
     node_to_add: &YamlNode,
     depth: usize,
-) {
+) -> Result<(), String> {
     let original_mapping_pairs = filter_block_mapping_pairs_without_sequence_items(original_node);
     let mapping_pairs_to_add = filter_block_mapping_pairs_without_sequence_items(node_to_add);
 
     let (new_nodes, modification_nodes) =
         split_into_new_and_modifications(&original_mapping_pairs, &mapping_pairs_to_add);
 
-    include_new_nodes_to_overwrite(overwriting, original_node, new_nodes, depth);
+    include_new_nodes_to_overwrite(overwriting, original_node, new_nodes, depth)?;
     include_modification_nodes_to_overwrite(
         overwriting,
         &original_mapping_pairs,
         &modification_nodes,
         depth,
-    );
+    )?;
     merge_block_sequence_items(overwriting, &original_mapping_pairs, &modification_nodes)
 }
 
@@ -64,7 +68,7 @@ fn merge_block_sequence_items(
     overwriting: &mut FileOverwriting,
     original_mapping_pairs: &Vec<YamlNode>,
     modification_mapping_pairs: &Vec<YamlNode>,
-) {
+) -> Result<(), String> {
     let mut content_key_to_block_sequence_item: HashMap<String, &YamlNode> = HashMap::new();
     let result_sequence_items = filter_block_sequence_items(
         modification_mapping_pairs,
@@ -82,11 +86,14 @@ fn merge_block_sequence_items(
         {
             for sequence_item_to_add in sequence_items_to_add.1 {
                 let content = sequence_item_to_add.get_content_bytes_with_previous_empty_space();
-                overwriting
-                    .insert_content_with_previous_newline_at(mapping_pair.get_end_byte(), &content);
+                overwriting.insert_content_with_previous_newline_at(
+                    mapping_pair.get_end_byte(),
+                    &content,
+                )?;
             }
         }
     }
+    Ok(())
 }
 
 fn filter_sequence_items_to_add<'a>(
@@ -167,7 +174,7 @@ fn include_modification_nodes_to_overwrite(
     original_mapping_pairs: &Vec<YamlNode>,
     modification_nodes: &Vec<YamlNode>,
     depth: usize,
-) {
+) -> Result<(), String> {
     let original_mapping_pairs_from_key = get_mapping_pairs_from_key(original_mapping_pairs);
     for modification_node in modification_nodes {
         let key = get_key_from_block_mapping_pair(modification_node);
@@ -184,18 +191,20 @@ fn include_modification_nodes_to_overwrite(
                         original_mapped_value.get_start_byte(),
                         original_mapped_value.get_end_byte(),
                         &content,
-                    );
+                    )?;
                 } else {
                     include_nodes_to_overwrite(
                         overwriting,
                         original_mapped_value,
                         modification_mapped_value,
                         depth + 1,
-                    );
+                    )?;
                 }
             }
         }
     }
+
+    Ok(())
 }
 
 fn include_new_nodes_to_overwrite(
@@ -203,21 +212,23 @@ fn include_new_nodes_to_overwrite(
     original_node: &YamlNode,
     new_nodes: Vec<YamlNode>,
     depth: usize,
-) {
+) -> Result<(), String> {
     for new_node in new_nodes {
         if depth == 0 {
             result.append_with_previous_newline(&new_node.get_content());
         } else if is_required_a_newline_before(&new_node) {
             let content = new_node.get_content_bytes_with_previous_empty_space();
-            result.insert_content_with_previous_newline_at(original_node.get_end_byte(), &content);
+            result
+                .insert_content_with_previous_newline_at(original_node.get_end_byte(), &content)?;
         } else {
             result.replace(
                 original_node.get_start_byte(),
                 original_node.get_end_byte(),
                 &new_node.get_content(),
-            );
+            )?;
         }
     }
+    Ok(())
 }
 
 fn is_required_a_newline_before(node: &YamlNode) -> bool {
@@ -326,9 +337,7 @@ mod tests {
     use std::fs;
     use std::path::PathBuf;
 
-    use crate::core::file_system::file_edition::file_editor::{
-        create_file_with_content, remove_file_if_exists,
-    };
+    use crate::core::file_system::file_edition::file_editor::copy;
     use crate::core::testing::test_assert::assert_same_as_file;
     use crate::core::testing::test_path::get_non_existing_test_file;
     use crate::yaml::parser::writer::yaml_writer::overwrite;
@@ -338,19 +347,17 @@ mod tests {
         let original_file_path = get_yaml_test_file("overwrite_base.yaml");
         let file_to_add_path = get_yaml_test_file("overwrite_base_to_add.yaml");
         let copy_file_path = get_yaml_test_file("overwrite_base_copy.yaml");
-        create_file_with_content(&copy_file_path, &original_file_path)
-            .expect("File should be created");
+        copy(&original_file_path, &copy_file_path).expect("File should be created");
 
         overwrite(&original_file_path, &file_to_add_path);
 
         let result_data = fs::read_to_string(&original_file_path)
             .expect("Unable to read expected result resource");
-        create_file_with_content(&original_file_path, &copy_file_path)
-            .expect("File should be created");
+        copy(&copy_file_path, &original_file_path).expect("File should be created");
 
         let expect_result_file_path = get_yaml_test_file("overwrite_base_expected_result.yaml");
         assert_same_as_file(&expect_result_file_path, &result_data);
-        remove_file_if_exists(&copy_file_path).expect("Result file should be removed");
+        fs::remove_file(&copy_file_path).expect("Result file must be removed");
     }
 
     #[test]
@@ -358,20 +365,18 @@ mod tests {
         let original_file_path = get_yaml_test_file("overwrite_new_hyphen_item.yaml");
         let file_to_add_path = get_yaml_test_file("overwrite_new_hyphen_item_to_add.yaml");
         let copy_file_path = get_yaml_test_file("overwrite_new_hyphen_item_copy.yaml");
-        create_file_with_content(&copy_file_path, &original_file_path)
-            .expect("File should be created");
+        copy(&original_file_path, &copy_file_path).expect("File should be created");
 
         overwrite(&original_file_path, &file_to_add_path);
 
         let result_data = fs::read_to_string(&original_file_path)
             .expect("Unable to read expected result resource");
-        create_file_with_content(&original_file_path, &copy_file_path)
-            .expect("File should be created");
+        copy(&copy_file_path, &original_file_path).expect("File should be created");
 
         let expect_result_file_path =
             get_yaml_test_file("overwrite_new_hyphen_item_expected_result.yaml");
         assert_same_as_file(&expect_result_file_path, &result_data);
-        remove_file_if_exists(&copy_file_path).expect("Result file should be removed");
+        fs::remove_file(&copy_file_path).expect("Result file must be removed");
     }
 
     fn get_current_file_path() -> PathBuf {

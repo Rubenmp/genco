@@ -1,4 +1,4 @@
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use crate::core::file_system::path_helper::try_to_absolute_path;
 use crate::core::observability::logger;
@@ -23,7 +23,6 @@ use crate::java::scanner::file::java_structure_type::JavaStructureType;
 #[derive(Debug, Clone)]
 pub(crate) struct JavaStructure {
     // Metadata
-    file: PathBuf,
     structure_type: JavaStructureType,
     struct_body_start_byte: usize,
     struct_body_end_byte: usize,
@@ -43,7 +42,6 @@ pub(crate) struct JavaStructure {
     name: String,
     fields: Vec<JavaField>,
     methods: Vec<JavaMethod>,
-    is_root_structure: bool,
     substructures: Vec<JavaStructure>,
 }
 
@@ -57,12 +55,7 @@ impl JavaStructure {
         file_imports: &JavaFileImports,
         input_java_file: &Path,
     ) -> Result<Self, String> {
-        new_structure_internal(root_struct_decl_node, file_imports, input_java_file, true)
-    }
-
-    /// TODO: Make structure unaware of its file
-    pub(crate) fn get_file(&self) -> &PathBuf {
-        &self.file
+        new_structure_internal(root_struct_decl_node, file_imports, input_java_file)
     }
 
     pub(crate) fn get_type(&self) -> JavaStructureType {
@@ -143,19 +136,6 @@ impl JavaStructure {
     }
     pub(crate) fn get_methods(&self) -> &Vec<JavaMethod> {
         &self.methods
-    }
-    pub(crate) fn is_root_structure(&self) -> bool {
-        self.is_root_structure
-    }
-
-    /// TODO: this is only to for parent structures, not substructures
-    pub(crate) fn get_self_import(&self) -> JavaImport {
-        if self.is_root_structure() {
-            return JavaImport::new_explicit_import_from_file(self.get_file())
-                .expect("Java structure must have a java import associated");
-        } else {
-            panic!("get_self_import of substructure is not supported");
-        }
     }
 
     pub(crate) fn get_imports(&self) -> Vec<JavaImport> {
@@ -298,7 +278,6 @@ fn new_structure_internal(
     root_node: &JavaNode,
     file_imports: &JavaFileImports,
     input_java_file: &Path,
-    is_root_structure: bool,
 ) -> Result<JavaStructure, String> {
     let structure_type_opt: Option<JavaStructureType> =
         get_java_structure_type(root_node.get_node_type_opt());
@@ -379,7 +358,7 @@ fn new_structure_internal(
                     }
                 }
             } else if is_java_structure_type(Some(structure_node_type)) {
-                match new_structure_internal(child_node, file_imports, input_java_file, false) {
+                match new_structure_internal(child_node, file_imports, input_java_file) {
                     Ok(new_substructure) => substructures.push(new_substructure),
                     Err(err) => logger::log_warning(&err),
                 }
@@ -393,7 +372,6 @@ fn new_structure_internal(
         struct_body_start_byte_opt.ok_or("Body structure start not found")?;
     let struct_body_end_byte = struct_body_end_byte_opt.ok_or("Body structure end not found")?;
     Ok(JavaStructure {
-        file: input_java_file.to_owned(),
         structure_type,
         struct_body_start_byte,
         struct_body_end_byte,
@@ -407,7 +385,6 @@ fn new_structure_internal(
         name,
         fields,
         methods,
-        is_root_structure,
         substructures,
     })
 }
@@ -470,7 +447,6 @@ fn get_java_structure_type(node_type_opt: Option<JavaNodeType>) -> Option<JavaSt
 }
 
 pub(crate) struct JavaStructureBuilder {
-    file: Option<PathBuf>,
     structure_type: Option<JavaStructureType>,
     annotations: Vec<JavaAnnotationUsage>,
     visibility: JavaVisibility,
@@ -487,7 +463,6 @@ pub(crate) struct JavaStructureBuilder {
 impl JavaStructureBuilder {
     fn new_builder() -> Self {
         Self {
-            file: None,
             structure_type: None,
             annotations: vec![],
             visibility: JavaVisibility::Public,
@@ -500,10 +475,6 @@ impl JavaStructureBuilder {
             fields: vec![],
             methods: vec![],
         }
-    }
-    pub fn file(&mut self, input: &Path) -> &mut Self {
-        self.file = Some(input.to_owned());
-        self
     }
     pub fn structure_type(&mut self, input: JavaStructureType) -> &mut Self {
         self.structure_type = Some(input.to_owned());
@@ -574,7 +545,6 @@ impl JavaStructureBuilder {
         let implemented_interfaces = self.get_interfaces_imports();
 
         let structure = JavaStructure {
-            file: self.file.to_owned().ok_or("File output is mandatory")?,
             structure_type: self.structure_type.ok_or("Structure type is mandatory")?,
             struct_body_start_byte: 0,
             struct_body_end_byte: 0,
@@ -588,7 +558,6 @@ impl JavaStructureBuilder {
             name,
             fields: self.fields.to_owned(),
             methods: self.methods.to_owned(),
-            is_root_structure: true,
             substructures: vec![],
         };
 
@@ -703,10 +672,7 @@ mod tests {
 
     #[test]
     fn builder_test() {
-        let file_path = get_test_file("JavaChildServiceImpl");
-
         match JavaStructure::builder()
-            .file(&file_path)
             .structure_type(JavaStructureType::Class)
             .is_final(true)
             .visibility(Public)
@@ -716,7 +682,6 @@ mod tests {
             .build()
         {
             Ok(structure) => {
-                assert_eq!(&file_path, structure.get_file());
                 assert_eq!(JavaStructureType::Class, structure.get_type());
                 assert_eq!(0, structure.get_annotations().len());
                 assert_eq!(Public, structure.get_visibility());
@@ -736,10 +701,7 @@ mod tests {
 
     #[test]
     fn generate_public_abstract_class_with_interface() {
-        let file_path = get_test_file("JavaServiceAbstract");
-
         match JavaStructure::builder()
-            .file(&file_path)
             .structure_type(JavaStructureType::Class)
             .visibility(Public)
             .is_static(true)
@@ -749,7 +711,6 @@ mod tests {
             .build()
         {
             Ok(structure) => {
-                assert_eq!(&file_path, structure.get_file());
                 assert_eq!(JavaStructureType::Class, structure.get_type());
                 assert_eq!(0, structure.get_annotations().len());
                 assert_eq!(Public, structure.get_visibility());
@@ -768,15 +729,12 @@ mod tests {
 
     #[test]
     fn generate_package_class_with_interfaces_and_extension() {
-        let file_path = get_test_file("PackageClassWithInterfacesAndExtension");
-
         let interfaces = vec![
             get_java_interface_import("JavaInterfaceForStructure1"),
             get_java_interface_import("JavaInterfaceForStructure2"),
         ];
 
         match JavaStructure::builder()
-            .file(&file_path)
             .structure_type(JavaStructureType::Class)
             .visibility(Package)
             .name("PackageClassWithInterfacesAndExtension")
@@ -785,7 +743,6 @@ mod tests {
             .build()
         {
             Ok(structure) => {
-                assert_eq!(&file_path, structure.get_file());
                 assert_eq!(JavaStructureType::Class, structure.get_type());
                 assert_eq!(0, structure.get_annotations().len());
                 assert_eq!(Package, structure.get_visibility());
@@ -808,12 +765,9 @@ mod tests {
 
     #[test]
     fn generate_class_with_annotation() {
-        let file_path = get_test_file("JavaServiceBean");
-
         let annotations = vec![java_spring_context_factory::_create_service_annotation_usage()];
 
         match JavaStructure::builder()
-            .file(&file_path)
             .structure_type(JavaStructureType::Class)
             .visibility(Protected)
             .name("JavaServiceBean")
@@ -821,7 +775,6 @@ mod tests {
             .build()
         {
             Ok(structure) => {
-                assert_eq!(&file_path, structure.get_file());
                 assert_eq!(JavaStructureType::Class, structure.get_type());
                 assert_eq!(1, structure.get_annotations().len());
                 assert_eq!(Protected, structure.get_visibility());
@@ -841,10 +794,7 @@ mod tests {
 
     #[test]
     fn generate_final_interface() {
-        let file_path = get_test_file("JavaFinalInterface");
-
         match JavaStructure::builder()
-            .file(&file_path)
             .structure_type(JavaStructureType::Interface)
             .visibility(Private)
             .is_final(true)
@@ -852,7 +802,6 @@ mod tests {
             .build()
         {
             Ok(structure) => {
-                assert_eq!(&file_path, structure.get_file());
                 assert_eq!(JavaStructureType::Interface, structure.get_type());
                 assert_eq!(0, structure.get_annotations().len());
                 assert_eq!(Private, structure.get_visibility());

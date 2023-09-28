@@ -131,7 +131,7 @@ impl JavaInterface {
     }
 
     pub(crate) fn get_self_import(&self) -> JavaImport {
-        self.get_structure().get_self_import() // TODO: use java file instead of structure
+        self.get_scanned_file().get_self_import()
     }
 }
 
@@ -221,7 +221,6 @@ impl JavaInterfaceBuilder {
 
         let file = folder.join(format!("{}.java", name));
         return match JavaStructure::builder()
-            .file(&file)
             .structure_type(JavaStructureType::Interface)
             .annotations(self.annotations.to_owned())
             .visibility(self.visibility)
@@ -244,9 +243,9 @@ impl JavaInterfaceBuilder {
 
 #[cfg(test)]
 mod tests {
+    use std::fs;
     use std::path::PathBuf;
 
-    use crate::core::file_system::file_edition::file_editor::remove_file_if_exists;
     use crate::core::testing::test_assert::{assert_fail, assert_same_file};
     use crate::core::testing::test_path;
     use crate::java::dto::java_interface::JavaInterface;
@@ -262,7 +261,7 @@ mod tests {
         match JavaInterface::builder().folder(&folder).name(name).build() {
             Ok(interface) => {
                 assert_same_file(&expected_file_content, &file_path);
-                remove_file_if_exists(&file_path).expect("Result file should be removed");
+                let _ = fs::remove_file(&file_path).expect("Result file must be removed");
                 assert_eq!(name, interface.get_name());
                 assert_eq!(&file_path, interface.get_file());
                 assert_eq!(0, interface.get_annotations().len());

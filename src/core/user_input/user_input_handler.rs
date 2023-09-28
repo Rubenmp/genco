@@ -2,8 +2,6 @@ use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use crate::core::file_system::file_edition::file_editor::create_file_with_content;
-use crate::core::file_system::file_overwriting::file_overwriter::FileOverwriting;
 use crate::core::file_system::file_reader::read_string;
 use crate::core::user_input::cli_query;
 
@@ -48,24 +46,6 @@ impl UserInput {
 
             variable_usage.set_raw_user_input_value(user_input.to_string());
         }
-    }
-
-    // TODO: update structure (?)
-    fn generate_file_overwriting(&self, input_file: &Path, output_file: &Path) -> FileOverwriting {
-        create_file_with_content(output_file, input_file)
-            .expect("create_file_with_content must succeed");
-        let mut result =
-            FileOverwriting::from_path(output_file).expect("FileOverwriting must be created");
-        for variable_usage in self.get_variables().values() {
-            for instantiation in variable_usage.get_instantiations() {
-                let bytes = instantiation.get_bytes();
-                if let Some(value) = variable_usage.get_value() {
-                    result.replace(bytes.0, bytes.1, &value);
-                }
-            }
-        }
-
-        result
     }
 
     pub fn override_value(&mut self, variable_id: &str, variable_value: &str) {

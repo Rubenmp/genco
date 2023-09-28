@@ -1,6 +1,6 @@
+use crate::core::file_system::file_edition::file_editor;
 use std::path::{Path, PathBuf};
 
-use crate::core::file_system::file_edition::file_editor;
 use crate::core::file_system::file_reader;
 use crate::core::file_system::path_helper::try_to_absolute_path;
 
@@ -24,56 +24,57 @@ impl FileOverwriting {
         }
     }
 
-    pub(crate) fn append(&mut self, content: &str) {
-        self.append_internal(content, false);
-    }
-
     pub(crate) fn append_with_previous_newline(&mut self, content: &str) {
-        self.append_internal(content, true);
+        self.append_internal(content, true)
+            .expect("append_with_previous_newline must succeed");
     }
 
-    pub(crate) fn insert_content_at(&mut self, byte: usize, content: &str) {
-        self.add_item(FileOverwritingItem::new(
-            Some(byte),
-            Some(byte),
-            false,
-            false,
-            content,
-        ));
+    pub(crate) fn insert_content_at(&mut self, byte: usize, content: &str) -> Result<(), String> {
+        let item = FileOverwritingItem::new(Some(byte), Some(byte), false, false, content)?;
+
+        self.add_item(item);
+        Ok(())
     }
 
-    pub(crate) fn insert_content_with_previous_newline_at(&mut self, byte: usize, content: &str) {
-        self.add_item(FileOverwritingItem::new(
-            Some(byte),
-            Some(byte),
-            true,
-            false,
-            content,
-        ));
+    pub(crate) fn insert_content_with_previous_newline_at(
+        &mut self,
+        byte: usize,
+        content: &str,
+    ) -> Result<(), String> {
+        let item = FileOverwritingItem::new(Some(byte), Some(byte), true, false, content)?;
+        self.add_item(item);
+        Ok(())
     }
 
     /// Add new edition changing slice [start_byte, end_byte] with input content
-    pub(crate) fn replace(&mut self, start_byte: usize, end_byte: usize, content: &str) {
-        self.add_item(FileOverwritingItem::new(
-            Some(start_byte),
-            Some(end_byte),
-            false,
-            false,
-            content,
-        ));
+    pub(crate) fn replace(
+        &mut self,
+        start_byte: usize,
+        end_byte: usize,
+        content: &str,
+    ) -> Result<(), String> {
+        let item =
+            FileOverwritingItem::new(Some(start_byte), Some(end_byte), false, false, content)?;
+        self.add_item(item);
+        Ok(())
     }
 
     pub(crate) fn get_input_file(&self) -> &PathBuf {
         &self.input_file
     }
 
-    /// TODO: use write_all_to_file_limited instead
+    /// Write all the content creating the output file it if it does not exist.
+    pub(crate) fn write_all_to_file(&mut self, output_file: &Path) -> Result<(), String> {
+        let buffer = self.get_written_buffer()?;
+
+        file_editor::create_or_replace_file_with_bytes(output_file, &buffer)
+    }
+
     /// Write all the content creating the output file it if it does not exist.
     pub(crate) fn write_all(&mut self) -> Result<(), String> {
         let file_path_opt = self.get_input_file();
         let buffer = self.get_written_buffer()?;
 
-        // TODO: replace with create_or_replace_file_with_bytes_on_existing_file
         file_editor::create_or_replace_file_with_bytes(file_path_opt, &buffer)
     }
 }
@@ -99,14 +100,11 @@ impl FileOverwriting {
         self.content_nodes.push(item);
     }
 
-    fn append_internal(&mut self, content: &str, previous_new_line: bool) {
-        self.add_item(FileOverwritingItem::new(
-            None,
-            None,
-            previous_new_line,
-            true,
-            content,
-        ));
+    fn append_internal(&mut self, content: &str, previous_new_line: bool) -> Result<(), String> {
+        let item = FileOverwritingItem::new(None, None, previous_new_line, true, content)?;
+        self.add_item(item);
+
+        Ok(())
     }
 
     pub(in crate::core::file_system) fn get_written_buffer(&self) -> Result<Vec<u8>, String> {
@@ -115,7 +113,7 @@ impl FileOverwriting {
         self.get_written_buffer_from_input(&bytes)
     }
 
-    fn get_written_buffer_from_input(&self, input_buffer: &Vec<u8>) -> Result<Vec<u8>, String> {
+    fn get_written_buffer_from_input(&self, input_buffer: &[u8]) -> Result<Vec<u8>, String> {
         let (internal_items, items_to_append) = self.prepare_to_overwrite()?;
         let input_number_of_bytes = input_buffer.len();
         let buffer_size = self.get_required_bytes_to_write(
@@ -190,7 +188,10 @@ impl FileOverwriting {
             .collect::<Vec<FileOverwritingItem>>();
 
         if (to_write.len() + to_append.len()) != self.content_nodes.len() {
-            panic!("Not all the elements from FileOverwriting.content_nodes are valid writes");
+            return Err(
+                "Not all the elements from FileOverwriting.content_nodes are valid writes"
+                    .to_string(),
+            );
         }
 
         Ok((to_write, to_append))
@@ -215,12 +216,12 @@ impl FileOverwriting {
         let input_content_bytes = self.get_input_bytes()?.len();
         let max_end_byte = get_max_end_byte(items);
         if max_end_byte > input_content_bytes {
-            panic!(
+            return Err(format!(
                 "Invalid FileOverwritingItem with end_byte {} to resource with {} bytes: \"{}\"",
                 max_end_byte,
                 input_content_bytes,
                 self.get_input_file().to_string_lossy()
-            );
+            ));
         }
 
         if !items.is_empty() {
@@ -230,7 +231,8 @@ impl FileOverwriting {
                 let start_byte = item.get_start_byte().unwrap();
                 let end_byte = item.get_end_byte().unwrap();
                 if start_byte < current_end_byte {
-                    panic!("Error: can not overwrite resource, bytes [{}, {}] intersect with [{}, {}] at resource \"{}\"", start_byte, end_byte, current_start_byte, current_end_byte, self.get_input_file().to_string_lossy());
+                    let err = format!("Error: can not overwrite resource, bytes [{}, {}] intersect with [{}, {}] at resource \"{}\"", start_byte, end_byte, current_start_byte, current_end_byte, self.get_input_file().to_string_lossy());
+                    return Err(err);
                 }
                 current_start_byte = start_byte;
                 current_end_byte = end_byte;
@@ -294,15 +296,15 @@ impl FileOverwritingItem {
         previous_new_line: bool,
         to_append: bool,
         content: &str,
-    ) -> Self {
-        check_valid_bytes_to_overwrite(start_byte, end_byte, to_append);
-        FileOverwritingItem {
+    ) -> Result<Self, String> {
+        check_valid_bytes_to_overwrite(start_byte, end_byte, to_append)?;
+        Ok(FileOverwritingItem {
             start_byte,
             end_byte,
             previous_new_line,
             to_append,
             content: content.to_string(),
-        }
+        })
     }
 
     pub fn get_start_byte(&self) -> Option<usize> {
@@ -350,31 +352,36 @@ fn check_valid_bytes_to_overwrite(
     start_byte_opt: Option<usize>,
     end_byte_opt: Option<usize>,
     to_append: bool,
-) {
+) -> Result<(), String> {
     if to_append && (start_byte_opt.is_some() || end_byte_opt.is_some()) {
-        panic!("Can not create FileOverwritingItem type 'to_append' and set intermediate bytes at the same time.");
+        return Err("Can not create FileOverwritingItem type 'to_append' and set intermediate bytes at the same time.".to_string());
     } else if !to_append {
         if start_byte_opt.is_none() || end_byte_opt.is_none() {
-            panic!("Can not create FileOverwritingItem without start & end bytes selected.");
+            return Err(
+                "Can not create FileOverwritingItem without start & end bytes selected."
+                    .to_string(),
+            );
         }
 
         if let (Some(start_byte), Some(end_byte)) = (start_byte_opt, end_byte_opt) {
             if start_byte > end_byte {
-                panic!("Can not create FileOverwritingItem with start byte after end_byte.");
+                return Err(
+                    "Can not create FileOverwritingItem with start byte after end_byte."
+                        .to_string(),
+                );
             }
         }
     }
+
+    Ok(())
 }
 
 #[cfg(test)]
 mod tests {
     use std::path::PathBuf;
 
-    use crate::core::file_system::file_edition::file_editor::{
-        create_file_with_content, remove_file_if_exists,
-    };
     use crate::core::file_system::file_overwriting::file_overwriter::FileOverwriting;
-    use crate::core::testing::test_assert::{assert_same_bytes_than_file, assert_same_file};
+    use crate::core::testing::test_assert::{assert_fail, assert_same_bytes_than_file};
     use crate::core::testing::test_path::{get_non_existing_test_file, get_test_file};
 
     #[test]
@@ -388,82 +395,82 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(
-        expected = "Invalid FileOverwritingItem with end_byte 20 to resource with 0 bytes: \"src/core/file_system/file_overwriting/test/empty_file.txt\""
-    )]
     fn file_overwriting_empty_file_error_writing_invalid_bytes() {
         let file_path = get_test_file(get_current_file_path(), "empty_file.txt");
 
         let mut overwriting =
             FileOverwriting::from_path(&file_path).expect("FileOverwriting must be created");
-        overwriting.replace(10, 20, "content");
-
         overwriting
-            .write_all()
-            .expect("Result file should be written");
+            .replace(10, 20, "content")
+            .expect("It must admit replacing bytes [10,20]");
+
+        match overwriting.get_written_buffer() {
+            Ok(_) => assert_fail("Method must fail with message containing \"Invalid FileOverwritingItem with end_byte 20 to resource with 0 bytes\""),
+            Err(err) => assert!(err.contains("Invalid FileOverwritingItem with end_byte 20 to resource with 0 bytes"))
+        };
     }
 
     #[test]
-    #[should_panic(
-        expected = "Error: can not overwrite resource, bytes [15, 50] intersect with [10, 20] at resource"
-    )]
     fn file_overwriting_error_writing_overlapping_intervals() {
         let file_path = get_test_file(get_current_file_path(), "non_empty_file.txt");
 
         let mut overwriting =
             FileOverwriting::from_path(&file_path).expect("FileOverwriting must be created");
-        overwriting.replace(15, 50, "content");
-        overwriting.replace(10, 20, "content");
-
         overwriting
-            .write_all()
-            .expect("Result file should be written");
+            .replace(15, 50, "content")
+            .expect("It must admit replacing bytes [15,50]");
+        overwriting
+            .replace(10, 20, "content")
+            .expect("It must admit replacing bytes [10,20]");
+
+        match overwriting.get_written_buffer() {
+            Ok(_) => assert_fail("Method must fail with message containing \"Invalid FileOverwritingItem with end_byte 20 to resource with 0 bytes\""),
+            Err(err) => assert!(err.contains("Error: can not overwrite resource, bytes [15, 50] intersect with [10, 20] at resource"))
+        };
     }
 
     #[test]
     fn file_overwriting_valid_scenario_non_empty_file() {
         let file_path = get_test_file(get_current_file_path(), "non_empty_file.txt");
-        let file_path_copy =
-            get_non_existing_test_file(get_current_file_path(), "non_empty_file_copy.txt");
         let expected_file_path =
             get_test_file(get_current_file_path(), "non_empty_file_expected.txt");
-        create_file_with_content(&file_path_copy, &file_path)
-            .expect("create_file_with_content must succeed");
 
         let mut overwriting =
             FileOverwriting::from_path(&file_path).expect("FileOverwriting must be created");
-        overwriting.insert_content_with_previous_newline_at(5, "content1");
-        overwriting.replace(10, 20, "content2");
-        overwriting.replace(30, 50, "content3");
+        overwriting
+            .insert_content_with_previous_newline_at(5, "content1")
+            .expect("It must admit creating content with new line");
+        overwriting
+            .replace(10, 20, "content2")
+            .expect("It must admit replacing bytes [10,20]");
+        overwriting
+            .replace(30, 50, "content3")
+            .expect("It must admit replacing bytes [30,50]");
         overwriting.append_with_previous_newline("content4");
 
-        overwriting
-            .write_all()
+        let buffer = overwriting
+            .get_written_buffer()
             .expect("Result file should be written");
-        assert_same_file(&expected_file_path, &file_path);
-        create_file_with_content(&file_path, &file_path_copy)
-            .expect("create_file_with_content must succeed");
-        remove_file_if_exists(&file_path_copy).expect("Result file should be removed");
+        assert_same_bytes_than_file(&expected_file_path, &buffer);
     }
 
     #[test]
     fn file_overwriting_valid_scenario_file_reduction() {
         let file_path = get_test_file(get_current_file_path(), "file_reduction.txt");
-        let file_path_output =
-            get_non_existing_test_file(get_current_file_path(), "file_reduction_output.txt");
         let expected_file_path =
             get_test_file(get_current_file_path(), "file_reduction_expected.txt");
 
         let mut overwriting =
             FileOverwriting::from_path(&file_path).expect("FileOverwriting must be created");
-        overwriting.replace(41, 52, "<>");
+        overwriting
+            .replace(41, 52, "<>")
+            .expect("It must admit replacing bytes [41,52]");
 
         let result_buffer = overwriting
             .get_written_buffer()
             .expect("get_written_buffer method must succeed");
 
         assert_same_bytes_than_file(&expected_file_path, &result_buffer);
-        remove_file_if_exists(&file_path_output).expect("Result file should be removed");
     }
 
     fn get_current_file_path() -> PathBuf {

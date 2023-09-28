@@ -1,4 +1,3 @@
-/// TODO: Remove all direct usages from file_editor outside of FileSystemEditorBuffer
 use std::fs::{File, OpenOptions};
 use std::io::{Seek, Write};
 use std::path::{Path, PathBuf};
@@ -8,32 +7,6 @@ use std::{fs, io};
 use crate::core::file_system::file_reader::get_number_of_bytes_of;
 use crate::core::file_system::path_helper::try_to_absolute_path;
 
-fn create_file_if_not_exist(input_file: &Path) -> Result<(), String> {
-    if input_file.exists() {
-        return Ok(());
-    }
-
-    let all_to_create = get_all_paths_to_create(input_file);
-    let last_path_index = all_to_create.len() - 1;
-    for (i, to_create) in all_to_create.iter().rev().enumerate() {
-        if i < last_path_index {
-            fs::create_dir(to_create).map_err(|e| e.to_string())?;
-        } else {
-            File::create(to_create).map_err(|e| e.to_string())?;
-        }
-    }
-    Ok(())
-}
-
-// TODO: change visibility of this to "pub(in crate::core::file_system)"
-pub(crate) fn remove_file_if_exists(file_path: &Path) -> Result<(), String> {
-    if file_path.exists() && file_path.is_file() {
-        fs::remove_file(file_path).map_err(|e| e.to_string())?;
-    }
-    Ok(())
-}
-
-/// TODO: use file_system_editor_buffer instead
 pub(crate) fn create_or_replace_file_with_bytes(
     output_file: &Path,
     bytes: &[u8],
@@ -70,19 +43,35 @@ pub(in crate::core::file_system) fn replace_bytes_in_existing_file(
     Ok(())
 }
 
-pub(crate) fn copy(input_file: &Path, output_file: &Path) -> Result<(), String> {
-    create_file_with_content(output_file, input_file)
+pub(crate) fn remove_file_if_exists(file_path: &Path) -> Result<(), String> {
+    if file_path.exists() && file_path.is_file() {
+        fs::remove_file(file_path).map_err(|e| e.to_string())?;
+    }
+    Ok(())
 }
 
-/// TODO: Change all calls to this method with fs_buffer.write_all_to_file
-pub(crate) fn create_file_with_content(
-    output_file: &Path,
-    content_path: &Path,
-) -> Result<(), String> {
-    let data = fs::read(content_path).map_err(|_| {
+fn create_file_if_not_exist(input_file: &Path) -> Result<(), String> {
+    if input_file.exists() {
+        return Ok(());
+    }
+
+    let all_to_create = get_all_paths_to_create(input_file);
+    let last_path_index = all_to_create.len() - 1;
+    for (i, to_create) in all_to_create.iter().rev().enumerate() {
+        if i < last_path_index {
+            fs::create_dir(to_create).map_err(|e| e.to_string())?;
+        } else {
+            File::create(to_create).map_err(|e| e.to_string())?;
+        }
+    }
+    Ok(())
+}
+
+pub(crate) fn copy(input_file: &Path, output_file: &Path) -> Result<(), String> {
+    let data = fs::read(input_file).map_err(|_| {
         format!(
             "Error reading resource to get content from {:?}",
-            content_path
+            input_file
         )
     })?;
     remove_file_if_exists(output_file)?;
@@ -93,7 +82,7 @@ pub(crate) fn create_file_with_content(
         .write(true)
         .open(output_file)
         .expect("File can not be opened to write");
-    let number_of_bytes = get_number_of_bytes_of(content_path);
+    let number_of_bytes = get_number_of_bytes_of(input_file);
     let mut buffer = vec![0; number_of_bytes];
     buffer[0..number_of_bytes].clone_from_slice(&data.to_vec());
 
@@ -101,17 +90,23 @@ pub(crate) fn create_file_with_content(
     Ok(())
 }
 
+pub(crate) fn create_empty_file_if_not_exist_with_ancestor(file: &Path) -> Result<(), String> {
+    if file.exists() {
+        return Ok(());
+    }
+
+    create_ancestor_dirs(file)?;
+    create_non_existent_file_with_content(file, &Vec::new())
+}
+
 /// This method assumes that previous directories are already created
-pub(in crate::core::file_system) fn create_non_existent_file_with_content(
+pub(crate) fn create_non_existent_file_with_content(
     output_file: &Path,
-    data: &Vec<u8>,
+    data: &[u8],
 ) -> Result<(), String> {
     let mut file = create_file_to_write(output_file)?;
-    let number_of_bytes = data.len();
-    let mut buffer = vec![0; number_of_bytes];
-    buffer[0..number_of_bytes].clone_from_slice(&data.to_vec()); // TODO: avoid this copy, we already have a buffer called "data"
+    write_buffer_with_result(&mut file, data)?;
 
-    write_buffer_with_result(&mut file, &mut buffer)?;
     Ok(())
 }
 
@@ -166,7 +161,7 @@ fn write_buffer(file: &mut File, buffer: &mut [u8]) {
     file.write_all(buffer).expect("Write resource failed.");
 }
 
-fn write_buffer_with_result(file: &mut File, buffer: &mut [u8]) -> Result<(), String> {
+fn write_buffer_with_result(file: &mut File, buffer: &[u8]) -> Result<(), String> {
     file.seek(io::SeekFrom::Start(0))
         .map_err(|e| e.to_string())?;
     file.write_all(buffer).map_err(|e| e.to_string())
@@ -177,9 +172,7 @@ mod tests {
     use std::fs;
     use std::path::PathBuf;
 
-    use crate::core::file_system::file_edition::file_editor::{
-        copy, create_file_if_not_exist, remove_file_if_exists,
-    };
+    use crate::core::file_system::file_edition::file_editor::{copy, create_file_if_not_exist};
     use crate::core::testing::test_assert::assert_same_file;
     use crate::core::testing::test_path::{get_test_dir_raw, get_test_file};
 
@@ -203,13 +196,13 @@ mod tests {
         let mut output_file = input_file.clone();
         output_file.pop();
         output_file.push("create_file_with_content_output.txt");
-        remove_file_if_exists(&output_file).expect("Result file should be removed");
+        let _ = fs::remove_file(&output_file);
 
         copy(&input_file, &output_file).expect("Copy must succeed");
 
         assert!(output_file.exists());
         assert_same_file(&input_file, &output_file);
-        remove_file_if_exists(&output_file).expect("Result file should be removed");
+        let _ = fs::remove_file(&output_file);
     }
 
     fn get_current_file_path() -> PathBuf {

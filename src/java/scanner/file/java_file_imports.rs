@@ -95,14 +95,14 @@ impl JavaFileImports {
                 to_overwrite.insert_content_with_previous_newline_at(
                     last_import_end_byte,
                     &import_to_add.to_string(),
-                )
+                )?;
             } else if let Some(byte_to_insert_first_import) = byte_to_insert_first_import_opt {
                 to_overwrite
-                    .insert_content_with_previous_newline_at(byte_to_insert_first_import, "");
+                    .insert_content_with_previous_newline_at(byte_to_insert_first_import, "")?;
                 to_overwrite.insert_content_with_previous_newline_at(
                     byte_to_insert_first_import,
                     &import_to_add.to_string(),
-                );
+                )?;
             } else {
                 return Err(format!(
                     "It was not possible to add import to file:\n{}\n",

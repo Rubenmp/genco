@@ -323,7 +323,6 @@ impl JavaMethodBuilder {
 mod tests {
     use std::path::PathBuf;
 
-    use crate::core::file_system::file_edition::file_editor::remove_file_if_exists;
     use crate::core::testing::test_assert::assert_same_as_file;
     use crate::core::testing::test_path;
     use crate::java::dependency::org::junit::jupiter::junit_jupiter_api::java_junit_jupiter_api_factory;
@@ -334,10 +333,8 @@ mod tests {
 
     #[test]
     fn generate_java_method() {
-        let folder_path = get_test_folder();
-        let file_path = folder_path.join("newMethodToGenerate.java");
+        let _folder_path = get_test_folder();
         let expected_file_content = get_test_file("ExpectedTestMethodWithParameters");
-        remove_file_if_exists(&file_path).expect("Result file should be removed");
 
         let annotations = vec![java_junit_jupiter_api_factory::_create_test_annotation_usage()];
         let parameters = vec![
@@ -356,7 +353,6 @@ mod tests {
         method.write_to_string(&mut result, &JavaIndentation::default());
 
         assert_same_as_file(&expected_file_content, &result);
-        remove_file_if_exists(&file_path).expect("Result file should be removed");
     }
 
     #[test]

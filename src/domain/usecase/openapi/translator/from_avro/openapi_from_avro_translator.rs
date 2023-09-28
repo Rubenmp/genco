@@ -174,6 +174,7 @@ mod tests {
 
         let result_file_path =
             get_non_existing_test_file(get_current_file_path(), "test_translated_to_openapi.yaml");
+
         file_editor::create_or_replace_file_with_bytes(&result_file_path, &openapi_str.as_bytes())
             .expect("File creation must succeed");
     }

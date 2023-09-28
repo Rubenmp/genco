@@ -2,7 +2,6 @@ use std::path::{Path, PathBuf};
 
 use crate::core::file_system::file_edition::file_editor;
 use crate::core::file_system::file_overwriting::file_overwriter::FileOverwriting;
-use crate::core::file_system::file_system_editor_buffer::FileSystemEditorBuffer;
 use crate::core::file_system::path_helper;
 use crate::core::file_system::path_helper::try_to_absolute_path;
 use crate::core::observability::logger;
@@ -139,8 +138,6 @@ impl JavaFile {
         &self,
         output_java_folder: &Path,
     ) -> Result<JavaFile, String> {
-        let mut fs_buffer = FileSystemEditorBuffer::new();
-
         let input_java_file = self.get_file_path();
         if output_java_folder.exists() && !output_java_folder.is_dir() {
             return Err(format!("Not possible to copy java file:\n\"{}\"\ninto existing path that it is not a directory:\n\"{}\"\n", try_to_absolute_path(input_java_file), try_to_absolute_path(output_java_folder)));
@@ -162,13 +159,13 @@ impl JavaFile {
             }
             Err(_) => {
                 let package_decl = format!("package {};\n\n", output_package_route);
-                file_overwrite.insert_content_at(0, &package_decl);
+                file_overwrite.insert_content_at(0, &package_decl)?;
+
+                Ok(())
             }
-        };
+        }?;
 
-        fs_buffer.write_all_to_file(&mut file_overwrite, &output_file)?;
-
-        //todo!("not yet enabled end of method");
+        file_overwrite.write_all_to_file(&output_file)?;
 
         Self::from_user_input_path(&output_file)
     }
@@ -220,9 +217,10 @@ impl JavaFile {
         to_overwrite.insert_content_with_previous_newline_at(
             self.get_structure().get_start_byte(),
             &method_str,
-        );
+        )?;
 
         to_overwrite.write_all()?;
+
         let result_file = JavaFile::from_user_input_path(self.get_file_path())?;
         Ok(result_file)
     }
@@ -314,7 +312,6 @@ fn write_package(file_path: &Path) -> String {
 
 #[cfg(test)]
 mod tests {
-
     use std::path::PathBuf;
 
     use crate::core::testing::test_assert::{assert_fail, assert_same_file};
