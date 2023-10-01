@@ -61,13 +61,13 @@ pub(crate) trait ParserNode<NodeType: Display + PartialEq + Copy>: Sized {
         }
 
         let children = self.get_children();
-        if self.is_printable() {
+        if self.is_composed_node_printable() || children.is_empty() {
             tree_str.push_str(": ");
             tree_str.push_str(&format!(
                 "\"{}\"",
                 escape_str_for_json(self.get_content()).as_str()
             ));
-        } else if !children.is_empty() {
+        } else {
             tree_str.push_str(": {");
             writeln!(&mut tree_str).expect("Error in method ParserNode.get_tree_str");
 
@@ -85,8 +85,6 @@ pub(crate) trait ParserNode<NodeType: Display + PartialEq + Copy>: Sized {
 
             tree_str.push_str("  ".repeat(depth + 1).as_str());
             tree_str.push('}');
-        } else {
-            tree_str.push_str(": \"(?)\"");
         }
 
         if depth == 0 {
@@ -96,8 +94,12 @@ pub(crate) trait ParserNode<NodeType: Display + PartialEq + Copy>: Sized {
         tree_str
     }
 
-    fn is_printable(&self) -> bool;
+    fn is_composed_node_printable(&self) -> bool;
 
+    /// WARN: this method is really slow because it gets the content from a file
+    /// It is mostly used during file parsing analysis, an improvement for this
+    /// would read the whole file into a buffer, get_content_from_buffer and then
+    /// free the buffer, to do only one read to file, not hundred/thousand smaller ones
     fn get_content(&self) -> String {
         let buffer = file_reader::read_bytes(
             self.get_file_path(),

@@ -48,7 +48,7 @@ pub(crate) fn read_string(file: &Path, start_byte: usize, end_byte: usize) -> St
 pub(crate) fn read_bytes(file: &Path, start_byte: usize, end_byte: usize) -> Vec<u8> {
     let file = OpenOptions::new()
         .read(true)
-        .write(true)
+        .write(false)
         .open(file)
         .unwrap_or_else(|_| panic!("File can not be opened to write \"{:?}\"", file.to_str()));
 

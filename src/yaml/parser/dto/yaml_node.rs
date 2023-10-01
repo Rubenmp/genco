@@ -110,7 +110,7 @@ impl ParserNode<YamlNodeType> for YamlNode {
         self.get_tree_str_internal(0, 1, false)
     }
 
-    fn is_printable(&self) -> bool {
+    fn is_composed_node_printable(&self) -> bool {
         if self.get_children().is_empty() {
             return true;
         }

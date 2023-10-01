@@ -1,0 +1,25 @@
+{
+  "1. Document": {
+    "1. Object": {
+      "1. LBrace": "{",
+      "2. Pair": {
+        "1. String": "\"name\"",
+        "2. Colon": ":",
+        "3. String": "\"Alex\""
+      },
+      "3. Comma": ",",
+      "4. Pair": {
+        "1. String": "\"age\"",
+        "2. Colon": ":",
+        "3. Number": "26"
+      },
+      "5. Comma": ",",
+      "6. Pair": {
+        "1. String": "\"car\"",
+        "2. Colon": ":",
+        "3. Null": "null"
+      },
+      "7. RBrace": "}"
+    }
+  }
+}

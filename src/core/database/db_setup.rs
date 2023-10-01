@@ -6,6 +6,14 @@ use rusqlite::Connection;
 
 static SYNC_OBJ: Once = Once::new();
 
+
+/// WARN: there is a bottleneck and a bug here.
+/// Current approach using "rusqlite::Connection" only handles individual connections
+/// i.e. the connection is created from scratch everytime.
+/// This is a problem in parallel scenarios (i.e. "cargo test"!!!) where several attempts
+/// to get a database connection from different threads would lead to a panic.
+///
+/// Solution: migrate slowly to a pooled connection (and avoid repositories to use connection directly)
 pub(crate) fn get_db_connection() -> Connection {
     SYNC_OBJ.call_once(|| {
         db_initial_migration();

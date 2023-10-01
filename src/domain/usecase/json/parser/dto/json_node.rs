@@ -79,7 +79,7 @@ impl ParserNode<JsonNodeType> for JsonNode {
         None
     }
 
-    fn is_printable(&self) -> bool {
+    fn is_composed_node_printable(&self) -> bool {
         if let Some(node_type) = &self.node_type {
             return matches!(
                 node_type,
@@ -115,4 +115,31 @@ fn parse_json(code: &str) -> Tree {
         .set_language(tree_sitter_json::language())
         .expect("Error loading json grammar");
     parser.parse(code, None).unwrap()
+}
+
+
+#[cfg(test)]
+mod tests {
+    use std::path::PathBuf;
+
+    use crate::core::parser::parser_node_trait::ParserNode;
+    use crate::core::testing::test_assert::assert_same_as_file;
+    use crate::core::testing::test_path::get_test_file;
+    use crate::domain::usecase::json::parser::dto::json_node::JsonNode;
+
+    #[test]
+    fn parse_single_file_recognizes_all_tokens() {
+        let file_path = get_test_file(get_current_file_path(), "basic.json");
+        let expect_result_file_path =
+            get_test_file(get_current_file_path(), "basic-expected_node_tree.json");
+
+        let root_node = JsonNode::new(&file_path).expect("Json node should be parsed correctly");
+
+        let tree_str = root_node.get_tree_str();
+        assert_same_as_file(&expect_result_file_path, &tree_str)
+    }
+
+    fn get_current_file_path() -> PathBuf {
+        PathBuf::from(file!())
+    }
 }

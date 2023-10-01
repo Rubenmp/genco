@@ -97,57 +97,7 @@ impl ParserNode<JavaNodeType> for JavaNode {
         None
     }
 
-    /// I will eventually realize that this method does not make sense
-    /// and it is better to simply print nodes without children, just give me time
-    fn is_printable(&self) -> bool {
-        if let Some(node_type) = self.node_type.to_owned() {
-            return matches!(
-                node_type,
-                JavaNodeType::Id
-                    | JavaNodeType::Package | JavaNodeType::Import
-                    | JavaNodeType::Public | JavaNodeType::Protected | JavaNodeType::Private
-                    | JavaNodeType::Static | JavaNodeType::Final | JavaNodeType::Default | JavaNodeType::Abstract
-                    | JavaNodeType::Transient | JavaNodeType::Synchronized | JavaNodeType::Volatile
-                    | JavaNodeType::Class | JavaNodeType::Interface | JavaNodeType::AtInterface
-                    | JavaNodeType::EnumConstant | JavaNodeType::Enum
-                    | JavaNodeType::Extends | JavaNodeType::Implements
-                    | JavaNodeType::New | JavaNodeType::TypeIdentifier
-                    | JavaNodeType::Dot | JavaNodeType::Semicolon | JavaNodeType::Colon | JavaNodeType::Comma | JavaNodeType::Tilde
-                    | JavaNodeType::LParentheses| JavaNodeType::RParentheses
-                    | JavaNodeType::LBrace | JavaNodeType::RBrace
-                    | JavaNodeType::LBracket | JavaNodeType::RBracket
-                    | JavaNodeType::LessThan | JavaNodeType::GreaterThan
-                    | JavaNodeType::If | JavaNodeType::Else
-                    | JavaNodeType::Do | JavaNodeType::For | JavaNodeType::While | JavaNodeType::Continue
-                    | JavaNodeType::Try | JavaNodeType::Catch | JavaNodeType::Finally
-                    | JavaNodeType::Throws | JavaNodeType::Throw
-                    | JavaNodeType::LambdaArrow | JavaNodeType::MethodReferenceOperator
-                    | JavaNodeType::AndComposition | JavaNodeType::And | JavaNodeType::OrComposition | JavaNodeType::Or
-                    | JavaNodeType::Equality | JavaNodeType::NoEquality
-                    | JavaNodeType::GreaterOrEqual | JavaNodeType::LessOrEqual
-                    | JavaNodeType::Return
-                    | JavaNodeType::Equals
-                    | JavaNodeType::At
-                    | JavaNodeType::QuestionMark | JavaNodeType::ExclamationMark | JavaNodeType::Ampersand
-                    | JavaNodeType::This | JavaNodeType::Super | JavaNodeType::Instanceof
-                    | JavaNodeType::Void | JavaNodeType::VoidType | JavaNodeType::NullLiteral | JavaNodeType::Boolean
-                    | JavaNodeType::StringLiteral | JavaNodeType::Char | JavaNodeType::CharacterLiteral
-                    | JavaNodeType::Int | JavaNodeType::Byte | JavaNodeType::Short | JavaNodeType::DecimalIntegerLiteral | JavaNodeType::Long
-                    | JavaNodeType::Float | JavaNodeType::DecimalFloatingPointLiteral | JavaNodeType::Double
-                    | JavaNodeType::ThreeDots
-                    | JavaNodeType::Switch | JavaNodeType::Case | JavaNodeType::Break
-                    | JavaNodeType::Comment
-                    | JavaNodeType::True | JavaNodeType::False
-                    | JavaNodeType::Plus | JavaNodeType::PlusPlus | JavaNodeType::PlusComposition
-                    | JavaNodeType::Minus | JavaNodeType::MinusMinus | JavaNodeType::MinusComposition
-                    | JavaNodeType::Multiplication | JavaNodeType::MultiplicationComposition
-                    | JavaNodeType::Division | JavaNodeType::DivisionComposition | JavaNodeType::Modulus | JavaNodeType::ModuleComposition
-                    | JavaNodeType::ExponentComposition
-                    | JavaNodeType::BitwiseShiftLeft | JavaNodeType::BitwiseShiftLeftComposition
-                    | JavaNodeType::BitwiseShiftRight | JavaNodeType::BitwiseShiftRightComposition | JavaNodeType::BitwiseShiftRightUnsigned | JavaNodeType::BitwiseShiftRightUnsignedComposition
-                    | JavaNodeType::Assert
-            );
-        }
+    fn is_composed_node_printable(&self) -> bool {
         false
     }
 }
@@ -212,7 +162,6 @@ mod tests {
 
         match JavaNode::new(&file_path) {
             Ok(node) => {
-                node.print_tree_and_panic();
                 let node_tree = node.get_tree_str();
                 assert_same_as_file(&expected_node_tree, &node_tree);
             },
