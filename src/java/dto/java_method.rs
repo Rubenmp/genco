@@ -101,12 +101,12 @@ impl JavaMethod {
         let mut parameters = Vec::new();
 
         for child_node in root_node.get_children() {
-            if let Some(node_type) = child_node.get_node_type_opt() {
+            if let Some(node_type) = child_node.get_node_type() {
                 if JavaNodeType::Modifiers == node_type {
                     for modifier in child_node.get_children() {
-                        if let Some(node_type) = modifier.get_node_type_opt() {
+                        if let Some(node_type) = modifier.get_node_type() {
                             if java_annotation_usage::is_java_node_annotation(&node_type) {
-                                match JavaAnnotationUsage::new_from_java_node(
+                                match JavaAnnotationUsage::new_from_java_node_unchecked(
                                     modifier,
                                     file_imports,
                                     input_java_file,
@@ -123,7 +123,7 @@ impl JavaMethod {
                             }
                         }
                     }
-                } else if JavaDataType::is_data_type_node(&node_type) {
+                } else if child_node.is_data_type_identifier() {
                     match JavaDataType::get_data_type(child_node, file_imports, input_java_file) {
                         Ok(data_type) => {
                             return_type_opt = Some(data_type);
@@ -131,6 +131,8 @@ impl JavaMethod {
                         }
                         Err(err) => logger::log_warning(&err),
                     }
+                } else if JavaNodeType::VoidType == node_type {
+                    return_type_detected = true;
                 } else if JavaNodeType::Id == node_type {
                     name_opt = Some(child_node.get_content());
                 } else if JavaNodeType::FormalParams == node_type {
@@ -140,9 +142,7 @@ impl JavaMethod {
                         input_java_file,
                     ) {
                         Ok(result) => parameters = result,
-                        Err(err) => {
-                            return Err(format!("Invalid java method parameters, {}", err));
-                        }
+                        Err(err) => return Err(format!("Invalid java method parameters, {}", err)),
                     }
                 } else if JavaNodeType::Block == node_type {
                     // TODO: inspect method body
@@ -245,7 +245,7 @@ impl JavaMethod {
 }
 
 fn check_root_is_method_decl(node: &JavaNode) {
-    if Some(JavaNodeType::MethodDecl) != node.get_node_type_opt() {
+    if Some(JavaNodeType::MethodDecl) != node.get_node_type() {
         logger::log_unrecoverable_error(&format!(
             "Invalid java method found:\n\"{:?}\"",
             node.get_content()

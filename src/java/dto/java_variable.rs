@@ -50,7 +50,7 @@ impl JavaVariable {
     ) -> Result<Vec<Self>, String> {
         let mut params = Vec::new();
         for param_node in root_node.get_children() {
-            if Some(JavaNodeType::FormalParam) == param_node.get_node_type_opt() {
+            if Some(JavaNodeType::FormalParam) == param_node.get_node_type() {
                 params.push(Self::from_formal_param_node(
                     param_node,
                     file_imports,
@@ -70,16 +70,16 @@ impl JavaVariable {
         let mut data_type_opt = None;
         let mut name_opt = None;
         for child_node in root_node.get_children() {
-            if Some(JavaNodeType::Modifiers) == child_node.get_node_type_opt() {
+            if Some(JavaNodeType::Modifiers) == child_node.get_node_type() {
                 for modifier_node in root_node.get_children() {
-                    if Some(JavaNodeType::Final) == modifier_node.get_node_type_opt() {
+                    if Some(JavaNodeType::Final) == modifier_node.get_node_type() {
                         is_final = true;
                     }
                 }
             }
-            if Some(JavaNodeType::TypeIdentifier) == child_node.get_node_type_opt() {
-                match JavaDataType::from_generic_type_id(
-                    &child_node.get_content(),
+            if child_node.is_data_type_identifier() {
+                match JavaDataType::get_data_type(
+                    child_node,
                     file_imports,
                     input_java_file,
                 ) {
@@ -90,7 +90,7 @@ impl JavaVariable {
                     }
                 }
             }
-            if Some(JavaNodeType::Id) == child_node.get_node_type_opt() {
+            if Some(JavaNodeType::Id) == child_node.get_node_type() {
                 name_opt = Some(child_node.get_content());
             }
         }

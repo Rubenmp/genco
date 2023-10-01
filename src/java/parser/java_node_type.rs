@@ -349,6 +349,10 @@ impl JavaNodeType {
             || JavaNodeType::InterfaceDeclaration == unreferenced
             || JavaNodeType::EnumDeclaration == unreferenced
     }
+
+    pub(crate) fn is_data_type_id_identifier(&self) -> bool {
+        &JavaNodeType::TypeIdentifier == self || &JavaNodeType::ScopedTypeIdentifier == self
+    }
 }
 
 impl FromStr for JavaNodeType {

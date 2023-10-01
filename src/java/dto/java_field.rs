@@ -72,12 +72,12 @@ impl JavaField {
         let mut value = None;
 
         for child in root_node.get_children() {
-            let node_type_opt = child.get_node_type_opt();
+            let node_type_opt = child.get_node_type();
             if Some(JavaNodeType::Modifiers) == node_type_opt {
                 for modifiers_child in child.get_children() {
-                    let modifier_type_opt = modifiers_child.get_node_type_opt();
+                    let modifier_type_opt = modifiers_child.get_node_type();
                     if java_annotation_usage::is_java_node_annotation_opt(&modifier_type_opt) {
-                        match JavaAnnotationUsage::new_from_java_node(
+                        match JavaAnnotationUsage::new_from_java_node_unchecked(
                             modifiers_child,
                             file_imports,
                             input_java_file,
@@ -93,7 +93,7 @@ impl JavaField {
                         is_final = true;
                     }
                 }
-            } else if JavaDataType::is_data_type_node_opt(&node_type_opt) {
+            } else if child.is_data_type_identifier() {
                 match JavaDataType::get_data_type(child, file_imports, input_java_file) {
                     Ok(data_type) => data_type_opt = Some(data_type),
                     Err(err) => logger::log_warning(&err),
@@ -101,7 +101,7 @@ impl JavaField {
             } else if Some(JavaNodeType::VariableDeclarator) == node_type_opt {
                 let mut next_child_is_expression = false;
                 for var_decl_child in child.get_children() {
-                    if let Some(var_node_type) = var_decl_child.get_node_type_opt() {
+                    if let Some(var_node_type) = var_decl_child.get_node_type() {
                         if JavaNodeType::Id == var_node_type {
                             name = child.get_content();
                         } else if JavaNodeType::Equals == var_node_type {

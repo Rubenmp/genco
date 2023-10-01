@@ -20,26 +20,32 @@ pub(crate) struct JavaNode {
 }
 
 impl JavaNode {
-    pub(crate) fn get_node_type_opt(&self) -> Option<JavaNodeType> {
-        self.node_type.to_owned()
-    }
-
     pub(crate) fn get_children(&self) -> &Vec<JavaNode> {
         &self.children
     }
 
     pub(crate) fn get_import_decl_content(import_decl_node: JavaNode) -> Result<String, String> {
-        if Some(JavaNodeType::ImportDecl) != import_decl_node.get_node_type_opt() {
+        if Some(JavaNodeType::ImportDecl) != import_decl_node.get_node_type() {
             return Err("Java import declaration node required".to_string());
         }
 
         for children_level_one in import_decl_node.get_children() {
-            if Some(JavaNodeType::ScopedIdentifier) == children_level_one.get_node_type_opt() {
+            if Some(JavaNodeType::ScopedIdentifier) == children_level_one.get_node_type() {
                 return Ok(children_level_one.get_content());
             }
         }
 
         Err("Import scoped identifier not found".to_string())
+    }
+
+    pub(crate) fn is_data_type_identifier(&self) -> bool {
+        if let Some(node_type) = self.get_node_type() {
+            return node_type.is_data_type_id_identifier()
+                || JavaNodeType::IntegralType == node_type
+                || JavaNodeType::FloatingPointType == node_type
+                || JavaNodeType::Boolean == node_type
+        }
+        false
     }
 }
 
@@ -91,10 +97,7 @@ impl ParserNode<JavaNodeType> for JavaNode {
     }
 
     fn get_node_type(&self) -> Option<JavaNodeType> {
-        if let Some(node_type) = &self.node_type {
-            return Some(node_type.to_owned());
-        }
-        None
+        self.node_type.to_owned()
     }
 
     fn is_composed_node_printable(&self) -> bool {
@@ -133,7 +136,7 @@ impl JavaNode {
                 file_reader::read_string(file_path, node.start_byte(), node.end_byte()),
                 try_to_absolute_path(file_path)
             )
-                .as_str(),
+            .as_str(),
         );
     }
 }
@@ -164,11 +167,10 @@ mod tests {
             Ok(node) => {
                 let node_tree = node.get_tree_str();
                 assert_same_as_file(&expected_node_tree, &node_tree);
-            },
-            Err(error) => assert_fail(&error)
+            }
+            Err(error) => assert_fail(&error),
         }
     }
-
 
     #[test]
     fn parse_database_entity() {
@@ -180,9 +182,10 @@ mod tests {
     }
 
     fn get_expected_file(file_name: &str) -> PathBuf {
-        get_local_java_project_test_folder().join("expected").join(file_name)
+        get_local_java_project_test_folder()
+            .join("expected")
+            .join(file_name)
     }
-
 
     fn get_local_java_project_test_folder() -> PathBuf {
         test_path::get_java_project_test_folder(get_current_file_path(), "java_node")

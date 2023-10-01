@@ -18,6 +18,7 @@ pub enum JavaDataType {
     FromImport(JavaImport),
 }
 
+// Public methods
 impl JavaDataType {
     pub fn new_from_path(java_file_path: &Path) -> JavaDataType {
         let java_file = JavaFile::from_user_input_path(java_file_path).unwrap();
@@ -27,6 +28,7 @@ impl JavaDataType {
     }
 }
 
+// Public crate methods
 impl JavaDataType {
     // Crate or private methods
     pub(crate) fn get_import(&self) -> Option<JavaImport> {
@@ -36,35 +38,14 @@ impl JavaDataType {
         }
     }
 
-    pub(crate) fn is_data_type_node(node_type: &JavaNodeType) -> bool {
-        &JavaNodeType::TypeIdentifier == node_type
-            || &JavaNodeType::IntegralType == node_type
-            || &JavaNodeType::FloatingPointType == node_type
-            || &JavaNodeType::Boolean == node_type
-            || &JavaNodeType::Void == node_type
-    }
-    pub(crate) fn is_data_type_node_opt(node_type_opt: &Option<JavaNodeType>) -> bool {
-        if let Some(node_type) = node_type_opt {
-            return Self::is_data_type_node(node_type);
-        }
-        false
-    }
-
     pub(crate) fn get_data_type(
         data_type_node: &JavaNode,
         file_imports: &JavaFileImports,
         input_java_file: &Path,
     ) -> Result<Self, String> {
-        let node_type = data_type_node.get_node_type_opt().unwrap();
-        if JavaNodeType::TypeIdentifier == node_type {
-            return match JavaDataType::from_generic_type_id(
-                &data_type_node.get_content(),
-                file_imports,
-                input_java_file,
-            ) {
-                Ok(type_id_data_type) => Ok(type_id_data_type),
-                Err(err) => Err(err),
-            };
+        let node_type = data_type_node.get_node_type().ok_or("Unexpected node type")?;
+        if node_type.is_data_type_id_identifier() {
+            return JavaDataType::from_data_type_identifier_including_basic_data_type(data_type_node, file_imports, input_java_file);
         } else if JavaNodeType::Boolean == node_type {
             return Ok(JavaDataType::Basic(JavaBasicDataType::Boolean));
         } else if JavaNodeType::IntegralType == node_type {
@@ -80,12 +61,37 @@ impl JavaDataType {
         ))
     }
 
+    pub(crate) fn from_data_type_identifier_with_import(type_id_node: &JavaNode, file_imports: &JavaFileImports, input_java_file: &Path) -> Result<JavaDataType, String> {
+        let explicit_import =
+            file_imports.get_explicit_import_from_identifier(type_id_node, input_java_file)?;
+        let result = JavaDataType::FromImport(explicit_import);
+
+        Ok(result)
+    }
+}
+
+// Private methods
+impl JavaDataType {
+    fn from_data_type_identifier_including_basic_data_type(
+        type_id_node: &JavaNode,
+        file_imports: &JavaFileImports,
+        input_java_file: &Path,
+    ) -> Result<JavaDataType, String> {
+        let type_id = type_id_node.get_content();
+        let basic_data_type = new_basic_data_type(&type_id);
+        if let Some(data_type) = basic_data_type {
+            return Ok(JavaDataType::Basic(data_type));
+        }
+
+        Self::from_data_type_identifier_with_import(type_id_node, file_imports, input_java_file)
+    }
+
     fn get_data_type_from_floating_point_type(
         data_type_node: &JavaNode,
         input_java_file: &Path,
     ) -> Result<JavaDataType, String> {
         let child_node = data_type_node.get_children().get(0).unwrap();
-        let child_node_type = child_node.get_node_type_opt().unwrap();
+        let child_node_type = child_node.get_node_type().unwrap();
 
         if JavaNodeType::Float == child_node_type {
             Ok(JavaDataType::Basic(JavaBasicDataType::Float))
@@ -109,7 +115,7 @@ impl JavaDataType {
             data_type_node.get_content(),
             try_to_absolute_path(input_java_file)
         ))?;
-        let child_node_type = child_node.get_node_type_opt().ok_or(format!(
+        let child_node_type = child_node.get_node_type().ok_or(format!(
             "Missing mandatory node type building IntegralType JavaNodeType \"{}\" in file:\n{}\n",
             data_type_node.get_content(),
             try_to_absolute_path(input_java_file)
@@ -131,30 +137,6 @@ impl JavaDataType {
                 data_type_node.get_content().as_str(),
                 try_to_absolute_path(input_java_file)
             ))
-        }
-    }
-
-    pub(crate) fn from_generic_type_id(
-        type_id: &str,
-        file_imports: &JavaFileImports,
-        input_java_file: &Path,
-    ) -> Result<JavaDataType, String> {
-        let basic_data_type = new_basic_data_type(type_id);
-        if let Some(data_type) = basic_data_type {
-            return Ok(JavaDataType::Basic(data_type));
-        }
-
-        Self::from_import_type_id(type_id, file_imports, input_java_file)
-    }
-
-    pub(crate) fn from_import_type_id(
-        type_id: &str,
-        file_imports: &JavaFileImports,
-        _input_java_file: &Path,
-    ) -> Result<JavaDataType, String> {
-        match file_imports.get_explicit_import(type_id) {
-            Ok(import) => Ok(JavaDataType::FromImport(import)),
-            Err(err) => Err(err),
         }
     }
 }
@@ -221,10 +203,6 @@ impl fmt::Display for JavaBasicDataType {
 
 fn new_basic_data_type(java_node_content: &str) -> Option<JavaBasicDataType> {
     match java_node_content {
-        "byte" => Some(JavaBasicDataType::Byte),
-        "Byte" => Some(JavaBasicDataType::ByteClass),
-        "short" => Some(JavaBasicDataType::Short),
-        "Short" => Some(JavaBasicDataType::ShortClass),
         "int" => Some(JavaBasicDataType::Int),
         "Integer" => Some(JavaBasicDataType::IntClass),
         "long" => Some(JavaBasicDataType::Long),
@@ -237,6 +215,10 @@ fn new_basic_data_type(java_node_content: &str) -> Option<JavaBasicDataType> {
         "boolean" => Some(JavaBasicDataType::Boolean),
         "Boolean" => Some(JavaBasicDataType::BooleanClass),
         "String" => Some(JavaBasicDataType::String),
+        "byte" => Some(JavaBasicDataType::Byte),
+        "Byte" => Some(JavaBasicDataType::ByteClass),
+        "short" => Some(JavaBasicDataType::Short),
+        "Short" => Some(JavaBasicDataType::ShortClass),
         _ => None,
     }
 }

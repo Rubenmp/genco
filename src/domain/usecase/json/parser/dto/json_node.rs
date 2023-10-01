@@ -117,7 +117,6 @@ fn parse_json(code: &str) -> Tree {
     parser.parse(code, None).unwrap()
 }
 
-
 #[cfg(test)]
 mod tests {
     use std::path::PathBuf;

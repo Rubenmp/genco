@@ -6,7 +6,6 @@ use rusqlite::Connection;
 
 static SYNC_OBJ: Once = Once::new();
 
-
 /// WARN: there is a bottleneck and a bug here.
 /// Current approach using "rusqlite::Connection" only handles individual connections
 /// i.e. the connection is created from scratch everytime.

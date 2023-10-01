@@ -5,6 +5,8 @@ use crate::core::file_system::file_browsing::file_browser;
 use crate::core::file_system::path_helper;
 use crate::core::file_system::path_helper::try_to_absolute_path;
 use crate::core::observability::logger;
+use crate::core::parser::parser_node_trait::ParserNode;
+use crate::java::parser::java_node::JavaNode;
 use crate::java::scanner::package::java_dependency_scanner;
 
 /// At the moment JavaImport only supports explicit references to files (i.e. classes, interfaces, enums).
@@ -26,22 +28,10 @@ pub struct JavaImport {
     nodes: Vec<String>, // ["JavaClass", "JavaSubClass", "JavaSubClassMethod", ...]
 }
 
+// Public crate methods
 impl JavaImport {
     pub(crate) fn new_explicit_import_from_file(file_path: &Path) -> Result<JavaImport, String> {
-        check_file_for_new_explicit_import(file_path)?;
-
-        let mut dir_path = file_path.to_owned().to_path_buf();
-        dir_path.pop();
-        if get_package_nodes_vec_from_dir(&dir_path).is_empty() {
-            return Err(invalid_explicit_import_msg(&file_path));
-        }
-        let last_node = get_last_item_string(file_path);
-
-        Ok(JavaImport {
-            fake_non_checked_route: "".to_string(),
-            folder_path: Some(dir_path.to_owned()),
-            nodes: vec![file_browser::remove_java_extension(last_node)],
-        })
+        Self::new_explicit_import_from_file_internal(&file_path)
     }
 
     /// Warning: this method java_dependency_scanner::search_imports can handle only imports
@@ -49,30 +39,16 @@ impl JavaImport {
     pub(crate) fn from_file_import_decl(import_route: String, java_file_path: &Path) -> JavaImport {
         // Warning: this method java_dependency_scanner::search_imports can handle only imports
         // in the same java project than java_file_path (multi-module not supported)
-        let imports = java_dependency_scanner::search_imports(&import_route, java_file_path);
-        if imports.len() > 1 {
-            logger::log_warning(
-                format!(
-                    "Several import possibilities found for import \"{}\" in file:\n\"{}\"\n",
-                    import_route,
-                    try_to_absolute_path(java_file_path)
-                )
-                .as_str(),
-            );
-        } else if let Some(java_import_route) = imports.get(0) {
-            let java_import_route_path = java_import_route.to_file_path();
-            let java_file_path_absolute_path_str = try_to_absolute_path(java_file_path);
-            return Self::new_explicit_import_from_file(&java_import_route_path).unwrap_or_else(
-                |_| {
-                    panic!(
-                        "Explicit import must be returned for import \"{}\" in file:\n\"{}\"\n",
-                        import_route, java_file_path_absolute_path_str
-                    )
-                },
-            );
-        }
+        Self::from_file_import_decl_internal(&import_route, java_file_path)
+            .expect("Java import must be returned")
+    }
 
-        Self::new_from_route(&import_route)
+    pub(crate) fn new_explicit_import_from_scoped_identifier(
+        scoped_identifier: &JavaNode,
+        input_java_file: &Path,
+    ) -> JavaImport {
+        let route = scoped_identifier.get_content();
+        Self::from_file_import_decl(route, input_java_file)
     }
 
     /// TODO: scan m2 repository after parse
@@ -92,17 +68,62 @@ impl JavaImport {
         route: &str,
     ) -> Result<JavaImport, String> {
         let import = JavaImport::new_from_route(route);
+        Self::check_if_explicit_import(&import)?;
+        Ok(import)
+    }
+}
+
+impl JavaImport {
+    fn new_explicit_import_from_file_internal(file_path: &&Path) -> Result<JavaImport, String> {
+        check_file_for_new_explicit_import(file_path)?;
+
+        let mut dir_path = file_path.to_owned().to_path_buf();
+        dir_path.pop();
+        if get_package_nodes_vec_from_dir(&dir_path).is_empty() {
+            return Err(invalid_explicit_import_msg(file_path));
+        }
+        let last_node = get_last_item_string(file_path);
+
+        Ok(JavaImport {
+            fake_non_checked_route: "".to_string(),
+            folder_path: Some(dir_path.to_owned()),
+            nodes: vec![file_browser::remove_java_extension(last_node)],
+        })
+    }
+
+    fn from_file_import_decl_internal(
+        import_route: &String,
+        java_file_path: &Path,
+    ) -> Result<JavaImport, String> {
+        let imports = java_dependency_scanner::search_imports(import_route, java_file_path);
+        if imports.len() > 1 {
+            logger::log_warning(
+                format!(
+                    "Several import possibilities found for import \"{}\" in file:\n\"{}\"\n",
+                    import_route,
+                    try_to_absolute_path(java_file_path)
+                )
+                    .as_str(),
+            );
+        } else if let Some(java_import_route) = imports.get(0) {
+            let java_import_route_path = java_import_route.to_file_path();
+
+            return Self::new_explicit_import_from_file(&java_import_route_path);
+        }
+
+        Ok(Self::new_from_route(import_route))
+    }
+
+    fn check_if_explicit_import(import: &JavaImport) -> Result<(), String> {
         if !import.is_explicit_import() {
             return Err(format!(
                 "Invalid attempt to create an explicit java import:\n\t\"{:?}\"",
                 import.fake_non_checked_route
             ));
         }
-        Ok(import)
+        Ok(())
     }
-}
 
-impl JavaImport {
     pub(crate) fn get_specific_file(&self) -> Result<PathBuf, String> {
         if !self.is_explicit_import() {
             return Err(format!(
@@ -119,6 +140,7 @@ impl JavaImport {
 
         Err(format!("Specific file not found for import \"{}\"", self))
     }
+
     pub(crate) fn is_explicit_import(&self) -> bool {
         if self.folder_path.is_some() {
             return !self.nodes.is_empty();
@@ -281,7 +303,7 @@ pub fn get_package_nodes_vec_from_dir(dir_path: &Path) -> Vec<String> {
                 "Java import related to an invalid folder:\n\t\"{}\"\n",
                 path_helper::try_to_absolute_path(dir_path)
             )
-            .as_str(),
+                .as_str(),
         );
     }
 
@@ -315,7 +337,7 @@ pub fn get_package_nodes_vec_from_dir(dir_path: &Path) -> Vec<String> {
             "Trying to create a java import that does not belong to any java project:\n\t\"{}\"\n",
             path_helper::try_to_absolute_path(dir_path)
         )
-        .as_str(),
+            .as_str(),
     );
     Vec::new() // Fake return, it will stop in log_unrecoverable_error
 }
@@ -350,6 +372,7 @@ mod tests {
     use crate::core::testing::test_assert::assert_fail;
     use crate::core::testing::test_path::get_java_project_test_folder;
     use crate::java::dto::java_import::JavaImport;
+    use crate::java::scanner::file::java_file::JavaFile;
 
     /// Tests with hard coded imports
     #[test]
@@ -409,6 +432,71 @@ mod tests {
             }
             Err(err) => assert_fail(&err),
         };
+    }
+
+    #[test]
+    fn java_entity_full_scoped_identifier() {
+        let file_path = get_test_folder().join("JavaEntityFullScopedIdentifier.java");
+
+        let java_file = JavaFile::from_user_input_path(&file_path).expect("Valid file scan");
+
+        let annotations = java_file.get_structure().get_annotations();
+        assert_eq!(1, annotations.len());
+        match annotations.get(0) {
+            None => assert_fail("Annotation expected"),
+            Some(annotation) => {
+                assert_eq!(
+                    "jakarta.persistence.Entity",
+                    annotation.get_self_import().get_package_route()
+                )
+            }
+        }
+    }
+
+    #[test]
+    fn java_method_with_parameter_scoped_identifier() {
+        let file_path = get_test_folder().join("JavaMethodWithParameterScopedIdentifier.java");
+
+        let java_file = JavaFile::from_user_input_path(&file_path).expect("Valid file scan");
+
+        let methods = java_file.get_structure().get_methods();
+        assert_eq!(1, methods.len());
+        match methods.get(0) {
+            None => assert_fail("Method expected"),
+            Some(method) => {
+                let parameters = method.get_parameters();
+                assert_eq!(1, parameters.len());
+                let parameter = parameters.get(0).expect("Parameter expected");
+                assert_eq!(
+                    "jakarta.persistence.Entity",
+                    parameter
+                        .get_import()
+                        .expect("Parameter import")
+                        .get_route()
+                )
+            }
+        }
+    }
+
+    #[test]
+    fn java_method_with_return_type_scoped_identifier() {
+        let file_path = get_test_folder().join("JavaMethodWithReturnTypeScopedIdentifier.java");
+
+        let java_file = JavaFile::from_user_input_path(&file_path).expect("Valid file scan");
+
+        let methods = java_file.get_structure().get_methods();
+        assert_eq!(1, methods.len());
+        let method = methods.get(0).expect("Method expected");
+
+        let return_type = &method.get_return_type().to_owned().expect("Expected return type");
+        let route = return_type.get_import().expect("Return type import expected").get_route();
+        assert_eq!("jakarta.persistence.Entity", route);
+
+        let parameters = method.get_parameters();
+        assert_eq!(1, parameters.len());
+        let parameter = parameters.get(0).expect("First parameter expected");
+        let route = parameter.get_import().expect("Parameter import expected").get_route();
+        assert_eq!("jakarta.persistence.Entity", route);
     }
 
     fn get_test_folder() -> PathBuf {

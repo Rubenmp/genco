@@ -92,7 +92,7 @@ impl JavaFile {
         let java_file_import = JavaImport::new_explicit_import_from_file(java_file_path)?;
 
         for child in root_java_node.get_children() {
-            if let Some(node_type) = child.get_node_type_opt() {
+            if let Some(node_type) = child.get_node_type() {
                 if JavaNodeType::ImportDecl == node_type {
                     match JavaNode::get_import_decl_content(child.to_owned()) {
                         Ok(import_route) => imports.insert(
@@ -265,7 +265,7 @@ impl JavaFile {
         let root_java_node = JavaNode::new(java_file_path)?;
 
         for child in root_java_node.get_children() {
-            if let Some(node_type) = child.get_node_type_opt() {
+            if let Some(node_type) = child.get_node_type() {
                 if JavaNodeType::PackageDecl == node_type {
                     return Ok(child.get_end_byte());
                 } else if node_type.is_structure() {

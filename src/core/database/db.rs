@@ -3,15 +3,14 @@ use rusqlite::Error;
 use crate::core::database::db_setup;
 use crate::core::observability::logger;
 
-
-pub(crate) fn execute_insert_3_param(query: &str, params: (&str, &str, &str)) -> Result<usize, String> {
+pub(crate) fn execute_insert_3_param(
+    query: &str,
+    params: (&str, &str, &str),
+) -> Result<usize, String> {
     let conn = db_setup::get_db_connection();
-    match conn.execute(
-        query,
-        params,
-    ) {
+    match conn.execute(query, params) {
         Ok(n) => Ok(n),
-        Err(err) => log_execute_error(err)
+        Err(err) => log_execute_error(err),
     }
 }
 

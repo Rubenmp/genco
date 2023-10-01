@@ -1,9 +1,7 @@
 use std::fmt;
 use std::path::Path;
 
-use crate::core::file_system::path_helper;
 use crate::core::observability::logger;
-use crate::core::parser::parser_node_trait::ParserNode;
 use crate::java::dto::java_import::JavaImport;
 use crate::java::dto::java_indentation_config::JavaIndentation;
 use crate::java::parser::java_node::JavaNode;
@@ -23,9 +21,10 @@ impl JavaAnnotationUsage {
     }
 
     pub fn get_name(&self) -> String {
-        self.get_import().get_last_node().to_owned()
+        self.get_self_import().get_last_node().to_owned()
     }
 }
+
 impl JavaAnnotationUsage {
     // Crate or private methods
     pub(crate) fn to_file_string(&self, indentation: &JavaIndentation) -> String {
@@ -37,10 +36,10 @@ impl JavaAnnotationUsage {
     }
 
     pub(crate) fn get_imports(&self) -> Vec<JavaImport> {
-        vec![self.get_import().to_owned()]
+        vec![self.get_self_import().to_owned()]
     }
 
-    fn get_import(&self) -> &JavaImport {
+    pub(crate) fn get_self_import(&self) -> &JavaImport {
         &self.explicit_import
     }
 
@@ -48,60 +47,21 @@ impl JavaAnnotationUsage {
         JavaAnnotationUsage { explicit_import }
     }
 
-    pub(crate) fn new_from_java_node(
+    /// TODO: add annotation parameters analysis
+    pub(crate) fn new_from_java_node_unchecked(
         root_java_node: &JavaNode,
         file_imports: &JavaFileImports,
         input_java_file: &Path,
     ) -> Result<JavaAnnotationUsage, String> {
-        let mut name_opt = None;
-        if is_java_node_annotation_opt(&root_java_node.get_node_type_opt()) {
-            if let Some(id) = Self::get_annotation_id(root_java_node) {
-                name_opt = Some(id);
-            }
-        } else {
-            return Err(format!(
-                "Unexpected java annotation \"{}\" in file:\n\"{}\"\n",
-                root_java_node.get_content(),
-                input_java_file.to_string_lossy()
-            ));
-        }
-
-        let result_name = name_opt.ok_or(format!(
-            "Unexpected java annotation name parsing:\n\"{:?}\"in file:\n\"{}\"\n",
-            root_java_node.get_content(),
-            path_helper::try_to_absolute_path(input_java_file)
-        ))?;
-
+        let id_node = Self::get_annotation_id_node(root_java_node).expect("Expected id");
         let explicit_import =
-            Self::get_explicit_import(root_java_node, file_imports, input_java_file, &result_name)?;
+            file_imports.get_explicit_import_from_identifier(id_node, input_java_file)?;
 
         Ok(JavaAnnotationUsage { explicit_import })
     }
 
-    fn get_explicit_import(
-        root_java_node: &JavaNode,
-        file_imports: &JavaFileImports,
-        input_java_file: &Path,
-        result_name: &str,
-    ) -> Result<JavaImport, String> {
-        match file_imports.get_explicit_import(result_name) {
-            Ok(explicit_import) => Ok(explicit_import),
-            Err(_) => Err(format!(
-                "Unexpected java annotation \"{}\" without import in file:\n\"{}\"\n",
-                root_java_node.get_content(),
-                path_helper::try_to_absolute_path(input_java_file)
-            )),
-        }
-    }
-
-    fn get_annotation_id(node: &JavaNode) -> Option<String> {
-        if let Some(id_node) = node.get_children().get(1) {
-            let content = id_node.get_content();
-            if !content.is_empty() {
-                return Some(content);
-            }
-        }
-        None
+    fn get_annotation_id_node(node: &JavaNode) -> Option<&JavaNode> {
+        node.get_children().get(1)
     }
 }
 
@@ -111,6 +71,7 @@ pub(crate) fn is_java_node_annotation_opt(node_type_opt: &Option<JavaNodeType>) 
     }
     false
 }
+
 pub(crate) fn is_java_node_annotation(node_type: &JavaNodeType) -> bool {
     &JavaNodeType::Annotation == node_type || &JavaNodeType::MarkerAnnotation == node_type
 }
@@ -126,6 +87,7 @@ impl fmt::Display for JavaAnnotationUsage {
 pub struct JavaAnnotationUsageBuilder {
     import: Option<JavaImport>,
 }
+
 impl JavaAnnotationUsageBuilder {
     fn new_builder() -> Self {
         Self { import: None }

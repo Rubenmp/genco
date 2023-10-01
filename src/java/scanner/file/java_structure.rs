@@ -280,7 +280,7 @@ fn new_structure_internal(
     input_java_file: &Path,
 ) -> Result<JavaStructure, String> {
     let structure_type_opt: Option<JavaStructureType> =
-        get_java_structure_type(root_node.get_node_type_opt());
+        get_java_structure_type(root_node.get_node_type());
     let mut visibility = JavaVisibility::Package;
     let mut is_static = false;
     let mut is_final = false;
@@ -295,14 +295,13 @@ fn new_structure_internal(
     let mut struct_body_start_byte_opt: Option<usize> = None;
     let mut struct_body_end_byte_opt: Option<usize> = None;
 
-    //root_node.print_tree_and_panic();
     for child_node in root_node.get_children() {
-        if let Some(structure_node_type) = child_node.get_node_type_opt() {
+        if let Some(structure_node_type) = child_node.get_node_type() {
             if JavaNodeType::Modifiers == structure_node_type {
                 for modifier in child_node.get_children() {
-                    if let Some(node_type) = modifier.get_node_type_opt() {
+                    if let Some(node_type) = modifier.get_node_type() {
                         if java_annotation_usage::is_java_node_annotation(&node_type) {
-                            match JavaAnnotationUsage::new_from_java_node(
+                            match JavaAnnotationUsage::new_from_java_node_unchecked(
                                 modifier,
                                 file_imports,
                                 input_java_file,
@@ -324,8 +323,7 @@ fn new_structure_internal(
             } else if JavaNodeType::Id == structure_node_type {
                 name_opt = Some(child_node.get_content());
             } else if JavaNodeType::Superclass == structure_node_type {
-                if let Some(import) = extract_super_class(file_imports, input_java_file, child_node)
-                {
+                if let Some(import) = extract_super_class(file_imports, input_java_file, child_node) {
                     extended_class.push(import);
                 }
             } else if JavaNodeType::SuperInterfaces == structure_node_type {
@@ -334,7 +332,7 @@ fn new_structure_internal(
                 }
             } else if is_structure_body(&structure_node_type) {
                 for body_child in child_node.get_children() {
-                    if let Some(body_node_type) = body_child.get_node_type_opt() {
+                    if let Some(body_node_type) = body_child.get_node_type() {
                         if JavaNodeType::FieldDeclaration == body_node_type {
                             match JavaField::new(body_child, file_imports, input_java_file) {
                                 Ok(field) => fields.push(field),
@@ -400,15 +398,20 @@ fn extract_super_class(
         return None;
     }
 
-    let second_child_content = children.get(1).unwrap().get_content();
-    let data_type =
-        JavaDataType::from_import_type_id(&second_child_content, file_imports, input_java_file);
-    if let Ok(JavaDataType::FromImport(import)) = data_type {
-        return Some(import);
+    let second_child_with_extended_class_type = children.get(1).expect("Super class must have a second child");
+    match JavaDataType::from_data_type_identifier_with_import(second_child_with_extended_class_type, file_imports, input_java_file) {
+        Ok(data_type) => {
+            if let JavaDataType::FromImport(import) = data_type {
+                return Some(import);
+            }
+            log_unrecognized_super_class_type_id_import(child_node, input_java_file);
+            None
+        }
+        Err(err) => {
+            logger::log_warning(&err);
+            None
+        }
     }
-
-    log_unrecognized_super_class_type_id_import(child_node, input_java_file);
-    None
 }
 
 fn log_invalid_method_decl(input_java_file: &Path, err: String) {
@@ -603,8 +606,9 @@ fn log_unrecognized_super_class(super_class_node: &JavaNode, input_java_file: &P
 }
 
 fn is_second_child_an_extended_class_id(children: &[JavaNode]) -> bool {
+    let second_child_node_type = children.get(1).and_then(|t| t.get_node_type());
     is_first_child_of_type(children, JavaNodeType::Extends)
-        && Some(JavaNodeType::TypeIdentifier) == children.get(1).and_then(|t| t.get_node_type_opt())
+        && (Some(JavaNodeType::TypeIdentifier) == second_child_node_type || Some(JavaNodeType::ScopedTypeIdentifier) == second_child_node_type)
 }
 
 fn extract_interfaces(
@@ -615,16 +619,15 @@ fn extract_interfaces(
     let mut result = Vec::new();
     let children = super_interfaces_node.get_children();
     if is_first_child_of_type(children, JavaNodeType::Implements)
-        && Some(JavaNodeType::InterfaceTypeList)
-            == children.get(1).and_then(|t| t.get_node_type_opt())
+        && Some(JavaNodeType::InterfaceTypeList) == children.get(1).and_then(|t| t.get_node_type())
     {
         for interface_type in children
             .get(1)
             .expect("Interface already checked")
             .get_children()
         {
-            let data_type = JavaDataType::from_import_type_id(
-                &interface_type.get_content(),
+            let data_type = JavaDataType::from_data_type_identifier_with_import(
+                interface_type,
                 file_imports,
                 input_java_file,
             );
@@ -652,7 +655,7 @@ fn extract_interfaces(
 }
 
 fn is_first_child_of_type(children: &[JavaNode], node_type: JavaNodeType) -> bool {
-    Some(node_type) == children.get(0).and_then(|t| t.get_node_type_opt())
+    Some(node_type) == children.get(0).and_then(|t| t.get_node_type())
 }
 
 #[cfg(test)]

@@ -1,7 +1,12 @@
+use std::path::Path;
+
 use crate::core::file_system::file_overwriting::file_overwriter::FileOverwriting;
 use crate::core::file_system::path_helper::try_to_absolute_path;
 use crate::core::observability::logger;
+use crate::core::parser::parser_node_trait::ParserNode;
 use crate::java::dto::java_import::JavaImport;
+use crate::java::parser::java_node::JavaNode;
+use crate::java::parser::java_node_type::JavaNodeType;
 
 #[derive(Debug)]
 pub(crate) struct JavaFileImports {
@@ -26,20 +31,6 @@ impl JavaFileImport {
 
 // Public crate methods
 impl JavaFileImports {
-    pub(crate) fn get_file_string_with_trailing_newline(imports: &Vec<JavaImport>) -> String {
-        let mut result = "".to_string();
-
-        for import in imports {
-            result += import.to_string().as_str();
-            result += "\n";
-        }
-        if !imports.is_empty() {
-            result += "\n";
-        }
-
-        result
-    }
-
     pub(crate) fn new() -> Self {
         JavaFileImports {
             explicit_imports: Vec::new(),
@@ -49,6 +40,28 @@ impl JavaFileImports {
 
     pub(crate) fn is_empty(&self) -> bool {
         self.explicit_imports.is_empty() && self.wildcard_imports.is_empty()
+    }
+
+    pub(crate) fn get_explicit_import_from_identifier(
+        &self,
+        type_id_node: &JavaNode,
+        input_java_file: &Path,
+    ) -> Result<JavaImport, String> {
+        let node_type = type_id_node
+            .get_node_type()
+            .ok_or("Unexpected java node without node type".to_string())?;
+        if node_type == JavaNodeType::Id || node_type == JavaNodeType::TypeIdentifier {
+            return self.get_explicit_import(&type_id_node.get_content());
+        } else if node_type == JavaNodeType::ScopedIdentifier
+            || node_type == JavaNodeType::ScopedTypeIdentifier
+        {
+            return Ok(JavaImport::new_explicit_import_from_scoped_identifier(
+                type_id_node,
+                input_java_file,
+            ));
+        }
+
+        Err("Unexpected identifier getting explicit import from identifier".to_string()) // Never happens (Haha)
     }
 
     pub(crate) fn get_explicit_import(&self, type_id: &str) -> Result<JavaImport, String> {
@@ -111,6 +124,20 @@ impl JavaFileImports {
             }
         }
         Ok(())
+    }
+
+    pub(crate) fn get_file_string_with_trailing_newline(imports: &Vec<JavaImport>) -> String {
+        let mut result = "".to_string();
+
+        for import in imports {
+            result += import.to_string().as_str();
+            result += "\n";
+        }
+        if !imports.is_empty() {
+            result += "\n";
+        }
+
+        result
     }
 }
 
