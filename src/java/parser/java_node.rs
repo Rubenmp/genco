@@ -5,6 +5,7 @@ use std::str::FromStr;
 use tree_sitter::{Node, Parser};
 
 use crate::core::file_system::file_reader;
+use crate::core::file_system::path_helper::try_to_absolute_path;
 use crate::core::observability::logger;
 use crate::core::parser::parser_node_trait::ParserNode;
 use crate::java::parser::java_node_type::JavaNodeType;
@@ -151,18 +152,23 @@ impl JavaNode {
             node_type: match JavaNodeType::from_str(node.kind()) {
                 Ok(v) => Some(v),
                 Err(_e) => {
-                    logger::log_warning(
-                        format!(
-                            "Unrecognized node type \"{}\" in expression \"{:?}\"",
-                            node.kind(),
-                            file_reader::read_string(file_path, node.start_byte(), node.end_byte())
-                        )
-                        .as_str(),
-                    );
+                    Self::log_unrecognized_node_type(node, file_path);
                     None
                 }
             },
         }
+    }
+
+    fn log_unrecognized_node_type(node: Node, file_path: &Path) {
+        logger::log_warning(
+            format!(
+                "Unrecognized node type \"{}\" in expression \"{}\" in file:\n{}\n",
+                node.kind(),
+                file_reader::read_string(file_path, node.start_byte(), node.end_byte()),
+                try_to_absolute_path(file_path)
+            )
+                .as_str(),
+        );
     }
 }
 
