@@ -97,39 +97,55 @@ impl ParserNode<JavaNodeType> for JavaNode {
         None
     }
 
+    /// I will eventually realize that this method does not make sense
+    /// and it is better to simply print nodes without children, just give me time
     fn is_printable(&self) -> bool {
         if let Some(node_type) = self.node_type.to_owned() {
             return matches!(
                 node_type,
                 JavaNodeType::Id
-                    | JavaNodeType::Package
-                    | JavaNodeType::Import
-                    | JavaNodeType::Public
-                    | JavaNodeType::Protected
-                    | JavaNodeType::Private
-                    | JavaNodeType::Static
-                    | JavaNodeType::Final
-                    | JavaNodeType::Class
-                    | JavaNodeType::Interface
-                    | JavaNodeType::EnumConstant
-                    | JavaNodeType::Extends
-                    | JavaNodeType::Implements
-                    | JavaNodeType::TypeIdentifier
-                    | JavaNodeType::Dot
-                    | JavaNodeType::Semicolon
-                    | JavaNodeType::LParentheses
-                    | JavaNodeType::RParentheses
-                    | JavaNodeType::LBrace
-                    | JavaNodeType::RBrace
-                    | JavaNodeType::LBracket
-                    | JavaNodeType::RBracket
-                    | JavaNodeType::Comma
+                    | JavaNodeType::Package | JavaNodeType::Import
+                    | JavaNodeType::Public | JavaNodeType::Protected | JavaNodeType::Private
+                    | JavaNodeType::Static | JavaNodeType::Final | JavaNodeType::Default | JavaNodeType::Abstract
+                    | JavaNodeType::Transient | JavaNodeType::Synchronized | JavaNodeType::Volatile
+                    | JavaNodeType::Class | JavaNodeType::Interface | JavaNodeType::AtInterface
+                    | JavaNodeType::EnumConstant | JavaNodeType::Enum
+                    | JavaNodeType::Extends | JavaNodeType::Implements
+                    | JavaNodeType::New | JavaNodeType::TypeIdentifier
+                    | JavaNodeType::Dot | JavaNodeType::Semicolon | JavaNodeType::Colon | JavaNodeType::Comma | JavaNodeType::Tilde
+                    | JavaNodeType::LParentheses| JavaNodeType::RParentheses
+                    | JavaNodeType::LBrace | JavaNodeType::RBrace
+                    | JavaNodeType::LBracket | JavaNodeType::RBracket
+                    | JavaNodeType::LessThan | JavaNodeType::GreaterThan
+                    | JavaNodeType::If | JavaNodeType::Else
+                    | JavaNodeType::Do | JavaNodeType::For | JavaNodeType::While | JavaNodeType::Continue
+                    | JavaNodeType::Try | JavaNodeType::Catch | JavaNodeType::Finally
+                    | JavaNodeType::Throws | JavaNodeType::Throw
+                    | JavaNodeType::LambdaArrow | JavaNodeType::MethodReferenceOperator
+                    | JavaNodeType::AndComposition | JavaNodeType::And | JavaNodeType::OrComposition | JavaNodeType::Or
+                    | JavaNodeType::Equality | JavaNodeType::NoEquality
+                    | JavaNodeType::GreaterOrEqual | JavaNodeType::LessOrEqual
+                    | JavaNodeType::Return
                     | JavaNodeType::Equals
-                    | JavaNodeType::StringLiteral
                     | JavaNodeType::At
-                    | JavaNodeType::Void
-                    | JavaNodeType::Int
-                    | JavaNodeType::Boolean
+                    | JavaNodeType::QuestionMark | JavaNodeType::ExclamationMark | JavaNodeType::Ampersand
+                    | JavaNodeType::This | JavaNodeType::Super | JavaNodeType::Instanceof
+                    | JavaNodeType::Void | JavaNodeType::VoidType | JavaNodeType::NullLiteral | JavaNodeType::Boolean
+                    | JavaNodeType::StringLiteral | JavaNodeType::Char | JavaNodeType::CharacterLiteral
+                    | JavaNodeType::Int | JavaNodeType::Byte | JavaNodeType::Short | JavaNodeType::DecimalIntegerLiteral | JavaNodeType::Long
+                    | JavaNodeType::Float | JavaNodeType::DecimalFloatingPointLiteral | JavaNodeType::Double
+                    | JavaNodeType::ThreeDots
+                    | JavaNodeType::Switch | JavaNodeType::Case | JavaNodeType::Break
+                    | JavaNodeType::Comment
+                    | JavaNodeType::True | JavaNodeType::False
+                    | JavaNodeType::Plus | JavaNodeType::PlusPlus | JavaNodeType::PlusComposition
+                    | JavaNodeType::Minus | JavaNodeType::MinusMinus | JavaNodeType::MinusComposition
+                    | JavaNodeType::Multiplication | JavaNodeType::MultiplicationComposition
+                    | JavaNodeType::Division | JavaNodeType::DivisionComposition | JavaNodeType::Modulus | JavaNodeType::ModuleComposition
+                    | JavaNodeType::ExponentComposition
+                    | JavaNodeType::BitwiseShiftLeft | JavaNodeType::BitwiseShiftLeftComposition
+                    | JavaNodeType::BitwiseShiftRight | JavaNodeType::BitwiseShiftRightComposition | JavaNodeType::BitwiseShiftRightUnsigned | JavaNodeType::BitwiseShiftRightUnsignedComposition
+                    | JavaNodeType::Assert
             );
         }
         false
@@ -185,18 +201,25 @@ mod tests {
     use std::path::PathBuf;
 
     use crate::core::parser::parser_node_trait::ParserNode;
-    use crate::core::testing::test_assert::assert_fail;
+    use crate::core::testing::test_assert::{assert_fail, assert_same_as_file};
     use crate::core::testing::test_path;
     use crate::java::parser::java_node::JavaNode;
 
     #[test]
     fn parse_single_file_recognizes_all_tokens() {
         let file_path = get_local_java_project_test_folder().join("JavaParserTest.java");
+        let expected_node_tree = get_expected_file("ExpectedJavaParserTestNodeTree.json");
 
-        if let Err(error) = JavaNode::new(&file_path) {
-            assert_fail(&error);
+        match JavaNode::new(&file_path) {
+            Ok(node) => {
+                node.print_tree_and_panic();
+                let node_tree = node.get_tree_str();
+                assert_same_as_file(&expected_node_tree, &node_tree);
+            },
+            Err(error) => assert_fail(&error)
         }
     }
+
 
     #[test]
     fn parse_database_entity() {
@@ -206,6 +229,11 @@ mod tests {
             assert_fail(&error);
         }
     }
+
+    fn get_expected_file(file_name: &str) -> PathBuf {
+        get_local_java_project_test_folder().join("expected").join(file_name)
+    }
+
 
     fn get_local_java_project_test_folder() -> PathBuf {
         test_path::get_java_project_test_folder(get_current_file_path(), "java_node")

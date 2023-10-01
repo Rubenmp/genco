@@ -7,11 +7,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class Main {
+@lombok.NoArgsConstructor
+public class JavaParserTest {
     public static void main(String[] args) {
         // A logger should be used here
         testInputOutput();
@@ -89,15 +91,16 @@ public class Main {
     /* This method tests compound variables */
     public static List<Integer> testCompoundVariables(String... args) {
         final Integer integerVarName1 = null, integerVarName2 = 1;
-        final List<Integer> integerList = List.of(integerVarName2); // Do not remove inline comment
-        integerList.add(4);
+        final List<Integer> unmodifiableList = List.of(integerVarName2); // Do not remove inline comment
+        final List<Integer> integerList2 = new ArrayList<>();
+        integerList2.add(4);
 
         int[][] multidimensionalArrayOfNumbers = {{1, 2, 3, 4}, {5, 6, 7}};
         HashMap<String, String> capitalCities = new HashMap<String, String>();
 
         final Class<TestBaseClass> classVar = TestBaseClass.class;
 
-        return integerList;
+        return unmodifiableList;
     }
 
 
@@ -130,7 +133,7 @@ public class Main {
             }
             switch (day) {
                 case 7 -> System.out.println("Today is Sunday");
-                default -> System.out.println("Looking forward to the Weekend");
+                default -> System.out.println("Looking forward to the Weekend"); // There
             }
         }
 

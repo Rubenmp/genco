@@ -1,0 +1,2506 @@
+{
+  "1. Program": {
+    "1. PackageDecl": {
+      "1. Package": "package",
+      "2. ScopedIdentifier": {
+        "1. Id": "org",
+        "2. Dot": ".",
+        "3. Id": "test"
+      },
+      "3. Semicolon": ";"
+    },
+    "2. ImportDecl": {
+      "1. Import": "import",
+      "2. ScopedIdentifier": {
+        "1. ScopedIdentifier": {
+          "1. Id": "java",
+          "2. Dot": ".",
+          "3. Id": "io"
+        },
+        "2. Dot": ".",
+        "3. Id": "File"
+      },
+      "3. Semicolon": ";"
+    },
+    "3. ImportDecl": {
+      "1. Import": "import",
+      "2. ScopedIdentifier": {
+        "1. ScopedIdentifier": {
+          "1. ScopedIdentifier": {
+            "1. Id": "java",
+            "2. Dot": ".",
+            "3. Id": "lang"
+          },
+          "2. Dot": ".",
+          "3. Id": "annotation"
+        },
+        "2. Dot": ".",
+        "3. Id": "ElementType"
+      },
+      "3. Semicolon": ";"
+    },
+    "4. ImportDecl": {
+      "1. Import": "import",
+      "2. ScopedIdentifier": {
+        "1. ScopedIdentifier": {
+          "1. ScopedIdentifier": {
+            "1. Id": "java",
+            "2. Dot": ".",
+            "3. Id": "lang"
+          },
+          "2. Dot": ".",
+          "3. Id": "annotation"
+        },
+        "2. Dot": ".",
+        "3. Id": "Retention"
+      },
+      "3. Semicolon": ";"
+    },
+    "5. ImportDecl": {
+      "1. Import": "import",
+      "2. ScopedIdentifier": {
+        "1. ScopedIdentifier": {
+          "1. ScopedIdentifier": {
+            "1. Id": "java",
+            "2. Dot": ".",
+            "3. Id": "lang"
+          },
+          "2. Dot": ".",
+          "3. Id": "annotation"
+        },
+        "2. Dot": ".",
+        "3. Id": "RetentionPolicy"
+      },
+      "3. Semicolon": ";"
+    },
+    "6. ImportDecl": {
+      "1. Import": "import",
+      "2. ScopedIdentifier": {
+        "1. ScopedIdentifier": {
+          "1. ScopedIdentifier": {
+            "1. Id": "java",
+            "2. Dot": ".",
+            "3. Id": "lang"
+          },
+          "2. Dot": ".",
+          "3. Id": "annotation"
+        },
+        "2. Dot": ".",
+        "3. Id": "Target"
+      },
+      "3. Semicolon": ";"
+    },
+    "7. ImportDecl": {
+      "1. Import": "import",
+      "2. ScopedIdentifier": {
+        "1. ScopedIdentifier": {
+          "1. Id": "java",
+          "2. Dot": ".",
+          "3. Id": "time"
+        },
+        "2. Dot": ".",
+        "3. Id": "LocalDate"
+      },
+      "3. Semicolon": ";"
+    },
+    "8. ImportDecl": {
+      "1. Import": "import",
+      "2. ScopedIdentifier": {
+        "1. ScopedIdentifier": {
+          "1. Id": "java",
+          "2. Dot": ".",
+          "3. Id": "time"
+        },
+        "2. Dot": ".",
+        "3. Id": "LocalTime"
+      },
+      "3. Semicolon": ";"
+    },
+    "9. ImportDecl": {
+      "1. Import": "import",
+      "2. ScopedIdentifier": {
+        "1. ScopedIdentifier": {
+          "1. Id": "java",
+          "2. Dot": ".",
+          "3. Id": "util"
+        },
+        "2. Dot": ".",
+        "3. Id": "ArrayList"
+      },
+      "3. Semicolon": ";"
+    },
+    "10. ImportDecl": {
+      "1. Import": "import",
+      "2. ScopedIdentifier": {
+        "1. ScopedIdentifier": {
+          "1. Id": "java",
+          "2. Dot": ".",
+          "3. Id": "util"
+        },
+        "2. Dot": ".",
+        "3. Id": "HashMap"
+      },
+      "3. Semicolon": ";"
+    },
+    "11. ImportDecl": {
+      "1. Import": "import",
+      "2. ScopedIdentifier": {
+        "1. ScopedIdentifier": {
+          "1. Id": "java",
+          "2. Dot": ".",
+          "3. Id": "util"
+        },
+        "2. Dot": ".",
+        "3. Id": "List"
+      },
+      "3. Semicolon": ";"
+    },
+    "12. ImportDecl": {
+      "1. Import": "import",
+      "2. ScopedIdentifier": {
+        "1. ScopedIdentifier": {
+          "1. ScopedIdentifier": {
+            "1. Id": "java",
+            "2. Dot": ".",
+            "3. Id": "util"
+          },
+          "2. Dot": ".",
+          "3. Id": "stream"
+        },
+        "2. Dot": ".",
+        "3. Id": "Collectors"
+      },
+      "3. Semicolon": ";"
+    },
+    "13. ClassDecl": {
+      "1. Modifiers": {
+        "1. MarkerAnnotation": {
+          "1. At": "@",
+          "2. ScopedIdentifier": {
+            "1. Id": "lombok",
+            "2. Dot": ".",
+            "3. Id": "NoArgsConstructor"
+          }
+        },
+        "2. Public": "public"
+      },
+      "2. Class": "class",
+      "3. Id": "JavaParserTest",
+      "4. ClassBody": {
+        "1. LBrace": "{",
+        "2. MethodDecl": {
+          "1. Modifiers": {
+            "1. Public": "public",
+            "2. Static": "static"
+          },
+          "2. VoidType": "void",
+          "3. Id": "main",
+          "4. FormalParams": {
+            "1. LParentheses": "(",
+            "2. FormalParam": {
+              "1. ArrayType": {
+                "1. TypeIdentifier": "String",
+                "2. Dimensions": {
+                  "1. LBracket": "[",
+                  "2. RBracket": "]"
+                }
+              },
+              "2. Id": "args"
+            },
+            "3. RParentheses": ")"
+          },
+          "5. Block": {
+            "1. LBrace": "{",
+            "2. Comment": "// A logger should be used here",
+            "3. StatementExpr": {
+              "1. MethodInvocation": {
+                "1. Id": "testInputOutput",
+                "2. ArgumentList": {
+                  "1. LParentheses": "(",
+                  "2. RParentheses": ")"
+                }
+              },
+              "2. Semicolon": ";"
+            },
+            "4. StatementExpr": {
+              "1. MethodInvocation": {
+                "1. Id": "testBasicVariables",
+                "2. ArgumentList": {
+                  "1. LParentheses": "(",
+                  "2. RParentheses": ")"
+                }
+              },
+              "2. Semicolon": ";"
+            },
+            "5. LocalVarDecl": {
+              "1. Modifiers": {
+                "1. Final": "final"
+              },
+              "2. GenericType": {
+                "1. TypeIdentifier": "List",
+                "2. TypeArguments": {
+                  "1. LessThan": "<",
+                  "2. TypeIdentifier": "Integer",
+                  "3. GreaterThan": ">"
+                }
+              },
+              "3. VariableDeclarator": {
+                "1. Id": "integerList",
+                "2. Equals": "=",
+                "3. MethodInvocation": {
+                  "1. Id": "testCompoundVariables",
+                  "2. ArgumentList": {
+                    "1. LParentheses": "(",
+                    "2. RParentheses": ")"
+                  }
+                }
+              },
+              "4. Semicolon": ";"
+            },
+            "6. StatementExpr": {
+              "1. MethodInvocation": {
+                "1. Id": "testFlowControl",
+                "2. ArgumentList": {
+                  "1. LParentheses": "(",
+                  "2. Id": "integerList",
+                  "3. RParentheses": ")"
+                }
+              },
+              "2. Semicolon": ";"
+            },
+            "7. StatementExpr": {
+              "1. MethodInvocation": {
+                "1. Id": "testSpecificOperators",
+                "2. ArgumentList": {
+                  "1. LParentheses": "(",
+                  "2. RParentheses": ")"
+                }
+              },
+              "2. Semicolon": ";"
+            },
+            "8. StatementExpr": {
+              "1. MethodInvocation": {
+                "1. Id": "testReservedKeywords",
+                "2. ArgumentList": {
+                  "1. LParentheses": "(",
+                  "2. RParentheses": ")"
+                }
+              },
+              "2. Semicolon": ";"
+            },
+            "9. StatementExpr": {
+              "1. MethodInvocation": {
+                "1. Id": "callThread",
+                "2. ArgumentList": {
+                  "1. LParentheses": "(",
+                  "2. RParentheses": ")"
+                }
+              },
+              "2. Semicolon": ";"
+            },
+            "10. RBrace": "}"
+          }
+        },
+        "3. MethodDecl": {
+          "1. Modifiers": {
+            "1. Private": "private",
+            "2. Static": "static"
+          },
+          "2. VoidType": "void",
+          "3. Id": "testInputOutput",
+          "4. FormalParams": {
+            "1. LParentheses": "(",
+            "2. RParentheses": ")"
+          },
+          "5. Block": {
+            "1. LBrace": "{",
+            "2. StatementExpr": {
+              "1. MethodInvocation": {
+                "1. FieldAccess": {
+                  "1. Id": "System",
+                  "2. Dot": ".",
+                  "3. Id": "out"
+                },
+                "2. Dot": ".",
+                "3. Id": "println",
+                "4. ArgumentList": {
+                  "1. LParentheses": "(",
+                  "2. StringLiteral": "\"Hello world!\"",
+                  "3. RParentheses": ")"
+                }
+              },
+              "2. Semicolon": ";"
+            },
+            "3. LocalVarDecl": {
+              "1. TypeIdentifier": "File",
+              "2. VariableDeclarator": {
+                "1. Id": "myObj",
+                "2. Equals": "=",
+                "3. ObjectCreationExpression": {
+                  "1. New": "(?)",
+                  "2. TypeIdentifier": "File",
+                  "3. ArgumentList": {
+                    "1. LParentheses": "(",
+                    "2. StringLiteral": "\"filename.txt\"",
+                    "3. RParentheses": ")"
+                  }
+                }
+              },
+              "3. Semicolon": ";"
+            },
+            "4. RBrace": "}"
+          }
+        },
+        "4. Comment": "[\"/**\",\"     * Basic variables testing\",\"     */\"]",
+        "5. MethodDecl": {
+          "1. Modifiers": {
+            "1. Private": "private",
+            "2. Static": "static"
+          },
+          "2. VoidType": "void",
+          "3. Id": "testBasicVariables",
+          "4. FormalParams": {
+            "1. LParentheses": "(",
+            "2. RParentheses": ")"
+          },
+          "5. Block": {
+            "1. LBrace": "{",
+            "2. LocalVarDecl": {
+              "1. IntegralType": {
+                "1. Int": "int"
+              },
+              "2. VariableDeclarator": {
+                "1. Id": "intVarName"
+              },
+              "3. Semicolon": ";"
+            },
+            "3. LocalVarDecl": {
+              "1. IntegralType": {
+                "1. Int": "int"
+              },
+              "2. VariableDeclarator": {
+                "1. Id": "intVarNameInit",
+                "2. Equals": "=",
+                "3. BinaryExpression": {
+                  "1. BinaryExpression": {
+                    "1. DecimalIntegerLiteral": "0",
+                    "2. Multiplication": "*",
+                    "3. DecimalIntegerLiteral": "10"
+                  },
+                  "2. Division": "(?)",
+                  "3. DecimalIntegerLiteral": "2"
+                }
+              },
+              "3. Semicolon": ";"
+            },
+            "4. LocalVarDecl": {
+              "1. Modifiers": {
+                "1. Final": "final"
+              },
+              "2. IntegralType": {
+                "1. Int": "int"
+              },
+              "3. VariableDeclarator": {
+                "1. Id": "intVarNameFinal",
+                "2. Equals": "=",
+                "3. UnaryExpression": {
+                  "1. Minus": "-",
+                  "2. DecimalIntegerLiteral": "10"
+                }
+              },
+              "4. Semicolon": ";"
+            },
+            "5. LocalVarDecl": {
+              "1. IntegralType": {
+                "1. Int": "int"
+              },
+              "2. VariableDeclarator": {
+                "1. Id": "intVarName1"
+              },
+              "3. Comma": ",",
+              "4. VariableDeclarator": {
+                "1. Id": "intVarName2",
+                "2. Equals": "=",
+                "3. ParenthesizedExpr": {
+                  "1. LParentheses": "(",
+                  "2. BinaryExpression": {
+                    "1. Id": "intVarNameInit",
+                    "2. Plus": "+",
+                    "3. BinaryExpression": {
+                      "1. DecimalIntegerLiteral": "1",
+                      "2. Modulus": "(?)",
+                      "3. DecimalIntegerLiteral": "1"
+                    }
+                  },
+                  "3. RParentheses": ")"
+                }
+              },
+              "5. Semicolon": ";"
+            },
+            "6. LocalVarDecl": {
+              "1. TypeIdentifier": "Integer",
+              "2. VariableDeclarator": {
+                "1. Id": "integerVarName"
+              },
+              "3. Semicolon": ";"
+            },
+            "7. LocalVarDecl": {
+              "1. FloatingPointType": {
+                "1. Float": "(?)"
+              },
+              "2. VariableDeclarator": {
+                "1. Id": "floatVarName"
+              },
+              "3. Semicolon": ";"
+            },
+            "8. LocalVarDecl": {
+              "1. FloatingPointType": {
+                "1. Float": "(?)"
+              },
+              "2. VariableDeclarator": {
+                "1. Id": "floatVarNameInit",
+                "2. Equals": "=",
+                "3. DecimalIntegerLiteral": "0"
+              },
+              "3. Semicolon": ";"
+            },
+            "9. LocalVarDecl": {
+              "1. Modifiers": {
+                "1. Final": "final"
+              },
+              "2. FloatingPointType": {
+                "1. Float": "(?)"
+              },
+              "3. VariableDeclarator": {
+                "1. Id": "floatVarNameFinal",
+                "2. Equals": "=",
+                "3. UnaryExpression": {
+                  "1. Minus": "-",
+                  "2. DecimalIntegerLiteral": "10"
+                }
+              },
+              "4. Semicolon": ";"
+            },
+            "10. LocalVarDecl": {
+              "1. FloatingPointType": {
+                "1. Float": "(?)"
+              },
+              "2. VariableDeclarator": {
+                "1. Id": "floatVarName1"
+              },
+              "3. Comma": ",",
+              "4. VariableDeclarator": {
+                "1. Id": "floatVarName2",
+                "2. Equals": "=",
+                "3. DecimalIntegerLiteral": "0"
+              },
+              "5. Semicolon": ";"
+            },
+            "11. LocalVarDecl": {
+              "1. TypeIdentifier": "Float",
+              "2. VariableDeclarator": {
+                "1. Id": "FloatVarName"
+              },
+              "3. Semicolon": ";"
+            },
+            "12. LocalVarDecl": {
+              "1. FloatingPointType": {
+                "1. Double": "(?)"
+              },
+              "2. VariableDeclarator": {
+                "1. Id": "doubleVarName"
+              },
+              "3. Semicolon": ";"
+            },
+            "13. LocalVarDecl": {
+              "1. FloatingPointType": {
+                "1. Double": "(?)"
+              },
+              "2. VariableDeclarator": {
+                "1. Id": "doubleVarNameInit",
+                "2. Equals": "=",
+                "3. DecimalFloatingPointLiteral": "(?)"
+              },
+              "3. Semicolon": ";"
+            },
+            "14. LocalVarDecl": {
+              "1. FloatingPointType": {
+                "1. Double": "(?)"
+              },
+              "2. VariableDeclarator": {
+                "1. Id": "doubleVarName1",
+                "2. Equals": "=",
+                "3. UnaryExpression": {
+                  "1. Minus": "-",
+                  "2. DecimalIntegerLiteral": "1"
+                }
+              },
+              "3. Comma": ",",
+              "4. VariableDeclarator": {
+                "1. Id": "doubleVarName2"
+              },
+              "5. Semicolon": ";"
+            },
+            "15. LocalVarDecl": {
+              "1. TypeIdentifier": "Double",
+              "2. VariableDeclarator": {
+                "1. Id": "DoubleVarName"
+              },
+              "3. Semicolon": ";"
+            },
+            "16. LocalVarDecl": {
+              "1. IntegralType": {
+                "1. Long": "(?)"
+              },
+              "2. VariableDeclarator": {
+                "1. Id": "longVarName"
+              },
+              "3. Semicolon": ";"
+            },
+            "17. LocalVarDecl": {
+              "1. IntegralType": {
+                "1. Long": "(?)"
+              },
+              "2. VariableDeclarator": {
+                "1. Id": "longVarNameInit",
+                "2. Equals": "=",
+                "3. DecimalIntegerLiteral": "10L"
+              },
+              "3. Semicolon": ";"
+            },
+            "18. LocalVarDecl": {
+              "1. IntegralType": {
+                "1. Long": "(?)"
+              },
+              "2. VariableDeclarator": {
+                "1. Id": "longVarName1"
+              },
+              "3. Comma": ",",
+              "4. VariableDeclarator": {
+                "1. Id": "longVarName2",
+                "2. Equals": "=",
+                "3. DecimalIntegerLiteral": "5L"
+              },
+              "5. Comma": ",",
+              "6. VariableDeclarator": {
+                "1. Id": "longVarNameCasting",
+                "2. Equals": "=",
+                "3. MethodInvocation": {
+                  "1. Id": "Long",
+                  "2. Dot": ".",
+                  "3. Id": "valueOf",
+                  "4. ArgumentList": {
+                    "1. LParentheses": "(",
+                    "2. DecimalIntegerLiteral": "1L",
+                    "3. RParentheses": ")"
+                  }
+                }
+              },
+              "7. Semicolon": ";"
+            },
+            "19. LocalVarDecl": {
+              "1. TypeIdentifier": "Long",
+              "2. VariableDeclarator": {
+                "1. Id": "LongVarName"
+              },
+              "3. Semicolon": ";"
+            },
+            "20. LocalVarDecl": {
+              "1. IntegralType": {
+                "1. Char": "(?)"
+              },
+              "2. VariableDeclarator": {
+                "1. Id": "charVarName"
+              },
+              "3. Semicolon": ";"
+            },
+            "21. LocalVarDecl": {
+              "1. IntegralType": {
+                "1. Char": "(?)"
+              },
+              "2. VariableDeclarator": {
+                "1. Id": "charVarNameInit",
+                "2. Equals": "=",
+                "3. CharacterLiteral": "(?)"
+              },
+              "3. Semicolon": ";"
+            },
+            "22. LocalVarDecl": {
+              "1. IntegralType": {
+                "1. Char": "(?)"
+              },
+              "2. VariableDeclarator": {
+                "1. Id": "charVarName1"
+              },
+              "3. Comma": ",",
+              "4. VariableDeclarator": {
+                "1. Id": "charVarName2",
+                "2. Equals": "=",
+                "3. CharacterLiteral": "(?)"
+              },
+              "5. Semicolon": ";"
+            },
+            "23. LocalVarDecl": {
+              "1. TypeIdentifier": "Character",
+              "2. VariableDeclarator": {
+                "1. Id": "characterVarName"
+              },
+              "3. Semicolon": ";"
+            },
+            "24. LocalVarDecl": {
+              "1. Boolean": "boolean",
+              "2. VariableDeclarator": {
+                "1. Id": "boolVarName"
+              },
+              "3. Semicolon": ";"
+            },
+            "25. LocalVarDecl": {
+              "1. Boolean": "boolean",
+              "2. VariableDeclarator": {
+                "1. Id": "boolVarNameInit",
+                "2. Equals": "=",
+                "3. True": "(?)"
+              },
+              "3. Semicolon": ";"
+            },
+            "26. LocalVarDecl": {
+              "1. Boolean": "boolean",
+              "2. VariableDeclarator": {
+                "1. Id": "boolVarName1"
+              },
+              "3. Comma": ",",
+              "4. VariableDeclarator": {
+                "1. Id": "boolVarName2",
+                "2. Equals": "=",
+                "3. True": "(?)"
+              },
+              "5. Comma": ",",
+              "6. VariableDeclarator": {
+                "1. Id": "boolVarName3",
+                "2. Equals": "=",
+                "3. False": "(?)"
+              },
+              "7. Comma": ",",
+              "8. VariableDeclarator": {
+                "1. Id": "boolVarNameCasting",
+                "2. Equals": "=",
+                "3. FieldAccess": {
+                  "1. Id": "Boolean",
+                  "2. Dot": ".",
+                  "3. Id": "TRUE"
+                }
+              },
+              "9. Semicolon": ";"
+            },
+            "27. LocalVarDecl": {
+              "1. Boolean": "boolean",
+              "2. VariableDeclarator": {
+                "1. Id": "boolVarCompound",
+                "2. Equals": "=",
+                "3. False": "(?)"
+              },
+              "3. Semicolon": ";"
+            },
+            "28. StatementExpr": {
+              "1. AssignmentExpression": {
+                "1. Id": "boolVarCompound",
+                "2. OrComposition": "(?)",
+                "3. Id": "boolVarNameInit"
+              },
+              "2. Semicolon": ";"
+            },
+            "29. StatementExpr": {
+              "1. AssignmentExpression": {
+                "1. Id": "boolVarCompound",
+                "2. AndComposition": "(?)",
+                "3. Id": "boolVarNameInit"
+              },
+              "2. Semicolon": ";"
+            },
+            "30. LocalVarDecl": {
+              "1. TypeIdentifier": "Boolean",
+              "2. VariableDeclarator": {
+                "1. Id": "BooleanVarName"
+              },
+              "3. Semicolon": ";"
+            },
+            "31. LocalVarDecl": {
+              "1. TypeIdentifier": "String",
+              "2. VariableDeclarator": {
+                "1. Id": "stringVarName"
+              },
+              "3. Semicolon": ";"
+            },
+            "32. LocalVarDecl": {
+              "1. TypeIdentifier": "String",
+              "2. VariableDeclarator": {
+                "1. Id": "stringVarInit",
+                "2. Equals": "=",
+                "3. StringLiteral": "\"something\""
+              },
+              "3. Semicolon": ";"
+            },
+            "33. LocalVarDecl": {
+              "1. TypeIdentifier": "String",
+              "2. VariableDeclarator": {
+                "1. Id": "stringVarName1"
+              },
+              "3. Comma": ",",
+              "4. VariableDeclarator": {
+                "1. Id": "stringVarName2",
+                "2. Equals": "=",
+                "3. NullLiteral": "(?)"
+              },
+              "5. Comma": ",",
+              "6. VariableDeclarator": {
+                "1. Id": "stringVarName3",
+                "2. Equals": "=",
+                "3. TernaryExpression": {
+                  "1. ParenthesizedExpr": {
+                    "1. LParentheses": "(",
+                    "2. BinaryExpression": {
+                      "1. DecimalIntegerLiteral": "1",
+                      "2. LessThan": "<",
+                      "3. DecimalIntegerLiteral": "2"
+                    },
+                    "3. RParentheses": ")"
+                  },
+                  "2. QuestionMark": "(?)",
+                  "3. StringLiteral": "\"Good day.\"",
+                  "4. Colon": ":",
+                  "5. StringLiteral": "\"Good evening.\""
+                }
+              },
+              "7. Semicolon": ";"
+            },
+            "34. Semicolon": ";",
+            "35. StatementExpr": {
+              "1. MethodInvocation": {
+                "1. Id": "testNonBasicVariables",
+                "2. ArgumentList": {
+                  "1. LParentheses": "(",
+                  "2. RParentheses": ")"
+                }
+              },
+              "2. Semicolon": ";"
+            },
+            "36. RBrace": "}"
+          }
+        },
+        "6. MethodDecl": {
+          "1. Modifiers": {
+            "1. Private": "private",
+            "2. Static": "static"
+          },
+          "2. VoidType": "void",
+          "3. Id": "testNonBasicVariables",
+          "4. FormalParams": {
+            "1. LParentheses": "(",
+            "2. RParentheses": ")"
+          },
+          "5. Block": {
+            "1. LBrace": "{",
+            "2. LocalVarDecl": {
+              "1. ArrayType": {
+                "1. IntegralType": {
+                  "1. Byte": "(?)"
+                },
+                "2. Dimensions": {
+                  "1. LBracket": "[",
+                  "2. RBracket": "]"
+                }
+              },
+              "2. VariableDeclarator": {
+                "1. Id": "byteVarName"
+              },
+              "3. Semicolon": ";"
+            },
+            "3. LocalVarDecl": {
+              "1. IntegralType": {
+                "1. Short": "(?)"
+              },
+              "2. VariableDeclarator": {
+                "1. Id": "shortVarName"
+              },
+              "3. Semicolon": ";"
+            },
+            "4. LocalVarDecl": {
+              "1. TypeIdentifier": "LocalDate",
+              "2. VariableDeclarator": {
+                "1. Id": "localDateVarName",
+                "2. Equals": "=",
+                "3. MethodInvocation": {
+                  "1. Id": "LocalDate",
+                  "2. Dot": ".",
+                  "3. Id": "now",
+                  "4. ArgumentList": {
+                    "1. LParentheses": "(",
+                    "2. RParentheses": ")"
+                  }
+                }
+              },
+              "3. Semicolon": ";"
+            },
+            "5. Comment": "// Create a date object",
+            "6. LocalVarDecl": {
+              "1. TypeIdentifier": "LocalTime",
+              "2. VariableDeclarator": {
+                "1. Id": "localTimeVarName",
+                "2. Equals": "=",
+                "3. MethodInvocation": {
+                  "1. Id": "LocalTime",
+                  "2. Dot": ".",
+                  "3. Id": "now",
+                  "4. ArgumentList": {
+                    "1. LParentheses": "(",
+                    "2. RParentheses": ")"
+                  }
+                }
+              },
+              "3. Semicolon": ";"
+            },
+            "7. RBrace": "}"
+          }
+        },
+        "7. Comment": "/* This method tests compound variables */",
+        "8. MethodDecl": {
+          "1. Modifiers": {
+            "1. Public": "public",
+            "2. Static": "static"
+          },
+          "2. GenericType": {
+            "1. TypeIdentifier": "List",
+            "2. TypeArguments": {
+              "1. LessThan": "<",
+              "2. TypeIdentifier": "Integer",
+              "3. GreaterThan": ">"
+            }
+          },
+          "3. Id": "testCompoundVariables",
+          "4. FormalParams": {
+            "1. LParentheses": "(",
+            "2. SpreadParameter": {
+              "1. TypeIdentifier": "String",
+              "2. ThreeDots": "(?)",
+              "3. VariableDeclarator": {
+                "1. Id": "args"
+              }
+            },
+            "3. RParentheses": ")"
+          },
+          "5. Block": {
+            "1. LBrace": "{",
+            "2. LocalVarDecl": {
+              "1. Modifiers": {
+                "1. Final": "final"
+              },
+              "2. TypeIdentifier": "Integer",
+              "3. VariableDeclarator": {
+                "1. Id": "integerVarName1",
+                "2. Equals": "=",
+                "3. NullLiteral": "(?)"
+              },
+              "4. Comma": ",",
+              "5. VariableDeclarator": {
+                "1. Id": "integerVarName2",
+                "2. Equals": "=",
+                "3. DecimalIntegerLiteral": "1"
+              },
+              "6. Semicolon": ";"
+            },
+            "3. LocalVarDecl": {
+              "1. Modifiers": {
+                "1. Final": "final"
+              },
+              "2. GenericType": {
+                "1. TypeIdentifier": "List",
+                "2. TypeArguments": {
+                  "1. LessThan": "<",
+                  "2. TypeIdentifier": "Integer",
+                  "3. GreaterThan": ">"
+                }
+              },
+              "3. VariableDeclarator": {
+                "1. Id": "unmodifiableList",
+                "2. Equals": "=",
+                "3. MethodInvocation": {
+                  "1. Id": "List",
+                  "2. Dot": ".",
+                  "3. Id": "of",
+                  "4. ArgumentList": {
+                    "1. LParentheses": "(",
+                    "2. Id": "integerVarName2",
+                    "3. RParentheses": ")"
+                  }
+                }
+              },
+              "4. Semicolon": ";"
+            },
+            "4. Comment": "// Do not remove inline comment",
+            "5. LocalVarDecl": {
+              "1. Modifiers": {
+                "1. Final": "final"
+              },
+              "2. GenericType": {
+                "1. TypeIdentifier": "List",
+                "2. TypeArguments": {
+                  "1. LessThan": "<",
+                  "2. TypeIdentifier": "Integer",
+                  "3. GreaterThan": ">"
+                }
+              },
+              "3. VariableDeclarator": {
+                "1. Id": "integerList2",
+                "2. Equals": "=",
+                "3. ObjectCreationExpression": {
+                  "1. New": "(?)",
+                  "2. GenericType": {
+                    "1. TypeIdentifier": "ArrayList",
+                    "2. TypeArguments": {
+                      "1. LessThan": "<",
+                      "2. GreaterThan": ">"
+                    }
+                  },
+                  "3. ArgumentList": {
+                    "1. LParentheses": "(",
+                    "2. RParentheses": ")"
+                  }
+                }
+              },
+              "4. Semicolon": ";"
+            },
+            "6. StatementExpr": {
+              "1. MethodInvocation": {
+                "1. Id": "integerList2",
+                "2. Dot": ".",
+                "3. Id": "add",
+                "4. ArgumentList": {
+                  "1. LParentheses": "(",
+                  "2. DecimalIntegerLiteral": "4",
+                  "3. RParentheses": ")"
+                }
+              },
+              "2. Semicolon": ";"
+            },
+            "7. LocalVarDecl": {
+              "1. ArrayType": {
+                "1. IntegralType": {
+                  "1. Int": "int"
+                },
+                "2. Dimensions": {
+                  "1. LBracket": "[",
+                  "2. RBracket": "]",
+                  "3. LBracket": "[",
+                  "4. RBracket": "]"
+                }
+              },
+              "2. VariableDeclarator": {
+                "1. Id": "multidimensionalArrayOfNumbers",
+                "2. Equals": "=",
+                "3. ArrayInitializer": {
+                  "1. LBrace": "{",
+                  "2. ArrayInitializer": {
+                    "1. LBrace": "{",
+                    "2. DecimalIntegerLiteral": "1",
+                    "3. Comma": ",",
+                    "4. DecimalIntegerLiteral": "2",
+                    "5. Comma": ",",
+                    "6. DecimalIntegerLiteral": "3",
+                    "7. Comma": ",",
+                    "8. DecimalIntegerLiteral": "4",
+                    "9. RBrace": "}"
+                  },
+                  "3. Comma": ",",
+                  "4. ArrayInitializer": {
+                    "1. LBrace": "{",
+                    "2. DecimalIntegerLiteral": "5",
+                    "3. Comma": ",",
+                    "4. DecimalIntegerLiteral": "6",
+                    "5. Comma": ",",
+                    "6. DecimalIntegerLiteral": "7",
+                    "7. RBrace": "}"
+                  },
+                  "5. RBrace": "}"
+                }
+              },
+              "3. Semicolon": ";"
+            },
+            "8. LocalVarDecl": {
+              "1. GenericType": {
+                "1. TypeIdentifier": "HashMap",
+                "2. TypeArguments": {
+                  "1. LessThan": "<",
+                  "2. TypeIdentifier": "String",
+                  "3. Comma": ",",
+                  "4. TypeIdentifier": "String",
+                  "5. GreaterThan": ">"
+                }
+              },
+              "2. VariableDeclarator": {
+                "1. Id": "capitalCities",
+                "2. Equals": "=",
+                "3. ObjectCreationExpression": {
+                  "1. New": "(?)",
+                  "2. GenericType": {
+                    "1. TypeIdentifier": "HashMap",
+                    "2. TypeArguments": {
+                      "1. LessThan": "<",
+                      "2. TypeIdentifier": "String",
+                      "3. Comma": ",",
+                      "4. TypeIdentifier": "String",
+                      "5. GreaterThan": ">"
+                    }
+                  },
+                  "3. ArgumentList": {
+                    "1. LParentheses": "(",
+                    "2. RParentheses": ")"
+                  }
+                }
+              },
+              "3. Semicolon": ";"
+            },
+            "9. LocalVarDecl": {
+              "1. Modifiers": {
+                "1. Final": "final"
+              },
+              "2. GenericType": {
+                "1. TypeIdentifier": "Class",
+                "2. TypeArguments": {
+                  "1. LessThan": "<",
+                  "2. TypeIdentifier": "TestBaseClass",
+                  "3. GreaterThan": ">"
+                }
+              },
+              "3. VariableDeclarator": {
+                "1. Id": "classVar",
+                "2. Equals": "=",
+                "3. FieldAccess": {
+                  "1. Id": "TestBaseClass",
+                  "2. Dot": ".",
+                  "3. Id": "class"
+                }
+              },
+              "4. Semicolon": ";"
+            },
+            "10. ReturnStatement": {
+              "1. Return": "return",
+              "2. Id": "unmodifiableList",
+              "3. Semicolon": ";"
+            },
+            "11. RBrace": "}"
+          }
+        },
+        "9. MethodDecl": {
+          "1. Modifiers": {
+            "1. Private": "private",
+            "2. Static": "static"
+          },
+          "2. IntegralType": {
+            "1. Int": "int"
+          },
+          "3. Id": "testFlowControl",
+          "4. FormalParams": {
+            "1. LParentheses": "(",
+            "2. FormalParam": {
+              "1. Modifiers": {
+                "1. Final": "final"
+              },
+              "2. GenericType": {
+                "1. TypeIdentifier": "List",
+                "2. TypeArguments": {
+                  "1. LessThan": "<",
+                  "2. TypeIdentifier": "Integer",
+                  "3. GreaterThan": ">"
+                }
+              },
+              "3. Id": "integerList"
+            },
+            "3. RParentheses": ")"
+          },
+          "5. Throws": {
+            "1. Throws": "(?)",
+            "2. TypeIdentifier": "RuntimeException"
+          },
+          "6. Block": {
+            "1. LBrace": "{",
+            "2. IfStatement": {
+              "1. If": "(?)",
+              "2. ParenthesizedExpr": {
+                "1. LParentheses": "(",
+                "2. BinaryExpression": {
+                  "1. BinaryExpression": {
+                    "1. Id": "integerList",
+                    "2. Equality": "(?)",
+                    "3. NullLiteral": "(?)"
+                  },
+                  "2. Or": "(?)",
+                  "3. MethodInvocation": {
+                    "1. Id": "integerList",
+                    "2. Dot": ".",
+                    "3. Id": "isEmpty",
+                    "4. ArgumentList": {
+                      "1. LParentheses": "(",
+                      "2. RParentheses": ")"
+                    }
+                  }
+                },
+                "3. RParentheses": ")"
+              },
+              "3. Block": {
+                "1. LBrace": "{",
+                "2. ReturnStatement": {
+                  "1. Return": "return",
+                  "2. DecimalIntegerLiteral": "0",
+                  "3. Semicolon": ";"
+                },
+                "3. RBrace": "}"
+              }
+            },
+            "3. IfStatement": {
+              "1. If": "(?)",
+              "2. ParenthesizedExpr": {
+                "1. LParentheses": "(",
+                "2. BinaryExpression": {
+                  "1. BinaryExpression": {
+                    "1. BinaryExpression": {
+                      "1. True": "(?)",
+                      "2. NoEquality": "(?)",
+                      "3. False": "(?)"
+                    },
+                    "2. And": "(?)",
+                    "3. UnaryExpression": {
+                      "1. ExclamationMark": "(?)",
+                      "2. UnaryExpression": {
+                        "1. ExclamationMark": "(?)",
+                        "2. ParenthesizedExpr": {
+                          "1. LParentheses": "(",
+                          "2. BinaryExpression": {
+                            "1. DecimalIntegerLiteral": "1",
+                            "2. GreaterOrEqual": "(?)",
+                            "3. DecimalIntegerLiteral": "1"
+                          },
+                          "3. RParentheses": ")"
+                        }
+                      }
+                    }
+                  },
+                  "2. Or": "(?)",
+                  "3. ParenthesizedExpr": {
+                    "1. LParentheses": "(",
+                    "2. InstanceofExpression": {
+                      "1. NullLiteral": "(?)",
+                      "2. Instanceof": "(?)",
+                      "3. TypeIdentifier": "Integer"
+                    },
+                    "3. RParentheses": ")"
+                  }
+                },
+                "3. RParentheses": ")"
+              },
+              "3. Block": {
+                "1. LBrace": "{",
+                "2. TryStatement": {
+                  "1. Try": "(?)",
+                  "2. Block": {
+                    "1. LBrace": "{",
+                    "2. ReturnStatement": {
+                      "1. Return": "return",
+                      "2. CastExpression": {
+                        "1. LParentheses": "(",
+                        "2. IntegralType": {
+                          "1. Int": "int"
+                        },
+                        "3. RParentheses": ")",
+                        "4. MethodInvocation": {
+                          "1. MethodInvocation": {
+                            "1. MethodInvocation": {
+                              "1. MethodInvocation": {
+                                "1. MethodInvocation": {
+                                  "1. MethodInvocation": {
+                                    "1. MethodInvocation": {
+                                      "1. MethodInvocation": {
+                                        "1. Id": "integerList",
+                                        "2. Dot": ".",
+                                        "3. Id": "stream",
+                                        "4. ArgumentList": {
+                                          "1. LParentheses": "(",
+                                          "2. RParentheses": ")"
+                                        }
+                                      },
+                                      "2. Dot": ".",
+                                      "3. Id": "map",
+                                      "4. ArgumentList": {
+                                        "1. LParentheses": "(",
+                                        "2. LambdaExpression": {
+                                          "1. Id": "t",
+                                          "2. LambdaArrow": "(?)",
+                                          "3. Id": "t"
+                                        },
+                                        "3. RParentheses": ")"
+                                      }
+                                    },
+                                    "2. Dot": ".",
+                                    "3. Id": "map",
+                                    "4. ArgumentList": {
+                                      "1. LParentheses": "(",
+                                      "2. MethodReference": {
+                                        "1. Id": "TestClass",
+                                        "2. MethodReferenceOperator": "(?)",
+                                        "3. Id": "identity"
+                                      },
+                                      "3. RParentheses": ")"
+                                    }
+                                  },
+                                  "2. Dot": ".",
+                                  "3. Id": "filter",
+                                  "4. ArgumentList": {
+                                    "1. LParentheses": "(",
+                                    "2. LambdaExpression": {
+                                      "1. Id": "t",
+                                      "2. LambdaArrow": "(?)",
+                                      "3. BinaryExpression": {
+                                        "1. Id": "t",
+                                        "2. GreaterThan": ">",
+                                        "3. DecimalIntegerLiteral": "0"
+                                      }
+                                    },
+                                    "3. RParentheses": ")"
+                                  }
+                                },
+                                "2. Dot": ".",
+                                "3. Id": "collect",
+                                "4. ArgumentList": {
+                                  "1. LParentheses": "(",
+                                  "2. MethodInvocation": {
+                                    "1. Id": "Collectors",
+                                    "2. Dot": ".",
+                                    "3. Id": "toList",
+                                    "4. ArgumentList": {
+                                      "1. LParentheses": "(",
+                                      "2. RParentheses": ")"
+                                    }
+                                  },
+                                  "3. RParentheses": ")"
+                                }
+                              },
+                              "2. Dot": ".",
+                              "3. Id": "stream",
+                              "4. ArgumentList": {
+                                "1. LParentheses": "(",
+                                "2. RParentheses": ")"
+                              }
+                            },
+                            "2. Dot": ".",
+                            "3. Id": "distinct",
+                            "4. ArgumentList": {
+                              "1. LParentheses": "(",
+                              "2. RParentheses": ")"
+                            }
+                          },
+                          "2. Dot": ".",
+                          "3. Id": "count",
+                          "4. ArgumentList": {
+                            "1. LParentheses": "(",
+                            "2. RParentheses": ")"
+                          }
+                        }
+                      },
+                      "3. Semicolon": ";"
+                    },
+                    "3. RBrace": "}"
+                  },
+                  "3. CatchClause": {
+                    "1. Catch": "(?)",
+                    "2. LParentheses": "(",
+                    "3. CatchFormalParameter": {
+                      "1. CatchType": {
+                        "1. TypeIdentifier": "Exception"
+                      },
+                      "2. Id": "e"
+                    },
+                    "4. RParentheses": ")",
+                    "5. Block": {
+                      "1. LBrace": "{",
+                      "2. ThrowStatement": {
+                        "1. Throw": "(?)",
+                        "2. ObjectCreationExpression": {
+                          "1. New": "(?)",
+                          "2. TypeIdentifier": "RuntimeException",
+                          "3. ArgumentList": {
+                            "1. LParentheses": "(",
+                            "2. Id": "e",
+                            "3. RParentheses": ")"
+                          }
+                        },
+                        "3. Semicolon": ";"
+                      },
+                      "3. RBrace": "}"
+                    }
+                  },
+                  "4. FinallyClause": {
+                    "1. Finally": "(?)",
+                    "2. Block": {
+                      "1. LBrace": "{",
+                      "2. Comment": "// Ignore",
+                      "3. RBrace": "}"
+                    }
+                  }
+                },
+                "3. RBrace": "}"
+              },
+              "4. Else": "(?)",
+              "5. IfStatement": {
+                "1. If": "(?)",
+                "2. ParenthesizedExpr": {
+                  "1. LParentheses": "(",
+                  "2. BinaryExpression": {
+                    "1. BinaryExpression": {
+                      "1. BinaryExpression": {
+                        "1. ParenthesizedExpr": {
+                          "1. LParentheses": "(",
+                          "2. BinaryExpression": {
+                            "1. BinaryExpression": {
+                              "1. DecimalIntegerLiteral": "1",
+                              "2. Plus": "+",
+                              "3. DecimalIntegerLiteral": "2"
+                            },
+                            "2. Minus": "-",
+                            "3. DecimalIntegerLiteral": "1"
+                          },
+                          "3. RParentheses": ")"
+                        },
+                        "2. Equality": "(?)",
+                        "3. DecimalIntegerLiteral": "2"
+                      },
+                      "2. And": "(?)",
+                      "3. MethodInvocation": {
+                        "1. StringLiteral": "\"string\"",
+                        "2. Dot": ".",
+                        "3. Id": "equals",
+                        "4. ArgumentList": {
+                          "1. LParentheses": "(",
+                          "2. StringLiteral": "\"string\"",
+                          "3. RParentheses": ")"
+                        }
+                      }
+                    },
+                    "2. Or": "(?)",
+                    "3. BinaryExpression": {
+                      "1. DecimalIntegerLiteral": "1",
+                      "2. LessOrEqual": "(?)",
+                      "3. DecimalIntegerLiteral": "0"
+                    }
+                  },
+                  "3. RParentheses": ")"
+                },
+                "3. Block": {
+                  "1. LBrace": "{",
+                  "2. LocalVarDecl": {
+                    "1. TypeIdentifier": "var",
+                    "2. VariableDeclarator": {
+                      "1. Id": "counter",
+                      "2. Equals": "=",
+                      "3. MethodInvocation": {
+                        "1. Id": "testLoops",
+                        "2. ArgumentList": {
+                          "1. LParentheses": "(",
+                          "2. RParentheses": ")"
+                        }
+                      }
+                    },
+                    "3. Semicolon": ";"
+                  },
+                  "3. ReturnStatement": {
+                    "1. Return": "return",
+                    "2. Id": "counter",
+                    "3. Semicolon": ";"
+                  },
+                  "4. RBrace": "}"
+                },
+                "4. Else": "(?)",
+                "5. Block": {
+                  "1. LBrace": "{",
+                  "2. LocalVarDecl": {
+                    "1. IntegralType": {
+                      "1. Int": "int"
+                    },
+                    "2. VariableDeclarator": {
+                      "1. Id": "day",
+                      "2. Equals": "=",
+                      "3. DecimalIntegerLiteral": "4"
+                    },
+                    "3. Semicolon": ";"
+                  },
+                  "3. SwitchStatement": {
+                    "1. Switch": "(?)",
+                    "2. ParenthesizedExpr": {
+                      "1. LParentheses": "(",
+                      "2. Id": "day",
+                      "3. RParentheses": ")"
+                    },
+                    "3. SwitchBlock": {
+                      "1. LBrace": "{",
+                      "2. SwitchLabel": {
+                        "1. Case": "case",
+                        "2. DecimalIntegerLiteral": "6",
+                        "3. Colon": ":"
+                      },
+                      "3. StatementExpr": {
+                        "1. MethodInvocation": {
+                          "1. FieldAccess": {
+                            "1. Id": "System",
+                            "2. Dot": ".",
+                            "3. Id": "out"
+                          },
+                          "2. Dot": ".",
+                          "3. Id": "println",
+                          "4. ArgumentList": {
+                            "1. LParentheses": "(",
+                            "2. StringLiteral": "\"Today is Saturday\"",
+                            "3. RParentheses": ")"
+                          }
+                        },
+                        "2. Semicolon": ";"
+                      },
+                      "4. BreakStatement": {
+                        "1. Break": "(?)",
+                        "2. Semicolon": ";"
+                      },
+                      "5. SwitchLabel": {
+                        "1. Default": "default",
+                        "2. Colon": ":"
+                      },
+                      "6. StatementExpr": {
+                        "1. MethodInvocation": {
+                          "1. FieldAccess": {
+                            "1. Id": "System",
+                            "2. Dot": ".",
+                            "3. Id": "out"
+                          },
+                          "2. Dot": ".",
+                          "3. Id": "println",
+                          "4. ArgumentList": {
+                            "1. LParentheses": "(",
+                            "2. StringLiteral": "\"Looking forward to the Weekend\"",
+                            "3. RParentheses": ")"
+                          }
+                        },
+                        "2. Semicolon": ";"
+                      },
+                      "7. RBrace": "}"
+                    }
+                  },
+                  "4. SwitchStatement": {
+                    "1. Switch": "(?)",
+                    "2. ParenthesizedExpr": {
+                      "1. LParentheses": "(",
+                      "2. Id": "day",
+                      "3. RParentheses": ")"
+                    },
+                    "3. SwitchBlock": {
+                      "1. LBrace": "{",
+                      "2. SwitchLabel": {
+                        "1. Case": "case",
+                        "2. BinaryExpression": {
+                          "1. DecimalIntegerLiteral": "7",
+                          "2. UnknownType": {
+                            "1. Minus": "-"
+                          },
+                          "3. GreaterThan": ">",
+                          "4. MethodInvocation": {
+                            "1. FieldAccess": {
+                              "1. Id": "System",
+                              "2. Dot": ".",
+                              "3. Id": "out"
+                            },
+                            "2. Dot": ".",
+                            "3. Id": "println",
+                            "4. ArgumentList": {
+                              "1. LParentheses": "(",
+                              "2. StringLiteral": "\"Today is Sunday\"",
+                              "3. RParentheses": ")"
+                            }
+                          }
+                        },
+                        "3. Colon": ""
+                      },
+                      "3. Semicolon": ";",
+                      "4. UnknownType": {
+                        "1. Modifiers": {
+                          "1. Default": "default"
+                        },
+                        "2. UnknownType": {
+                          "1. LambdaArrow": "(?)"
+                        },
+                        "3. ScopedTypeIdentifier": {
+                          "1. ScopedTypeIdentifier": {
+                            "1. TypeIdentifier": "System",
+                            "2. Dot": ".",
+                            "3. TypeIdentifier": "out"
+                          },
+                          "2. Dot": ".",
+                          "3. TypeIdentifier": "println"
+                        }
+                      },
+                      "5. StatementExpr": {
+                        "1. ParenthesizedExpr": {
+                          "1. LParentheses": "(",
+                          "2. StringLiteral": "\"Looking forward to the Weekend\"",
+                          "3. RParentheses": ")"
+                        },
+                        "2. Semicolon": ";"
+                      },
+                      "6. Comment": "// There",
+                      "7. RBrace": "}"
+                    }
+                  },
+                  "5. RBrace": "}"
+                }
+              }
+            },
+            "4. ReturnStatement": {
+              "1. Return": "return",
+              "2. DecimalIntegerLiteral": "0",
+              "3. Semicolon": ";"
+            },
+            "5. RBrace": "}"
+          }
+        },
+        "10. MethodDecl": {
+          "1. Modifiers": {
+            "1. Private": "private",
+            "2. Static": "static"
+          },
+          "2. VoidType": "void",
+          "3. Id": "testSpecificOperators",
+          "4. FormalParams": {
+            "1. LParentheses": "(",
+            "2. RParentheses": ")"
+          },
+          "5. Block": {
+            "1. LBrace": "{",
+            "2. StatementExpr": {
+              "1. MethodInvocation": {
+                "1. FieldAccess": {
+                  "1. Id": "System",
+                  "2. Dot": ".",
+                  "3. Id": "out"
+                },
+                "2. Dot": ".",
+                "3. Id": "println",
+                "4. ArgumentList": {
+                  "1. LParentheses": "(",
+                  "2. BinaryExpression": {
+                    "1. DecimalIntegerLiteral": "10",
+                    "2. BitwiseShiftRight": "(?)",
+                    "3. DecimalIntegerLiteral": "2"
+                  },
+                  "3. RParentheses": ")"
+                }
+              },
+              "2. Semicolon": ";"
+            },
+            "3. Comment": "//10/2^2=10/4=2",
+            "4. StatementExpr": {
+              "1. MethodInvocation": {
+                "1. FieldAccess": {
+                  "1. Id": "System",
+                  "2. Dot": ".",
+                  "3. Id": "out"
+                },
+                "2. Dot": ".",
+                "3. Id": "println",
+                "4. ArgumentList": {
+                  "1. LParentheses": "(",
+                  "2. BinaryExpression": {
+                    "1. DecimalIntegerLiteral": "10",
+                    "2. BitwiseShiftLeft": "(?)",
+                    "3. DecimalIntegerLiteral": "2"
+                  },
+                  "3. RParentheses": ")"
+                }
+              },
+              "2. Semicolon": ";"
+            },
+            "5. StatementExpr": {
+              "1. MethodInvocation": {
+                "1. FieldAccess": {
+                  "1. Id": "System",
+                  "2. Dot": ".",
+                  "3. Id": "out"
+                },
+                "2. Dot": ".",
+                "3. Id": "println",
+                "4. ArgumentList": {
+                  "1. LParentheses": "(",
+                  "2. BinaryExpression": {
+                    "1. DecimalIntegerLiteral": "20",
+                    "2. BitwiseShiftRightUnsigned": "(?)",
+                    "3. DecimalIntegerLiteral": "2"
+                  },
+                  "3. RParentheses": ")"
+                }
+              },
+              "2. Semicolon": ";"
+            },
+            "6. LocalVarDecl": {
+              "1. IntegralType": {
+                "1. Int": "int"
+              },
+              "2. VariableDeclarator": {
+                "1. Id": "a",
+                "2. Equals": "=",
+                "3. DecimalIntegerLiteral": "10"
+              },
+              "3. Comma": ",",
+              "4. VariableDeclarator": {
+                "1. Id": "b",
+                "2. Equals": "=",
+                "3. DecimalIntegerLiteral": "5"
+              },
+              "5. Comma": ",",
+              "6. VariableDeclarator": {
+                "1. Id": "c",
+                "2. Equals": "=",
+                "3. DecimalIntegerLiteral": "20"
+              },
+              "7. Semicolon": ";"
+            },
+            "7. StatementExpr": {
+              "1. MethodInvocation": {
+                "1. FieldAccess": {
+                  "1. Id": "System",
+                  "2. Dot": ".",
+                  "3. Id": "out"
+                },
+                "2. Dot": ".",
+                "3. Id": "println",
+                "4. ArgumentList": {
+                  "1. LParentheses": "(",
+                  "2. BinaryExpression": {
+                    "1. BinaryExpression": {
+                      "1. Id": "a",
+                      "2. LessThan": "<",
+                      "3. Id": "b"
+                    },
+                    "2. Ampersand": "(?)",
+                    "3. BinaryExpression": {
+                      "1. Id": "a",
+                      "2. LessThan": "<",
+                      "3. Id": "c"
+                    }
+                  },
+                  "3. RParentheses": ")"
+                }
+              },
+              "2. Semicolon": ";"
+            },
+            "8. Comment": "//false & true = false",
+            "9. StatementExpr": {
+              "1. MethodInvocation": {
+                "1. FieldAccess": {
+                  "1. Id": "System",
+                  "2. Dot": ".",
+                  "3. Id": "out"
+                },
+                "2. Dot": ".",
+                "3. Id": "println",
+                "4. ArgumentList": {
+                  "1. LParentheses": "(",
+                  "2. BinaryExpression": {
+                    "1. BinaryExpression": {
+                      "1. Id": "a",
+                      "2. LessThan": "<",
+                      "3. Id": "b"
+                    },
+                    "2. And": "(?)",
+                    "3. BinaryExpression": {
+                      "1. UpdateExpression": {
+                        "1. Id": "a",
+                        "2. PlusPlus": "(?)"
+                      },
+                      "2. LessThan": "<",
+                      "3. Id": "c"
+                    }
+                  },
+                  "3. RParentheses": ")"
+                }
+              },
+              "2. Semicolon": ";"
+            },
+            "10. Comment": "//false && true = false",
+            "11. StatementExpr": {
+              "1. MethodInvocation": {
+                "1. FieldAccess": {
+                  "1. Id": "System",
+                  "2. Dot": ".",
+                  "3. Id": "out"
+                },
+                "2. Dot": ".",
+                "3. Id": "println",
+                "4. ArgumentList": {
+                  "1. LParentheses": "(",
+                  "2. BinaryExpression": {
+                    "1. BinaryExpression": {
+                      "1. Id": "a",
+                      "2. GreaterThan": ">",
+                      "3. Id": "b"
+                    },
+                    "2. Or": "(?)",
+                    "3. BinaryExpression": {
+                      "1. Id": "a",
+                      "2. LessThan": "<",
+                      "3. Id": "c"
+                    }
+                  },
+                  "3. RParentheses": ")"
+                }
+              },
+              "2. Semicolon": ";"
+            },
+            "12. Comment": "//true || true = true",
+            "13. StatementExpr": {
+              "1. MethodInvocation": {
+                "1. FieldAccess": {
+                  "1. Id": "System",
+                  "2. Dot": ".",
+                  "3. Id": "out"
+                },
+                "2. Dot": ".",
+                "3. Id": "println",
+                "4. ArgumentList": {
+                  "1. LParentheses": "(",
+                  "2. UnaryExpression": {
+                    "1. Tilde": "(?)",
+                    "2. Id": "b"
+                  },
+                  "3. RParentheses": ")"
+                }
+              },
+              "2. Semicolon": ";"
+            },
+            "14. Comment": "// [b=10] 9 (positive of total minus, positive starts from 0)",
+            "15. RBrace": "}"
+          }
+        },
+        "11. MethodDecl": {
+          "1. Modifiers": {
+            "1. Private": "private",
+            "2. Static": "static"
+          },
+          "2. VoidType": "void",
+          "3. Id": "testReservedKeywords",
+          "4. FormalParams": {
+            "1. LParentheses": "(",
+            "2. RParentheses": ")"
+          },
+          "5. Block": {
+            "1. LBrace": "{",
+            "2. Comment": "// Missing keywords: exports, goto, module, native, requires, strictfp",
+            "3. AssertStatement": {
+              "1. Assert": "(?)",
+              "2. ParenthesizedExpr": {
+                "1. LParentheses": "(",
+                "2. BinaryExpression": {
+                  "1. DecimalIntegerLiteral": "1",
+                  "2. Equality": "(?)",
+                  "3. DecimalIntegerLiteral": "1"
+                },
+                "3. RParentheses": ")"
+              },
+              "3. Semicolon": ";"
+            },
+            "4. RBrace": "}"
+          }
+        },
+        "12. MethodDecl": {
+          "1. Modifiers": {
+            "1. Private": "private",
+            "2. Static": "static"
+          },
+          "2. VoidType": "void",
+          "3. Id": "callThread",
+          "4. FormalParams": {
+            "1. LParentheses": "(",
+            "2. RParentheses": ")"
+          },
+          "5. Block": {
+            "1. LBrace": "{",
+            "2. LocalVarDecl": {
+              "1. TypeIdentifier": "Main",
+              "2. VariableDeclarator": {
+                "1. Id": "obj",
+                "2. Equals": "=",
+                "3. ObjectCreationExpression": {
+                  "1. New": "(?)",
+                  "2. TypeIdentifier": "Main",
+                  "3. ArgumentList": {
+                    "1. LParentheses": "(",
+                    "2. RParentheses": ")"
+                  }
+                }
+              },
+              "3. Semicolon": ";"
+            },
+            "3. LocalVarDecl": {
+              "1. TypeIdentifier": "Thread",
+              "2. VariableDeclarator": {
+                "1. Id": "thread",
+                "2. Equals": "=",
+                "3. ObjectCreationExpression": {
+                  "1. New": "(?)",
+                  "2. TypeIdentifier": "Thread",
+                  "3. ArgumentList": {
+                    "1. LParentheses": "(",
+                    "2. CastExpression": {
+                      "1. LParentheses": "(",
+                      "2. TypeIdentifier": "Runnable",
+                      "3. RParentheses": ")",
+                      "4. Id": "obj"
+                    },
+                    "3. RParentheses": ")"
+                  }
+                }
+              },
+              "3. Semicolon": ";"
+            },
+            "4. StatementExpr": {
+              "1. MethodInvocation": {
+                "1. Id": "thread",
+                "2. Dot": ".",
+                "3. Id": "start",
+                "4. ArgumentList": {
+                  "1. LParentheses": "(",
+                  "2. RParentheses": ")"
+                }
+              },
+              "2. Semicolon": ";"
+            },
+            "5. RBrace": "}"
+          }
+        },
+        "13. MethodDecl": {
+          "1. Modifiers": {
+            "1. Private": "private",
+            "2. Synchronized": "(?)",
+            "3. Static": "static"
+          },
+          "2. IntegralType": {
+            "1. Int": "int"
+          },
+          "3. Id": "testLoops",
+          "4. FormalParams": {
+            "1. LParentheses": "(",
+            "2. RParentheses": ")"
+          },
+          "5. Block": {
+            "1. LBrace": "{",
+            "2. LocalVarDecl": {
+              "1. IntegralType": {
+                "1. Int": "int"
+              },
+              "2. VariableDeclarator": {
+                "1. Id": "counter",
+                "2. Equals": "=",
+                "3. DecimalIntegerLiteral": "0"
+              },
+              "3. Semicolon": ";"
+            },
+            "3. ForStatement": {
+              "1. For": "(?)",
+              "2. LParentheses": "(",
+              "3. LocalVarDecl": {
+                "1. IntegralType": {
+                  "1. Int": "int"
+                },
+                "2. VariableDeclarator": {
+                  "1. Id": "i",
+                  "2. Equals": "=",
+                  "3. DecimalIntegerLiteral": "0"
+                },
+                "3. Semicolon": ";"
+              },
+              "4. BinaryExpression": {
+                "1. Id": "i",
+                "2. LessThan": "<",
+                "3. DecimalIntegerLiteral": "10"
+              },
+              "5. Semicolon": ";",
+              "6. UpdateExpression": {
+                "1. Id": "i",
+                "2. PlusPlus": "(?)"
+              },
+              "7. RParentheses": ")",
+              "8. Block": {
+                "1. LBrace": "{",
+                "2. StatementExpr": {
+                  "1. AssignmentExpression": {
+                    "1. Id": "counter",
+                    "2. PlusComposition": "(?)",
+                    "3. Id": "i"
+                  },
+                  "2. Semicolon": ";"
+                },
+                "3. ContinueStatement": {
+                  "1. Continue": "(?)",
+                  "2. Semicolon": ";"
+                },
+                "4. RBrace": "}"
+              }
+            },
+            "4. ForStatement": {
+              "1. For": "(?)",
+              "2. LParentheses": "(",
+              "3. LocalVarDecl": {
+                "1. IntegralType": {
+                  "1. Int": "int"
+                },
+                "2. VariableDeclarator": {
+                  "1. Id": "j",
+                  "2. Equals": "=",
+                  "3. DecimalIntegerLiteral": "10"
+                },
+                "3. Semicolon": ";"
+              },
+              "4. BinaryExpression": {
+                "1. Id": "j",
+                "2. GreaterOrEqual": "(?)",
+                "3. DecimalIntegerLiteral": "10"
+              },
+              "5. Semicolon": ";",
+              "6. UpdateExpression": {
+                "1. MinusMinus": "(?)",
+                "2. Id": "j"
+              },
+              "7. RParentheses": ")",
+              "8. Block": {
+                "1. LBrace": "{",
+                "2. StatementExpr": {
+                  "1. AssignmentExpression": {
+                    "1. Id": "counter",
+                    "2. MinusComposition": "(?)",
+                    "3. Id": "j"
+                  },
+                  "2. Semicolon": ";"
+                },
+                "3. StatementExpr": {
+                  "1. AssignmentExpression": {
+                    "1. Id": "counter",
+                    "2. MultiplicationComposition": "(?)",
+                    "3. DecimalIntegerLiteral": "1"
+                  },
+                  "2. Semicolon": ";"
+                },
+                "4. StatementExpr": {
+                  "1. AssignmentExpression": {
+                    "1. Id": "counter",
+                    "2. DivisionComposition": "(?)",
+                    "3. DecimalIntegerLiteral": "1"
+                  },
+                  "2. Semicolon": ";"
+                },
+                "5. StatementExpr": {
+                  "1. AssignmentExpression": {
+                    "1. Id": "counter",
+                    "2. ModuleComposition": "(?)",
+                    "3. DecimalIntegerLiteral": "1"
+                  },
+                  "2. Semicolon": ";"
+                },
+                "6. StatementExpr": {
+                  "1. AssignmentExpression": {
+                    "1. Id": "counter",
+                    "2. ExponentComposition": "(?)",
+                    "3. DecimalIntegerLiteral": "1"
+                  },
+                  "2. Semicolon": ";"
+                },
+                "7. StatementExpr": {
+                  "1. AssignmentExpression": {
+                    "1. Id": "counter",
+                    "2. BitwiseShiftLeftComposition": "(?)",
+                    "3. DecimalIntegerLiteral": "1"
+                  },
+                  "2. Semicolon": ";"
+                },
+                "8. StatementExpr": {
+                  "1. AssignmentExpression": {
+                    "1. Id": "counter",
+                    "2. BitwiseShiftRightComposition": "(?)",
+                    "3. DecimalIntegerLiteral": "1"
+                  },
+                  "2. Semicolon": ";"
+                },
+                "9. StatementExpr": {
+                  "1. AssignmentExpression": {
+                    "1. Id": "counter",
+                    "2. BitwiseShiftRightUnsignedComposition": "(?)",
+                    "3. DecimalIntegerLiteral": "1"
+                  },
+                  "2. Semicolon": ";"
+                },
+                "10. BreakStatement": {
+                  "1. Break": "(?)",
+                  "2. Semicolon": ";"
+                },
+                "11. RBrace": "}"
+              }
+            },
+            "5. LocalVarDecl": {
+              "1. ArrayType": {
+                "1. TypeIdentifier": "String",
+                "2. Dimensions": {
+                  "1. LBracket": "[",
+                  "2. RBracket": "]"
+                }
+              },
+              "2. VariableDeclarator": {
+                "1. Id": "cars",
+                "2. Equals": "=",
+                "3. ArrayInitializer": {
+                  "1. LBrace": "{",
+                  "2. StringLiteral": "\"Volvo\"",
+                  "3. Comma": ",",
+                  "4. StringLiteral": "\"BMW\"",
+                  "5. Comma": ",",
+                  "6. StringLiteral": "\"Ford\"",
+                  "7. Comma": ",",
+                  "8. StringLiteral": "\"Mazda\"",
+                  "9. RBrace": "}"
+                }
+              },
+              "3. Semicolon": ";"
+            },
+            "6. EnhancedForStatement": {
+              "1. For": "(?)",
+              "2. LParentheses": "(",
+              "3. TypeIdentifier": "String",
+              "4. Id": "i",
+              "5. Colon": ":",
+              "6. Id": "cars",
+              "7. RParentheses": ")",
+              "8. Block": {
+                "1. LBrace": "{",
+                "2. StatementExpr": {
+                  "1. MethodInvocation": {
+                    "1. FieldAccess": {
+                      "1. Id": "System",
+                      "2. Dot": ".",
+                      "3. Id": "out"
+                    },
+                    "2. Dot": ".",
+                    "3. Id": "println",
+                    "4. ArgumentList": {
+                      "1. LParentheses": "(",
+                      "2. Id": "i",
+                      "3. RParentheses": ")"
+                    }
+                  },
+                  "2. Semicolon": ";"
+                },
+                "3. RBrace": "}"
+              }
+            },
+            "7. LocalVarDecl": {
+              "1. IntegralType": {
+                "1. Int": "int"
+              },
+              "2. VariableDeclarator": {
+                "1. Id": "i",
+                "2. Equals": "=",
+                "3. DecimalIntegerLiteral": "0"
+              },
+              "3. Semicolon": ";"
+            },
+            "8. DoStatement": {
+              "1. Do": "(?)",
+              "2. Block": {
+                "1. LBrace": "{",
+                "2. StatementExpr": {
+                  "1. MethodInvocation": {
+                    "1. FieldAccess": {
+                      "1. Id": "System",
+                      "2. Dot": ".",
+                      "3. Id": "out"
+                    },
+                    "2. Dot": ".",
+                    "3. Id": "println",
+                    "4. ArgumentList": {
+                      "1. LParentheses": "(",
+                      "2. Id": "i",
+                      "3. RParentheses": ")"
+                    }
+                  },
+                  "2. Semicolon": ";"
+                },
+                "3. StatementExpr": {
+                  "1. UpdateExpression": {
+                    "1. Id": "i",
+                    "2. PlusPlus": "(?)"
+                  },
+                  "2. Semicolon": ";"
+                },
+                "4. StatementExpr": {
+                  "1. AssignmentExpression": {
+                    "1. Id": "counter",
+                    "2. Equals": "=",
+                    "3. BinaryExpression": {
+                      "1. Id": "counter",
+                      "2. Plus": "+",
+                      "3. DecimalIntegerLiteral": "1"
+                    }
+                  },
+                  "2. Semicolon": ";"
+                },
+                "5. RBrace": "}"
+              },
+              "3. While": "(?)",
+              "4. ParenthesizedExpr": {
+                "1. LParentheses": "(",
+                "2. BinaryExpression": {
+                  "1. Id": "i",
+                  "2. LessThan": "<",
+                  "3. DecimalIntegerLiteral": "5"
+                },
+                "3. RParentheses": ")"
+              },
+              "5. Semicolon": ";"
+            },
+            "9. LocalVarDecl": {
+              "1. IntegralType": {
+                "1. Int": "int"
+              },
+              "2. VariableDeclarator": {
+                "1. Id": "j",
+                "2. Equals": "=",
+                "3. DecimalIntegerLiteral": "0"
+              },
+              "3. Semicolon": ";"
+            },
+            "10. WhileStatement": {
+              "1. While": "(?)",
+              "2. ParenthesizedExpr": {
+                "1. LParentheses": "(",
+                "2. BinaryExpression": {
+                  "1. Id": "j",
+                  "2. LessThan": "<",
+                  "3. DecimalIntegerLiteral": "5"
+                },
+                "3. RParentheses": ")"
+              },
+              "3. Block": {
+                "1. LBrace": "{",
+                "2. StatementExpr": {
+                  "1. MethodInvocation": {
+                    "1. FieldAccess": {
+                      "1. Id": "System",
+                      "2. Dot": ".",
+                      "3. Id": "out"
+                    },
+                    "2. Dot": ".",
+                    "3. Id": "println",
+                    "4. ArgumentList": {
+                      "1. LParentheses": "(",
+                      "2. Id": "i",
+                      "3. RParentheses": ")"
+                    }
+                  },
+                  "2. Semicolon": ";"
+                },
+                "3. StatementExpr": {
+                  "1. UpdateExpression": {
+                    "1. Id": "j",
+                    "2. PlusPlus": "(?)"
+                  },
+                  "2. Semicolon": ";"
+                },
+                "4. StatementExpr": {
+                  "1. AssignmentExpression": {
+                    "1. Id": "counter",
+                    "2. Equals": "=",
+                    "3. BinaryExpression": {
+                      "1. Id": "counter",
+                      "2. Plus": "+",
+                      "3. DecimalIntegerLiteral": "1"
+                    }
+                  },
+                  "2. Semicolon": ";"
+                },
+                "5. RBrace": "}"
+              }
+            },
+            "11. ReturnStatement": {
+              "1. Return": "return",
+              "2. Id": "counter",
+              "3. Semicolon": ";"
+            },
+            "12. RBrace": "}"
+          }
+        },
+        "14. ClassDecl": {
+          "1. Class": "class",
+          "2. Id": "TestClass",
+          "3. Superclass": {
+            "1. Extends": "extends",
+            "2. TypeIdentifier": "TestBaseClass"
+          },
+          "4. SuperInterfaces": {
+            "1. Implements": "implements",
+            "2. InterfaceTypeList": {
+              "1. TypeIdentifier": "TestInterface"
+            }
+          },
+          "5. ClassBody": {
+            "1. LBrace": "{",
+            "2. FieldDeclaration": {
+              "1. Modifiers": {
+                "1. Volatile": "(?)"
+              },
+              "2. IntegralType": {
+                "1. Int": "int"
+              },
+              "3. VariableDeclarator": {
+                "1. Id": "testClassIntVarName",
+                "2. Equals": "=",
+                "3. DecimalIntegerLiteral": "0"
+              },
+              "4. Semicolon": ";"
+            },
+            "3. FieldDeclaration": {
+              "1. Modifiers": {
+                "1. Private": "private",
+                "2. Transient": "(?)"
+              },
+              "2. TypeIdentifier": "TestEnum",
+              "3. VariableDeclarator": {
+                "1. Id": "enumVarName",
+                "2. Equals": "=",
+                "3. FieldAccess": {
+                  "1. Id": "TestEnum",
+                  "2. Dot": ".",
+                  "3. Id": "SOMETHING"
+                }
+              },
+              "4. Semicolon": ";"
+            },
+            "4. FieldDeclaration": {
+              "1. GenericType": {
+                "1. TypeIdentifier": "Class",
+                "2. TypeArguments": {
+                  "1. LessThan": "<",
+                  "2. Wildcard": {
+                    "1. QuestionMark": "(?)",
+                    "2. Extends": "extends",
+                    "3. TypeIdentifier": "TestInterface"
+                  },
+                  "3. GreaterThan": ">"
+                }
+              },
+              "2. VariableDeclarator": {
+                "1. Id": "yourCustomType"
+              },
+              "3. Semicolon": ";"
+            },
+            "5. ConstructorDeclaration": {
+              "1. Modifiers": {
+                "1. Private": "private"
+              },
+              "2. Id": "TestClass",
+              "3. FormalParams": {
+                "1. LParentheses": "(",
+                "2. RParentheses": ")"
+              },
+              "4. ConstructorBody": {
+                "1. LBrace": "{",
+                "2. ExplicitConstructorInvocation": {
+                  "1. Super": "(?)",
+                  "2. ArgumentList": {
+                    "1. LParentheses": "(",
+                    "2. RParentheses": ")"
+                  },
+                  "3. Semicolon": ";"
+                },
+                "3. RBrace": "}"
+              }
+            },
+            "6. MethodDecl": {
+              "1. Modifiers": {
+                "1. MarkerAnnotation": {
+                  "1. At": "@",
+                  "2. Id": "Override"
+                },
+                "2. Public": "public"
+              },
+              "2. IntegralType": {
+                "1. Int": "int"
+              },
+              "3. Id": "identityMethodInterface",
+              "4. FormalParams": {
+                "1. LParentheses": "(",
+                "2. FormalParam": {
+                  "1. Modifiers": {
+                    "1. Final": "final"
+                  },
+                  "2. IntegralType": {
+                    "1. Int": "int"
+                  },
+                  "3. Id": "number"
+                },
+                "3. RParentheses": ")"
+              },
+              "5. Block": {
+                "1. LBrace": "{",
+                "2. ReturnStatement": {
+                  "1. Return": "return",
+                  "2. BinaryExpression": {
+                    "1. Id": "number",
+                    "2. Plus": "+",
+                    "3. FieldAccess": {
+                      "1. This": "this",
+                      "2. Dot": ".",
+                      "3. Id": "testClassIntVarName"
+                    }
+                  },
+                  "3. Semicolon": ";"
+                },
+                "3. RBrace": "}"
+              }
+            },
+            "7. MethodDecl": {
+              "1. Modifiers": {
+                "1. Public": "public",
+                "2. Static": "static"
+              },
+              "2. TypeParameters": {
+                "1. LessThan": "<",
+                "2. TypeParameter": {
+                  "1. Id": "T"
+                },
+                "3. GreaterThan": ">"
+              },
+              "3. TypeIdentifier": "T",
+              "4. Id": "identity",
+              "5. FormalParams": {
+                "1. LParentheses": "(",
+                "2. FormalParam": {
+                  "1. TypeIdentifier": "T",
+                  "2. Id": "generic"
+                },
+                "3. RParentheses": ")"
+              },
+              "6. Block": {
+                "1. LBrace": "{",
+                "2. ReturnStatement": {
+                  "1. Return": "return",
+                  "2. Id": "generic",
+                  "3. Semicolon": ";"
+                },
+                "3. RBrace": "}"
+              }
+            },
+            "8. RBrace": "}"
+          }
+        },
+        "15. ClassDecl": {
+          "1. Modifiers": {
+            "1. Abstract": "abstract"
+          },
+          "2. Class": "class",
+          "3. Id": "TestBaseClass",
+          "4. ClassBody": {
+            "1. LBrace": "{",
+            "2. RBrace": "}"
+          }
+        },
+        "16. InterfaceDeclaration": {
+          "1. Interface": "interface",
+          "2. Id": "TestInterface",
+          "3. InterfaceBody": {
+            "1. LBrace": "{",
+            "2. MethodDecl": {
+              "1. Modifiers": {
+                "1. Default": "default"
+              },
+              "2. IntegralType": {
+                "1. Int": "int"
+              },
+              "3. Id": "identityMethodInterface",
+              "4. FormalParams": {
+                "1. LParentheses": "(",
+                "2. FormalParam": {
+                  "1. Modifiers": {
+                    "1. Final": "final"
+                  },
+                  "2. IntegralType": {
+                    "1. Int": "int"
+                  },
+                  "3. Id": "number"
+                },
+                "3. RParentheses": ")"
+              },
+              "5. Block": {
+                "1. LBrace": "{",
+                "2. ReturnStatement": {
+                  "1. Return": "return",
+                  "2. Id": "number",
+                  "3. Semicolon": ";"
+                },
+                "3. RBrace": "}"
+              }
+            },
+            "3. RBrace": "}"
+          }
+        },
+        "17. AnnotationTypeDeclaration": {
+          "1. Modifiers": {
+            "1. Annotation": {
+              "1. At": "@",
+              "2. Id": "Retention",
+              "3. AnnotationArgumentList": {
+                "1. LParentheses": "(",
+                "2. FieldAccess": {
+                  "1. Id": "RetentionPolicy",
+                  "2. Dot": ".",
+                  "3. Id": "RUNTIME"
+                },
+                "3. RParentheses": ")"
+              }
+            },
+            "2. Annotation": {
+              "1. At": "@",
+              "2. Id": "Target",
+              "3. AnnotationArgumentList": {
+                "1. LParentheses": "(",
+                "2. FieldAccess": {
+                  "1. Id": "ElementType",
+                  "2. Dot": ".",
+                  "3. Id": "METHOD"
+                },
+                "3. RParentheses": ")"
+              }
+            },
+            "3. Public": "public"
+          },
+          "2. AtInterface": "@interface",
+          "3. Id": "Init",
+          "4. AnnotationTypeBody": {
+            "1. LBrace": "{",
+            "2. RBrace": "}"
+          }
+        },
+        "18. EnumDeclaration": {
+          "1. Enum": "enum",
+          "2. Id": "TestEnum",
+          "3. EnumBody": {
+            "1. LBrace": "{",
+            "2. EnumConstant": "SOMETHING",
+            "3. Comma": ",",
+            "4. EnumConstant": "SIMILAR",
+            "5. RBrace": "}"
+          }
+        },
+        "19. RBrace": "}"
+      }
+    }
+  }
+}
