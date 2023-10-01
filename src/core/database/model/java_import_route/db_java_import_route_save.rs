@@ -1,43 +1,28 @@
-use crate::core::database::db_setup;
+use crate::core::database::db;
 use crate::core::database::model::java_import_route::java_import_route_entity::JavaImportRouteCreate;
-use crate::core::observability::logger;
 
 pub(crate) fn save(java_files: Vec<JavaImportRouteCreate>) -> Result<(), String> {
     for java_file in java_files {
-        save_internal(java_file)?
+        save_internal(java_file)?;
     }
 
     Ok(())
 }
 
-fn save_internal(entity: JavaImportRouteCreate) -> Result<(), String> {
-    let conn = db_setup::get_db_connection();
-
-    match conn.execute(
-        "INSERT INTO java_import_route (base_package, route, last_type_id) VALUES (?1, ?2, ?3)",
-        (
-            entity.base_package.to_owned(),
-            entity.route.to_owned(),
-            entity.last_type_id.to_owned(),
-        ),
-    ) {
-        Ok(_n_saved_entities) => {}
-        Err(err) => {
-            let err_msg = format!("Error saving JavaImportRoute: {}", err);
-            logger::log_warning(err_msg.as_str());
-            return Err(err_msg);
-        }
-    };
-
-    Ok(())
+fn save_internal(entity: JavaImportRouteCreate) -> Result<usize, String> {
+    db::execute_insert_3_param("INSERT INTO java_import_route (base_package, route, last_type_id) VALUES (?1, ?2, ?3)", (
+        &entity.base_package,
+        &entity.route,
+        &entity.last_type_id,
+    ))
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::core::database::model::java_import_route::java_import_route_entity::JavaImportRouteCreate;
     use crate::core::database::model::java_import_route::{
         db_java_import_route_save, db_java_import_route_search,
     };
+    use crate::core::database::model::java_import_route::java_import_route_entity::JavaImportRouteCreate;
 
     #[test]
     fn save_test() {
