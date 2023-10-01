@@ -443,7 +443,7 @@ mod tests {
 
     #[test]
     fn new_from_path_class() {
-        let file_path = get_test_file("ExpectedFullJavaService");
+        let file_path = get_test_file("FullJavaService");
 
         match JavaClass::from(&file_path) {
             Ok(java_class) => {
