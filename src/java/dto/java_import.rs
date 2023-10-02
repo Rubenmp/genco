@@ -146,7 +146,7 @@ impl JavaImport {
             return !self.nodes.is_empty();
         }
 
-        if let Some(last_node) = self.get_nodes().last() {
+        if let Some(last_node) = self.get_nodes_within_file().last() {
             return !last_node.eq("*");
         }
         false
@@ -165,7 +165,7 @@ impl JavaImport {
         self.get_all_fake_nodes()
     }
 
-    fn get_nodes(&self) -> Vec<String> {
+    fn get_nodes_within_file(&self) -> Vec<String> {
         if self.folder_path.is_some() {
             return self.nodes.to_owned();
         }
@@ -178,7 +178,7 @@ impl JavaImport {
             return self.nodes.is_empty();
         }
 
-        if let Some(last_node) = self.get_nodes().last() {
+        if let Some(last_node) = self.get_nodes_within_file().last() {
             return last_node.eq("*");
         }
         false
@@ -214,7 +214,6 @@ impl JavaImport {
         false
     }
 
-    // Relates to fake_non_checked_route
     pub(crate) fn get_last_node(&self) -> String {
         self.get_all_nodes()
             .last()
@@ -296,7 +295,7 @@ fn check_file_for_new_explicit_import(file_path: &Path) -> Result<(), String> {
     Ok(())
 }
 
-pub fn get_package_nodes_vec_from_dir(dir_path: &Path) -> Vec<String> {
+pub(crate) fn get_package_nodes_vec_from_dir(dir_path: &Path) -> Vec<String> {
     if !dir_path.exists() || !dir_path.is_dir() {
         logger::log_unrecoverable_error(
             format!(
