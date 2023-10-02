@@ -56,7 +56,7 @@ impl JavaIndentationBuilder {
 
 #[cfg(test)]
 mod tests {
-    use crate::java::dto::java_indentation_config::JavaIndentation;
+    use crate::java::indentation_config::JavaIndentation;
 
     #[test]
     fn builder_default() {

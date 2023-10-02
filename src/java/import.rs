@@ -370,7 +370,7 @@ mod tests {
 
     use crate::core::testing::test_assert::assert_fail;
     use crate::core::testing::test_path::get_java_project_test_folder;
-    use crate::java::dto::java_import::JavaImport;
+    use crate::java::import::JavaImport;
     use crate::java::scanner::file::java_file::JavaFile;
 
     /// Tests with hard coded imports

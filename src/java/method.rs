@@ -2,17 +2,17 @@ use std::path::Path;
 
 use crate::core::observability::logger;
 use crate::core::parser::parser_node_trait::ParserNode;
-use crate::java::dto::java_annotation_usage::JavaAnnotationUsage;
-use crate::java::dto::java_data_type::JavaDataType;
-use crate::java::dto::java_import::JavaImport;
-use crate::java::dto::java_indentation_config::JavaIndentation;
-use crate::java::dto::java_steps_generator::JavaStepsGenerator;
-use crate::java::dto::java_variable::JavaVariable;
-use crate::java::dto::java_visibility::JavaVisibility;
-use crate::java::dto::{java_annotation_usage, java_visibility};
+use crate::java::annotation_usage::JavaAnnotationUsage;
+use crate::java::data_type::JavaDataType;
+use crate::java::import::JavaImport;
+use crate::java::indentation_config::JavaIndentation;
 use crate::java::parser::java_node::JavaNode;
 use crate::java::parser::java_node_type::JavaNodeType;
 use crate::java::scanner::file::java_file_imports::JavaFileImports;
+use crate::java::steps_generator::JavaStepsGenerator;
+use crate::java::variable::JavaVariable;
+use crate::java::visibility::JavaVisibility;
+use crate::java::{annotation_usage, visibility};
 
 #[derive(Debug, Clone)]
 pub struct JavaMethod {
@@ -33,7 +33,7 @@ impl JavaMethod {
     ///
     /// ```
     /// use std::env;
-    /// use genco::java::dto::java_method::JavaMethod;
+    /// use genco::java::method::JavaMethod;
     ///
     /// let java_method = JavaMethod::builder().name("newMethod").build();
     /// ```
@@ -105,7 +105,7 @@ impl JavaMethod {
                 if JavaNodeType::Modifiers == node_type {
                     for modifier in child_node.get_children() {
                         if let Some(node_type) = modifier.get_node_type() {
-                            if java_annotation_usage::is_java_node_annotation(&node_type) {
+                            if annotation_usage::is_java_node_annotation(&node_type) {
                                 match JavaAnnotationUsage::new_from_java_node_unchecked(
                                     modifier,
                                     file_imports,
@@ -116,8 +116,8 @@ impl JavaMethod {
                                     }
                                     Err(err) => logger::log_warning(&err),
                                 };
-                            } else if java_visibility::is_visibility_node_type(&node_type) {
-                                visibility = java_visibility::new(&node_type);
+                            } else if visibility::is_visibility_node_type(&node_type) {
+                                visibility = visibility::new(&node_type);
                             } else if JavaNodeType::Static == node_type {
                                 is_static = true;
                             }
@@ -326,10 +326,10 @@ mod tests {
     use crate::core::testing::test_assert::assert_same_as_file;
     use crate::core::testing::test_path;
     use crate::java::dependency::org::junit::jupiter::junit_jupiter_api::java_junit_jupiter_api_factory;
-    use crate::java::dto::java_indentation_config::JavaIndentation;
-    use crate::java::dto::java_method::JavaMethod;
-    use crate::java::dto::java_variable::JavaVariable;
-    use crate::java::dto::java_visibility::JavaVisibility;
+    use crate::java::indentation_config::JavaIndentation;
+    use crate::java::method::JavaMethod;
+    use crate::java::variable::JavaVariable;
+    use crate::java::visibility::JavaVisibility;
 
     #[test]
     fn generate_java_method() {

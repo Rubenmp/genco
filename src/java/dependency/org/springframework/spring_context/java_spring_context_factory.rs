@@ -1,5 +1,5 @@
-use crate::java::dto::java_annotation_usage::JavaAnnotationUsage;
-use crate::java::dto::java_import::JavaImport;
+use crate::java::annotation_usage::JavaAnnotationUsage;
+use crate::java::import::JavaImport;
 
 pub fn _create_service_annotation_usage() -> JavaAnnotationUsage {
     JavaAnnotationUsage::builder()

@@ -1,15 +1,15 @@
 use std::path::{Path, PathBuf};
 
 use crate::core::file_system::path_helper::try_to_absolute_path;
-use crate::java::dto::java_annotation_usage::JavaAnnotationUsage;
-use crate::java::dto::java_field::JavaField;
-use crate::java::dto::java_import::JavaImport;
-use crate::java::dto::java_interface::JavaInterface;
-use crate::java::dto::java_method::JavaMethod;
-use crate::java::dto::java_visibility::JavaVisibility;
+use crate::java::annotation_usage::JavaAnnotationUsage;
+use crate::java::field::JavaField;
+use crate::java::import::JavaImport;
+use crate::java::interface::JavaInterface;
+use crate::java::method::JavaMethod;
 use crate::java::scanner::file::java_file::JavaFile;
 use crate::java::scanner::file::java_structure::JavaStructure;
 use crate::java::scanner::file::java_structure_type::JavaStructureType;
+use crate::java::visibility::JavaVisibility;
 
 /// # JavaClass
 /// A Java Class can be used to write it into a file
@@ -27,7 +27,7 @@ impl JavaClass {
     ///
     /// ```
     /// use std::env;
-    /// use genco::java::dto::java_class::JavaClass;
+    /// use genco::java::class::JavaClass;
     ///
     /// let dir = &env::current_dir().unwrap().join("doc/test/java/class/src/main/java/org/test");
     /// let java_class = JavaClass::builder().folder(dir).name("Service").build();
@@ -44,7 +44,7 @@ impl JavaClass {
     ///
     /// ```
     /// use std::env;
-    /// use genco::java::dto::java_class::JavaClass;
+    /// use genco::java::class::JavaClass;
     ///
     /// let existing_file = env::current_dir().unwrap().join("AnyClass.java");
     /// // let java_class = JavaClass::from(&existing_file);
@@ -62,7 +62,7 @@ impl JavaClass {
     /// The output file only differs in the java package that will be adapted.
     /// ```
     /// use std::env;
-    /// use genco::java::dto::java_class::JavaClass;
+    /// use genco::java::class::JavaClass;
     ///
     /// let base_dir = &env::current_dir().unwrap().join("doc/test/java/class/src/main/java/org/test");
     /// let java_class = JavaClass::builder().folder(&base_dir).name("JavaClassToCopyToOutputFolder").build().expect("Valid class");
@@ -354,14 +354,14 @@ mod tests {
 
     use crate::core::testing::test_assert::{assert_fail, assert_same_file};
     use crate::core::testing::test_path;
+    use crate::java::class::JavaClass;
+    use crate::java::data_type::{JavaBasicDataType, JavaDataType};
     use crate::java::dependency::java::time::java_time_factory;
     use crate::java::dependency::org::springframework::spring_context::java_spring_context_factory;
-    use crate::java::dto::java_class::JavaClass;
-    use crate::java::dto::java_data_type::{JavaBasicDataType, JavaDataType};
-    use crate::java::dto::java_field::JavaField;
-    use crate::java::dto::java_interface::JavaInterface;
-    use crate::java::dto::java_method::JavaMethod;
-    use crate::java::dto::java_visibility::JavaVisibility;
+    use crate::java::field::JavaField;
+    use crate::java::interface::JavaInterface;
+    use crate::java::method::JavaMethod;
+    use crate::java::visibility::JavaVisibility;
 
     #[test]
     fn build_class_empty_service() {

@@ -2,8 +2,8 @@ use std::fmt;
 use std::path::Path;
 
 use crate::core::observability::logger;
-use crate::java::dto::java_import::JavaImport;
-use crate::java::dto::java_indentation_config::JavaIndentation;
+use crate::java::import::JavaImport;
+use crate::java::indentation_config::JavaIndentation;
 use crate::java::parser::java_node::JavaNode;
 use crate::java::parser::java_node_type::JavaNodeType;
 use crate::java::scanner::file::java_file_imports::JavaFileImports;
@@ -108,8 +108,8 @@ impl JavaAnnotationUsageBuilder {
 
 #[cfg(test)]
 mod tests {
-    use crate::java::dto::java_annotation_usage::JavaAnnotationUsage;
-    use crate::java::dto::java_import::JavaImport;
+    use crate::java::annotation_usage::JavaAnnotationUsage;
+    use crate::java::import::JavaImport;
 
     #[test]
     fn to_string() {

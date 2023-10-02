@@ -3,21 +3,21 @@ use std::path::Path;
 use crate::core::file_system::path_helper::try_to_absolute_path;
 use crate::core::observability::logger;
 use crate::core::parser::parser_node_trait::ParserNode;
-use crate::java::dto::java_annotation_usage::JavaAnnotationUsage;
-use crate::java::dto::java_class::JavaClass;
-use crate::java::dto::java_data_type::JavaDataType;
-use crate::java::dto::java_field::JavaField;
-use crate::java::dto::java_import::JavaImport;
-use crate::java::dto::java_indentation_config::JavaIndentation;
-use crate::java::dto::java_interface::JavaInterface;
-use crate::java::dto::java_method::JavaMethod;
-use crate::java::dto::java_visibility::JavaVisibility;
-use crate::java::dto::{java_annotation_usage, java_visibility};
+use crate::java::annotation_usage::JavaAnnotationUsage;
+use crate::java::class::JavaClass;
+use crate::java::data_type::JavaDataType;
+use crate::java::field::JavaField;
+use crate::java::import::JavaImport;
+use crate::java::indentation_config::JavaIndentation;
+use crate::java::interface::JavaInterface;
+use crate::java::method::JavaMethod;
 use crate::java::parser::java_node::JavaNode;
 use crate::java::parser::java_node_type::JavaNodeType;
 use crate::java::scanner::file::java_file_imports;
 use crate::java::scanner::file::java_file_imports::JavaFileImports;
 use crate::java::scanner::file::java_structure_type::JavaStructureType;
+use crate::java::visibility::JavaVisibility;
+use crate::java::{annotation_usage, visibility};
 
 #[allow(unused)]
 #[derive(Debug, Clone)]
@@ -300,7 +300,7 @@ fn new_structure_internal(
             if JavaNodeType::Modifiers == structure_node_type {
                 for modifier in child_node.get_children() {
                     if let Some(node_type) = modifier.get_node_type() {
-                        if java_annotation_usage::is_java_node_annotation(&node_type) {
+                        if annotation_usage::is_java_node_annotation(&node_type) {
                             match JavaAnnotationUsage::new_from_java_node_unchecked(
                                 modifier,
                                 file_imports,
@@ -309,8 +309,8 @@ fn new_structure_internal(
                                 Ok(annotation) => annotations.push(annotation),
                                 Err(err) => logger::log_warning(&err),
                             };
-                        } else if java_visibility::is_visibility_node_type(&node_type) {
-                            visibility = java_visibility::new(&node_type);
+                        } else if visibility::is_visibility_node_type(&node_type) {
+                            visibility = visibility::new(&node_type);
                         } else if JavaNodeType::Static == node_type {
                             is_static = true;
                         } else if JavaNodeType::Abstract == node_type {
@@ -673,13 +673,13 @@ mod tests {
     use crate::core::file_system::path_helper::try_to_absolute_path;
     use crate::core::testing::test_assert::assert_fail;
     use crate::core::testing::test_path;
+    use crate::java::class::JavaClass;
     use crate::java::dependency::org::springframework::spring_context::java_spring_context_factory;
-    use crate::java::dto::java_class::JavaClass;
-    use crate::java::dto::java_import::JavaImport;
-    use crate::java::dto::java_interface::JavaInterface;
-    use crate::java::dto::java_visibility::JavaVisibility::{Package, Private, Protected, Public};
+    use crate::java::import::JavaImport;
+    use crate::java::interface::JavaInterface;
     use crate::java::scanner::file::java_structure::JavaStructure;
     use crate::java::scanner::file::java_structure_type::JavaStructureType;
+    use crate::java::visibility::JavaVisibility::{Package, Private, Protected, Public};
 
     #[test]
     fn builder_test() {

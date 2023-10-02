@@ -4,7 +4,7 @@ use crate::core::file_system::file_overwriting::file_overwriter::FileOverwriting
 use crate::core::file_system::path_helper::try_to_absolute_path;
 use crate::core::observability::logger;
 use crate::core::parser::parser_node_trait::ParserNode;
-use crate::java::dto::java_import::JavaImport;
+use crate::java::import::JavaImport;
 use crate::java::parser::java_node::JavaNode;
 use crate::java::parser::java_node_type::JavaNodeType;
 
@@ -188,7 +188,7 @@ impl JavaFileImports {
 #[cfg(test)]
 mod tests {
     use crate::core::testing::test_assert::assert_fail;
-    use crate::java::dto::java_import::JavaImport;
+    use crate::java::import::JavaImport;
     use crate::java::scanner::file::java_file_imports::JavaFileImports;
 
     #[test]

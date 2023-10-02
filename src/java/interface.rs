@@ -1,14 +1,14 @@
 use std::path::{Path, PathBuf};
 
 use crate::core::file_system::path_helper::try_to_absolute_path;
-use crate::java::dto::java_annotation_usage::JavaAnnotationUsage;
-use crate::java::dto::java_field::JavaField;
-use crate::java::dto::java_import::JavaImport;
-use crate::java::dto::java_method::JavaMethod;
-use crate::java::dto::java_visibility::JavaVisibility;
+use crate::java::annotation_usage::JavaAnnotationUsage;
+use crate::java::field::JavaField;
+use crate::java::import::JavaImport;
+use crate::java::method::JavaMethod;
 use crate::java::scanner::file::java_file::JavaFile;
 use crate::java::scanner::file::java_structure::JavaStructure;
 use crate::java::scanner::file::java_structure_type::JavaStructureType;
+use crate::java::visibility::JavaVisibility;
 
 #[derive(Debug)]
 pub struct JavaInterface {
@@ -24,7 +24,7 @@ impl JavaInterface {
     ///
     /// ```
     /// use std::env;
-    /// use genco::java::dto::java_interface::JavaInterface;
+    /// use genco::java::interface::JavaInterface;
     ///
     /// let dir = &env::current_dir().unwrap().join("doc/test/java/interface/src/main/java/org/test");
     /// let java_interface = JavaInterface::builder().folder(dir).name("InterfaceName").build();
@@ -41,7 +41,7 @@ impl JavaInterface {
     ///
     /// ```
     /// use std::env;
-    /// use genco::java::dto::java_interface::JavaInterface;
+    /// use genco::java::interface::JavaInterface;
     ///
     /// let existing_file = env::current_dir().unwrap().join("AnyInterface.java");
     /// // let java_interface = JavaInterface::from(&existing_file);
@@ -248,8 +248,8 @@ mod tests {
 
     use crate::core::testing::test_assert::{assert_fail, assert_same_file};
     use crate::core::testing::test_path;
-    use crate::java::dto::java_interface::JavaInterface;
-    use crate::java::dto::java_visibility::JavaVisibility::Package;
+    use crate::java::interface::JavaInterface;
+    use crate::java::visibility::JavaVisibility::Package;
 
     #[test]
     fn builder() {

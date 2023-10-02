@@ -3,9 +3,9 @@ use std::path::Path;
 
 use crate::core::observability::logger;
 use crate::core::parser::parser_node_trait::ParserNode;
-use crate::java::dto::java_data_type::JavaDataType::Basic;
-use crate::java::dto::java_data_type::{JavaBasicDataType, JavaDataType};
-use crate::java::dto::java_import::JavaImport;
+use crate::java::data_type::JavaDataType::Basic;
+use crate::java::data_type::{JavaBasicDataType, JavaDataType};
+use crate::java::import::JavaImport;
 use crate::java::parser::java_node::JavaNode;
 use crate::java::parser::java_node_type::JavaNodeType;
 use crate::java::scanner::file::java_file_imports::JavaFileImports;
@@ -158,8 +158,8 @@ impl JavaVariableBuilder {
 #[cfg(test)]
 mod tests {
     use crate::core::testing::test_assert::assert_fail;
-    use crate::java::dto::java_data_type::{JavaBasicDataType, JavaDataType};
-    use crate::java::dto::java_variable::JavaVariable;
+    use crate::java::data_type::{JavaBasicDataType, JavaDataType};
+    use crate::java::variable::JavaVariable;
 
     #[test]
     fn builder() {

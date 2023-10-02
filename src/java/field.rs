@@ -3,17 +3,17 @@ use std::path::Path;
 use crate::core::file_system::path_helper::try_to_absolute_path;
 use crate::core::observability::logger;
 use crate::core::parser::parser_node_trait::ParserNode;
-use crate::java::dto::java_annotation_usage::JavaAnnotationUsage;
-use crate::java::dto::java_data_type::JavaDataType;
-use crate::java::dto::java_expression::JavaExpression;
-use crate::java::dto::java_import::JavaImport;
-use crate::java::dto::java_indentation_config::JavaIndentation;
-use crate::java::dto::java_visibility::JavaVisibility;
-use crate::java::dto::{java_annotation_usage, java_visibility};
+use crate::java::annotation_usage::JavaAnnotationUsage;
+use crate::java::data_type::JavaDataType;
+use crate::java::expression::JavaExpression;
+use crate::java::import::JavaImport;
+use crate::java::indentation_config::JavaIndentation;
 use crate::java::parser::java_node::JavaNode;
 use crate::java::parser::java_node_type;
 use crate::java::parser::java_node_type::JavaNodeType;
 use crate::java::scanner::file::java_file_imports::JavaFileImports;
+use crate::java::visibility::JavaVisibility;
+use crate::java::{annotation_usage, visibility};
 
 #[derive(Debug, Clone)]
 pub struct JavaField {
@@ -76,7 +76,7 @@ impl JavaField {
             if Some(JavaNodeType::Modifiers) == node_type_opt {
                 for modifiers_child in child.get_children() {
                     let modifier_type_opt = modifiers_child.get_node_type();
-                    if java_annotation_usage::is_java_node_annotation_opt(&modifier_type_opt) {
+                    if annotation_usage::is_java_node_annotation_opt(&modifier_type_opt) {
                         match JavaAnnotationUsage::new_from_java_node_unchecked(
                             modifiers_child,
                             file_imports,
@@ -86,7 +86,7 @@ impl JavaField {
                             Err(err) => logger::log_warning(&err),
                         };
                     } else if java_node_type::is_visibility(&modifier_type_opt) {
-                        visibility = java_visibility::new(&modifier_type_opt.unwrap());
+                        visibility = visibility::new(&modifier_type_opt.unwrap());
                     } else if let Some(JavaNodeType::Static) = modifier_type_opt {
                         is_static = true;
                     } else if let Some(JavaNodeType::Final) = modifier_type_opt {
@@ -258,11 +258,11 @@ mod tests {
 
     use crate::core::testing::test_assert::{assert_fail, assert_same_as_file};
     use crate::core::testing::test_path::get_test_dir;
+    use crate::java::data_type::{JavaBasicDataType, JavaDataType};
     use crate::java::dependency::org::springframework::spring_beans::java_spring_beans_factory;
-    use crate::java::dto::java_data_type::{JavaBasicDataType, JavaDataType};
-    use crate::java::dto::java_field::JavaField;
-    use crate::java::dto::java_indentation_config::JavaIndentation;
-    use crate::java::dto::java_visibility::JavaVisibility;
+    use crate::java::field::JavaField;
+    use crate::java::indentation_config::JavaIndentation;
+    use crate::java::visibility::JavaVisibility;
 
     #[test]
     fn get_str_autowired_private_static_final() {

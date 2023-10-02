@@ -1,5 +1,5 @@
-use crate::java::dto::java_annotation_usage::JavaAnnotationUsage;
-use crate::java::dto::java_import::JavaImport;
+use crate::java::annotation_usage::JavaAnnotationUsage;
+use crate::java::import::JavaImport;
 
 // Tested in 5.8.2
 pub(crate) fn _create_test_annotation_usage() -> JavaAnnotationUsage {
