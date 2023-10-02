@@ -103,7 +103,7 @@ impl JavaImport {
                     import_route,
                     try_to_absolute_path(java_file_path)
                 )
-                    .as_str(),
+                .as_str(),
             );
         } else if let Some(java_import_route) = imports.get(0) {
             let java_import_route_path = java_import_route.to_file_path();
@@ -303,7 +303,7 @@ pub fn get_package_nodes_vec_from_dir(dir_path: &Path) -> Vec<String> {
                 "Java import related to an invalid folder:\n\t\"{}\"\n",
                 path_helper::try_to_absolute_path(dir_path)
             )
-                .as_str(),
+            .as_str(),
         );
     }
 
@@ -337,7 +337,7 @@ pub fn get_package_nodes_vec_from_dir(dir_path: &Path) -> Vec<String> {
             "Trying to create a java import that does not belong to any java project:\n\t\"{}\"\n",
             path_helper::try_to_absolute_path(dir_path)
         )
-            .as_str(),
+        .as_str(),
     );
     Vec::new() // Fake return, it will stop in log_unrecoverable_error
 }
@@ -488,14 +488,23 @@ mod tests {
         assert_eq!(1, methods.len());
         let method = methods.get(0).expect("Method expected");
 
-        let return_type = &method.get_return_type().to_owned().expect("Expected return type");
-        let route = return_type.get_import().expect("Return type import expected").get_route();
+        let return_type = &method
+            .get_return_type()
+            .to_owned()
+            .expect("Expected return type");
+        let route = return_type
+            .get_import()
+            .expect("Return type import expected")
+            .get_route();
         assert_eq!("jakarta.persistence.Entity", route);
 
         let parameters = method.get_parameters();
         assert_eq!(1, parameters.len());
         let parameter = parameters.get(0).expect("First parameter expected");
-        let route = parameter.get_import().expect("Parameter import expected").get_route();
+        let route = parameter
+            .get_import()
+            .expect("Parameter import expected")
+            .get_route();
         assert_eq!("jakarta.persistence.Entity", route);
     }
 

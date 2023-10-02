@@ -43,9 +43,15 @@ impl JavaDataType {
         file_imports: &JavaFileImports,
         input_java_file: &Path,
     ) -> Result<Self, String> {
-        let node_type = data_type_node.get_node_type().ok_or("Unexpected node type")?;
+        let node_type = data_type_node
+            .get_node_type()
+            .ok_or("Unexpected node type")?;
         if node_type.is_data_type_id_identifier() {
-            return JavaDataType::from_data_type_identifier_including_basic_data_type(data_type_node, file_imports, input_java_file);
+            return JavaDataType::from_data_type_identifier_including_basic_data_type(
+                data_type_node,
+                file_imports,
+                input_java_file,
+            );
         } else if JavaNodeType::Boolean == node_type {
             return Ok(JavaDataType::Basic(JavaBasicDataType::Boolean));
         } else if JavaNodeType::IntegralType == node_type {
@@ -61,7 +67,11 @@ impl JavaDataType {
         ))
     }
 
-    pub(crate) fn from_data_type_identifier_with_import(type_id_node: &JavaNode, file_imports: &JavaFileImports, input_java_file: &Path) -> Result<JavaDataType, String> {
+    pub(crate) fn from_data_type_identifier_with_import(
+        type_id_node: &JavaNode,
+        file_imports: &JavaFileImports,
+        input_java_file: &Path,
+    ) -> Result<JavaDataType, String> {
         let explicit_import =
             file_imports.get_explicit_import_from_identifier(type_id_node, input_java_file)?;
         let result = JavaDataType::FromImport(explicit_import);

@@ -61,7 +61,8 @@ impl JavaFileImports {
             ));
         }
 
-        Err("Unexpected identifier getting explicit import from identifier".to_string()) // Never happens (Haha)
+        Err("Unexpected identifier getting explicit import from identifier".to_string())
+        // Never happens (Haha)
     }
 
     pub(crate) fn get_explicit_import(&self, type_id: &str) -> Result<JavaImport, String> {

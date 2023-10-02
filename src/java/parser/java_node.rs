@@ -43,7 +43,7 @@ impl JavaNode {
             return node_type.is_data_type_id_identifier()
                 || JavaNodeType::IntegralType == node_type
                 || JavaNodeType::FloatingPointType == node_type
-                || JavaNodeType::Boolean == node_type
+                || JavaNodeType::Boolean == node_type;
         }
         false
     }

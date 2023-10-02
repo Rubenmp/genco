@@ -78,11 +78,7 @@ impl JavaVariable {
                 }
             }
             if child_node.is_data_type_identifier() {
-                match JavaDataType::get_data_type(
-                    child_node,
-                    file_imports,
-                    input_java_file,
-                ) {
+                match JavaDataType::get_data_type(child_node, file_imports, input_java_file) {
                     Ok(data_type) => data_type_opt = Some(data_type),
                     Err(err) => {
                         logger::log_warning(&err);
