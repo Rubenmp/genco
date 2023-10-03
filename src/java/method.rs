@@ -1,4 +1,4 @@
-use std::path::Path;
+use crate::core::file_system::file_cache::FileCache;
 
 use crate::core::observability::logger;
 use crate::core::parser::parser_node_trait::ParserNode;
@@ -89,9 +89,8 @@ impl JavaMethod {
     pub(crate) fn new_from_node(
         root_node: &JavaNode,
         file_imports: &JavaFileImports,
-        input_java_file: &Path,
+        java_file_cache: &FileCache,
     ) -> Result<JavaMethod, String> {
-        check_root_is_method_decl(root_node);
         let mut annotations = Vec::new();
         let mut visibility = JavaVisibility::Package;
         let mut is_static = false;
@@ -109,7 +108,7 @@ impl JavaMethod {
                                 match JavaAnnotationUsage::new_from_java_node_unchecked(
                                     modifier,
                                     file_imports,
-                                    input_java_file,
+                                    java_file_cache,
                                 ) {
                                     Ok(annotation) => {
                                         annotations.push(annotation);
@@ -124,7 +123,7 @@ impl JavaMethod {
                         }
                     }
                 } else if child_node.is_data_type_identifier() {
-                    match JavaDataType::get_data_type(child_node, file_imports, input_java_file) {
+                    match JavaDataType::get_data_type(child_node, file_imports, java_file_cache) {
                         Ok(data_type) => {
                             return_type_opt = Some(data_type);
                             return_type_detected = true;
@@ -134,12 +133,12 @@ impl JavaMethod {
                 } else if JavaNodeType::VoidType == node_type {
                     return_type_detected = true;
                 } else if JavaNodeType::Id == node_type {
-                    name_opt = Some(child_node.get_content());
+                    name_opt = Some(child_node.get_content_from_cache(java_file_cache));
                 } else if JavaNodeType::FormalParams == node_type {
                     match JavaVariable::from_formal_params_node(
                         child_node,
                         file_imports,
-                        input_java_file,
+                        java_file_cache,
                     ) {
                         Ok(result) => parameters = result,
                         Err(err) => return Err(format!("Invalid java method parameters, {}", err)),
@@ -241,15 +240,6 @@ impl JavaMethod {
     fn write_visibility(&self, result: &mut String, indentation: &JavaIndentation) {
         *result += indentation.get_current_indentation().as_str();
         *result += &self.get_visibility().as_file_string();
-    }
-}
-
-fn check_root_is_method_decl(node: &JavaNode) {
-    if Some(JavaNodeType::MethodDecl) != node.get_node_type() {
-        logger::log_unrecoverable_error(&format!(
-            "Invalid java method found:\n\"{:?}\"",
-            node.get_content()
-        ));
     }
 }
 

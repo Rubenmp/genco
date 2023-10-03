@@ -80,7 +80,7 @@ impl JavaImportRouteCreate {
         result
     }
 
-    fn get_dir_path(file_path: &PathBuf) -> PathBuf {
+    fn get_dir_path(file_path: &Path) -> PathBuf {
         let mut dir_path = file_path.to_owned();
         dir_path.pop();
         dir_path

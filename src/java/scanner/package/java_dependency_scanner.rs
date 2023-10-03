@@ -7,6 +7,7 @@ use crate::core::database::model::java_import_route::java_import_route_entity::{
 use crate::core::database::model::java_import_route::{
     db_java_import_route_save, db_java_import_route_search,
 };
+
 use crate::core::file_system::path_helper::try_to_absolute_path;
 use crate::java::scanner::package::java_package_scanner;
 
@@ -24,11 +25,8 @@ pub(crate) fn recursive_scan_dir_unchecked(base_java_project_dir: &Path) {
 /// - import_route -> "org.test.JavaClassFrom"
 ///
 /// - java_file_containing_route -> any valid java file in a project containing "import <import_route>;"
-pub(crate) fn search_imports(
-    import_route: &str,
-    java_file_containing_route: &Path,
-) -> Vec<JavaImportRouteEntity> {
-    let base_package_path_opt = java_package_scanner::get_base_package(java_file_containing_route);
+pub(crate) fn search_imports(import_route: &str, java_file: &Path) -> Vec<JavaImportRouteEntity> {
+    let base_package_path_opt = java_package_scanner::get_base_package(java_file);
     if let Some(base_package_path) = base_package_path_opt {
         return db_java_import_route_search::by_base_package_and_route(
             &base_package_path,

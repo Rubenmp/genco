@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::path::PathBuf;
+use std::path::Path;
 
 use crate::core::parser::parser_node_trait::ParserNode;
 use crate::core::parser::string_helper::trim_quotation_marks;
@@ -9,7 +9,7 @@ use crate::domain::usecase::json::parser::dto::json_node::JsonNode;
 use crate::domain::usecase::json::parser::dto::json_node_type::JsonNodeType;
 use crate::domain::usecase::json::parser::json_parser;
 
-pub fn parse(json_file_path: &PathBuf) -> Vec<AvroItem> {
+pub fn parse(json_file_path: &Path) -> Vec<AvroItem> {
     let json_root_node = json_parser::parse(json_file_path);
 
     let object_nodes = filter_json_nodes_first_level(&json_root_node, &JsonNodeType::Object);

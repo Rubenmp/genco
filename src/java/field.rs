@@ -1,4 +1,4 @@
-use std::path::Path;
+use crate::core::file_system::file_cache::FileCache;
 
 use crate::core::file_system::path_helper::try_to_absolute_path;
 use crate::core::observability::logger;
@@ -61,7 +61,7 @@ impl JavaField {
     pub(crate) fn new(
         root_node: &JavaNode,
         file_imports: &JavaFileImports,
-        input_java_file: &Path,
+        java_file_cache: &FileCache,
     ) -> Result<JavaField, String> {
         let mut annotations = Vec::new();
         let mut is_static = false;
@@ -80,7 +80,7 @@ impl JavaField {
                         match JavaAnnotationUsage::new_from_java_node_unchecked(
                             modifiers_child,
                             file_imports,
-                            input_java_file,
+                            java_file_cache,
                         ) {
                             Ok(annotation) => annotations.push(annotation),
                             Err(err) => logger::log_warning(&err),
@@ -94,7 +94,7 @@ impl JavaField {
                     }
                 }
             } else if child.is_data_type_identifier() {
-                match JavaDataType::get_data_type(child, file_imports, input_java_file) {
+                match JavaDataType::get_data_type(child, file_imports, java_file_cache) {
                     Ok(data_type) => data_type_opt = Some(data_type),
                     Err(err) => logger::log_warning(&err),
                 }
@@ -103,7 +103,7 @@ impl JavaField {
                 for var_decl_child in child.get_children() {
                     if let Some(var_node_type) = var_decl_child.get_node_type() {
                         if JavaNodeType::Id == var_node_type {
-                            name = child.get_content();
+                            name = child.get_content_from_cache(java_file_cache);
                         } else if JavaNodeType::Equals == var_node_type {
                             next_child_is_expression = true
                         } else if next_child_is_expression {
@@ -118,14 +118,14 @@ impl JavaField {
         if name.is_empty() {
             return Err(format!(
                 "Invalid java field declaration (name is empty) \"{:?}\" in file\n\"{}\"\n",
-                root_node.get_content(),
-                try_to_absolute_path(input_java_file)
+                root_node.get_content_from_cache(java_file_cache),
+                try_to_absolute_path(java_file_cache.get_path())
             ));
         }
         let data_type = data_type_opt.ok_or(&format!(
             "Invalid java field declaration (data_type is empty) \"{:?}\" in file:\n\"{}\"\n",
-            root_node.get_content(),
-            try_to_absolute_path(input_java_file)
+            root_node.get_content_from_cache(java_file_cache),
+            try_to_absolute_path(java_file_cache.get_path())
         ))?;
 
         Ok(JavaField {

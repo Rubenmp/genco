@@ -1,3 +1,4 @@
+use crate::core::file_system::file_cache::FileCache;
 use std::fmt;
 use std::path::Path;
 
@@ -41,7 +42,7 @@ impl JavaDataType {
     pub(crate) fn get_data_type(
         data_type_node: &JavaNode,
         file_imports: &JavaFileImports,
-        input_java_file: &Path,
+        java_file_cache: &FileCache,
     ) -> Result<Self, String> {
         let node_type = data_type_node
             .get_node_type()
@@ -50,30 +51,32 @@ impl JavaDataType {
             return JavaDataType::from_data_type_identifier_including_basic_data_type(
                 data_type_node,
                 file_imports,
-                input_java_file,
+                java_file_cache,
             );
         } else if JavaNodeType::Boolean == node_type {
             return Ok(JavaDataType::Basic(JavaBasicDataType::Boolean));
         } else if JavaNodeType::IntegralType == node_type {
-            return Self::get_data_type_from_integral_type(data_type_node, input_java_file);
+            return Self::get_data_type_from_integral_type(data_type_node, java_file_cache);
         } else if JavaNodeType::FloatingPointType == node_type {
-            return Self::get_data_type_from_floating_point_type(data_type_node, input_java_file);
+            return Self::get_data_type_from_floating_point_type(data_type_node, java_file_cache);
         }
 
         Err(format!(
             "Unrecognized JavaNodeType parsing \"{}\" in file:\n{}\n",
-            data_type_node.get_content().as_str(),
-            try_to_absolute_path(input_java_file)
+            data_type_node
+                .get_content_from_cache(java_file_cache)
+                .as_str(),
+            try_to_absolute_path(java_file_cache.get_path())
         ))
     }
 
     pub(crate) fn from_data_type_identifier_with_import(
         type_id_node: &JavaNode,
         file_imports: &JavaFileImports,
-        input_java_file: &Path,
+        java_file_cache: &FileCache,
     ) -> Result<JavaDataType, String> {
         let explicit_import =
-            file_imports.get_explicit_import_from_identifier(type_id_node, input_java_file)?;
+            file_imports.get_explicit_import_from_identifier(type_id_node, java_file_cache)?;
         let result = JavaDataType::FromImport(explicit_import);
 
         Ok(result)
@@ -85,23 +88,28 @@ impl JavaDataType {
     fn from_data_type_identifier_including_basic_data_type(
         type_id_node: &JavaNode,
         file_imports: &JavaFileImports,
-        input_java_file: &Path,
+        java_file_cache: &FileCache,
     ) -> Result<JavaDataType, String> {
-        let type_id = type_id_node.get_content();
+        let type_id = type_id_node.get_content_from_cache(java_file_cache);
         let basic_data_type = new_basic_data_type(&type_id);
         if let Some(data_type) = basic_data_type {
             return Ok(JavaDataType::Basic(data_type));
         }
 
-        Self::from_data_type_identifier_with_import(type_id_node, file_imports, input_java_file)
+        Self::from_data_type_identifier_with_import(type_id_node, file_imports, java_file_cache)
     }
 
     fn get_data_type_from_floating_point_type(
         data_type_node: &JavaNode,
-        input_java_file: &Path,
+        java_file_cache: &FileCache,
     ) -> Result<JavaDataType, String> {
-        let child_node = data_type_node.get_children().get(0).unwrap();
-        let child_node_type = child_node.get_node_type().unwrap();
+        let child_node = data_type_node
+            .get_children()
+            .first()
+            .expect("First java child node expected");
+        let child_node_type = child_node
+            .get_node_type()
+            .expect("First java child node type expected");
 
         if JavaNodeType::Float == child_node_type {
             Ok(JavaDataType::Basic(JavaBasicDataType::Float))
@@ -110,25 +118,27 @@ impl JavaDataType {
         } else {
             Err(format!(
                 "Unrecognized FloatingPointType JavaNodeType parsing \"{}\" in file:\n{}\n",
-                data_type_node.get_content().as_str(),
-                try_to_absolute_path(input_java_file)
+                data_type_node
+                    .get_content_from_cache(java_file_cache)
+                    .as_str(),
+                try_to_absolute_path(java_file_cache.get_path())
             ))
         }
     }
 
     fn get_data_type_from_integral_type(
         data_type_node: &JavaNode,
-        input_java_file: &Path,
+        java_file_cache: &FileCache,
     ) -> Result<JavaDataType, String> {
         let child_node = data_type_node.get_children().get(0).ok_or(format!(
             "Missing mandatory child node building IntegralType JavaNodeType \"{}\" in file:\n{}\n",
-            data_type_node.get_content(),
-            try_to_absolute_path(input_java_file)
+            data_type_node.get_content_from_cache(java_file_cache),
+            try_to_absolute_path(java_file_cache.get_path())
         ))?;
         let child_node_type = child_node.get_node_type().ok_or(format!(
             "Missing mandatory node type building IntegralType JavaNodeType \"{}\" in file:\n{}\n",
-            data_type_node.get_content(),
-            try_to_absolute_path(input_java_file)
+            data_type_node.get_content_from_cache(java_file_cache),
+            try_to_absolute_path(java_file_cache.get_path())
         ))?;
 
         if JavaNodeType::Int == child_node_type {
@@ -144,8 +154,10 @@ impl JavaDataType {
         } else {
             Err(format!(
                 "Unrecognized Integral JavaNodeType parsing \"{}\" in file:\n{}\n",
-                data_type_node.get_content().as_str(),
-                try_to_absolute_path(input_java_file)
+                data_type_node
+                    .get_content_from_cache(java_file_cache)
+                    .as_str(),
+                try_to_absolute_path(java_file_cache.get_path())
             ))
         }
     }

@@ -2,6 +2,7 @@ use std::fmt;
 use std::path::{Component, Path, PathBuf};
 
 use crate::core::file_system::file_browsing::file_browser;
+use crate::core::file_system::file_cache::FileCache;
 use crate::core::file_system::path_helper;
 use crate::core::file_system::path_helper::try_to_absolute_path;
 use crate::core::observability::logger;
@@ -34,21 +35,22 @@ impl JavaImport {
         Self::new_explicit_import_from_file_internal(&file_path)
     }
 
-    /// Warning: this method java_dependency_scanner::search_imports can handle only imports
-    /// in the same java project than java_file_path (multi-module not supported)
-    pub(crate) fn from_file_import_decl(import_route: String, java_file_path: &Path) -> JavaImport {
-        // Warning: this method java_dependency_scanner::search_imports can handle only imports
-        // in the same java project than java_file_path (multi-module not supported)
-        Self::from_file_import_decl_internal(&import_route, java_file_path)
+    /// Warning: this method can handle only imports in the same
+    /// java project than java_file_path (multi-module not supported)
+    pub(crate) fn from_file_import_decl(
+        import_route: String,
+        file_cache: &FileCache,
+    ) -> JavaImport {
+        Self::from_file_import_decl_internal(&import_route, file_cache)
             .expect("Java import must be returned")
     }
 
     pub(crate) fn new_explicit_import_from_scoped_identifier(
         scoped_identifier: &JavaNode,
-        input_java_file: &Path,
+        file_cache: &FileCache,
     ) -> JavaImport {
-        let route = scoped_identifier.get_content();
-        Self::from_file_import_decl(route, input_java_file)
+        let route = scoped_identifier.get_content_from_cache(file_cache);
+        Self::from_file_import_decl(route, file_cache)
     }
 
     /// TODO: scan m2 repository after parse
@@ -92,16 +94,16 @@ impl JavaImport {
     }
 
     fn from_file_import_decl_internal(
-        import_route: &String,
-        java_file_path: &Path,
+        import_route: &str,
+        file_cache: &FileCache,
     ) -> Result<JavaImport, String> {
-        let imports = java_dependency_scanner::search_imports(import_route, java_file_path);
+        let imports = java_dependency_scanner::search_imports(import_route, file_cache.get_path());
         if imports.len() > 1 {
             logger::log_warning(
                 format!(
                     "Several import possibilities found for import \"{}\" in file:\n\"{}\"\n",
                     import_route,
-                    try_to_absolute_path(java_file_path)
+                    try_to_absolute_path(file_cache.get_path())
                 )
                 .as_str(),
             );

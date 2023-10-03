@@ -1,5 +1,6 @@
 use std::collections::HashMap;
-use std::path::Path;
+
+use crate::core::file_system::file_cache::FileCache;
 
 use crate::core::file_system::file_overwriting::file_overwriter::FileOverwriting;
 use crate::core::file_system::path_helper::try_to_absolute_path;
@@ -35,7 +36,7 @@ impl JavaFileImports {
     pub(crate) fn new() -> Self {
         JavaFileImports {
             wildcard_imports: Vec::new(),
-            last_node_to_import: Default::default(),
+            last_node_to_import: HashMap::new(),
         }
     }
 
@@ -46,26 +47,24 @@ impl JavaFileImports {
     pub(crate) fn get_explicit_import_from_identifier(
         &self,
         type_id_node: &JavaNode,
-        input_java_file: &Path,
+        java_file_cache: &FileCache,
     ) -> Result<JavaImport, String> {
         let node_type = type_id_node
             .get_node_type()
             .ok_or("Unexpected java node without node type".to_string())?;
         if node_type == JavaNodeType::Id || node_type == JavaNodeType::TypeIdentifier {
-            return self
-                .get_explicit_import(&type_id_node.get_content())
-                .cloned();
+            let content = type_id_node.get_content_from_cache(java_file_cache);
+            return self.get_explicit_import(&content).cloned();
         } else if node_type == JavaNodeType::ScopedIdentifier
             || node_type == JavaNodeType::ScopedTypeIdentifier
         {
             return Ok(JavaImport::new_explicit_import_from_scoped_identifier(
                 type_id_node,
-                input_java_file,
+                java_file_cache,
             ));
         }
 
         Err("Unexpected identifier getting explicit import from identifier".to_string())
-        // Never happens (Haha)
     }
 
     pub(crate) fn get_explicit_import(&self, type_id: &str) -> Result<&JavaImport, String> {
@@ -73,16 +72,6 @@ impl JavaFileImports {
             Some(explicit_import) => Ok(&explicit_import.import),
             None => Err(format!("Import for \"{}\" not found.", type_id)),
         }
-        /*
-        // TODO: optimize this
-        for explicit_import in &self.get_explicit_imports() {
-            if explicit_import.match_type_id(type_id) {
-                return Ok(explicit_import.clone());
-            }
-        }
-
-        let error = format!("Import for \"{}\" not found.", type_id);
-        Err(error)*/
     }
 
     pub(crate) fn insert(&mut self, import: JavaImport, import_end_byte: usize) {

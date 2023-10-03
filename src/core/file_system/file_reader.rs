@@ -2,9 +2,9 @@ use std::fs;
 use std::fs::{File, OpenOptions};
 use std::io::{BufReader, Read, Seek, SeekFrom};
 use std::path::Path;
-use std::str;
 
 use crate::core::file_system::path_helper::try_to_absolute_path;
+use crate::core::parser::string_helper;
 
 pub(crate) fn read_all_bytes(file_path: &Path) -> Result<Vec<u8>, String> {
     let mut file = open_file_to_read(file_path)?;
@@ -39,10 +39,7 @@ pub(crate) fn read_to_string(file: &Path) -> String {
 
 pub(crate) fn read_string(file: &Path, start_byte: usize, end_byte: usize) -> String {
     let bytes = read_bytes(file, start_byte, end_byte);
-    return match str::from_utf8(&bytes) {
-        Ok(str) => str.to_string(),
-        Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
-    };
+    string_helper::to_str(&bytes)
 }
 
 pub(crate) fn read_bytes(file: &Path, start_byte: usize, end_byte: usize) -> Vec<u8> {

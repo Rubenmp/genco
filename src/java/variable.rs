@@ -1,5 +1,6 @@
 use std::fmt;
-use std::path::Path;
+
+use crate::core::file_system::file_cache::FileCache;
 
 use crate::core::observability::logger;
 use crate::core::parser::parser_node_trait::ParserNode;
@@ -46,7 +47,7 @@ impl JavaVariable {
     pub(crate) fn from_formal_params_node(
         root_node: &JavaNode,
         file_imports: &JavaFileImports,
-        input_java_file: &Path,
+        input_java_file_cache: &FileCache,
     ) -> Result<Vec<Self>, String> {
         let mut params = Vec::new();
         for param_node in root_node.get_children() {
@@ -54,7 +55,7 @@ impl JavaVariable {
                 params.push(Self::from_formal_param_node(
                     param_node,
                     file_imports,
-                    input_java_file,
+                    input_java_file_cache,
                 )?);
             }
         }
@@ -64,7 +65,7 @@ impl JavaVariable {
     pub(crate) fn from_formal_param_node(
         root_node: &JavaNode,
         file_imports: &JavaFileImports,
-        input_java_file: &Path,
+        input_java_file_cache: &FileCache,
     ) -> Result<Self, String> {
         let mut is_final = false;
         let mut data_type_opt = None;
@@ -78,7 +79,7 @@ impl JavaVariable {
                 }
             }
             if child_node.is_data_type_identifier() {
-                match JavaDataType::get_data_type(child_node, file_imports, input_java_file) {
+                match JavaDataType::get_data_type(child_node, file_imports, input_java_file_cache) {
                     Ok(data_type) => data_type_opt = Some(data_type),
                     Err(err) => {
                         logger::log_warning(&err);
@@ -87,7 +88,7 @@ impl JavaVariable {
                 }
             }
             if Some(JavaNodeType::Id) == child_node.get_node_type() {
-                name_opt = Some(child_node.get_content());
+                name_opt = Some(child_node.get_content_from_cache(input_java_file_cache));
             }
         }
 

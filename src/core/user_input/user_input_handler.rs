@@ -85,12 +85,8 @@ struct VariableUsage {
 }
 
 impl VariableUsage {
-    pub fn new(
-        raw_var_pattern: String,
-        var_def_bytes: (usize, usize),
-        file: &Path,
-    ) -> Option<Self> {
-        let var_name_opt = parse_user_input_var(&raw_var_pattern);
+    pub fn new(raw_var_pattern: &str, var_def_bytes: (usize, usize), file: &Path) -> Option<Self> {
+        let var_name_opt = parse_user_input_var(raw_var_pattern);
         let instantiations = vec![VariableInstantiation::new(file, var_def_bytes)];
         if let Some(var_name) = var_name_opt {
             return Some(VariableUsage {
@@ -183,12 +179,12 @@ impl VariableInstantiation {
     }
 }
 
-fn parse_user_input_var(pattern: &String) -> Option<String> {
+fn parse_user_input_var(pattern: &str) -> Option<String> {
     let internal_str = get_internal_string_from_var_pattern(pattern);
     get_var_name(pattern, internal_str)
 }
 
-fn get_var_name(pattern: &String, internal_str: String) -> Option<String> {
+fn get_var_name(pattern: &str, internal_str: String) -> Option<String> {
     let mut type_and_value = internal_str.split('=');
     if type_and_value.clone().count() != 2_usize {
         panic!("Invalid parse_user_input_var for pattern \"{}\"", pattern);
@@ -205,7 +201,7 @@ fn get_var_name(pattern: &String, internal_str: String) -> Option<String> {
     None
 }
 
-fn get_internal_string_from_var_pattern(pattern: &String) -> String {
+fn get_internal_string_from_var_pattern(pattern: &str) -> String {
     let start_index = get_start_variable_pattern().as_bytes().len();
     let end_index = pattern.len() - get_end_variable_pattern().as_bytes().len();
 
@@ -237,7 +233,7 @@ fn get_variables(file: &Path) -> HashMap<String, VariableUsage> {
 
 fn get_var_usage(file: &Path, var_def_bytes: (usize, usize)) -> Option<VariableUsage> {
     let content = read_string(file, var_def_bytes.0, var_def_bytes.1);
-    VariableUsage::new(content.to_string(), var_def_bytes, file)
+    VariableUsage::new(&content, var_def_bytes, file)
 }
 
 fn find_next_variable(file_content: &str, initial_index: usize) -> Option<(usize, usize)> {
@@ -273,7 +269,7 @@ fn get_end_variable_pattern<'a>() -> &'a str {
 
 #[cfg(test)]
 mod tests {
-    use std::path::PathBuf;
+    use std::path::{Path, PathBuf};
 
     use crate::core::testing::test_path::get_test_file;
     use crate::core::user_input::user_input_handler::{UserInput, VariableInstantiation};
@@ -363,7 +359,7 @@ mod tests {
     }
 
     fn check_instantiation(
-        test_file: &PathBuf,
+        test_file: &Path,
         instantiation: &VariableInstantiation,
         bytes: (usize, usize),
     ) {

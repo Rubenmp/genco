@@ -203,7 +203,7 @@ fn write_properties(fmt: &mut Formatter, depth: usize, properties: &Vec<OpenapiS
     }
 }
 
-fn write_description(fmt: &mut Formatter, depth: usize, description: &String) {
+fn write_description(fmt: &mut Formatter, depth: usize, description: &str) {
     let description = if description.contains(':') {
         format!("\"{}\"", description)
     } else {

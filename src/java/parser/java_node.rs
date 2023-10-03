@@ -2,6 +2,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
+use crate::core::file_system::file_cache::FileCache;
 use tree_sitter::{Node, Parser};
 
 use crate::core::file_system::file_reader;
@@ -24,14 +25,17 @@ impl JavaNode {
         &self.children
     }
 
-    pub(crate) fn get_import_decl_content(import_decl_node: JavaNode) -> Result<String, String> {
+    pub(crate) fn get_import_decl_content(
+        import_decl_node: JavaNode,
+        java_file_cache: &FileCache,
+    ) -> Result<String, String> {
         if Some(JavaNodeType::ImportDecl) != import_decl_node.get_node_type() {
             return Err("Java import declaration node required".to_string());
         }
 
         for children_level_one in import_decl_node.get_children() {
             if Some(JavaNodeType::ScopedIdentifier) == children_level_one.get_node_type() {
-                return Ok(children_level_one.get_content());
+                return Ok(children_level_one.get_content_from_cache(java_file_cache));
             }
         }
 

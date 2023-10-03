@@ -1,5 +1,6 @@
 use std::fmt;
-use std::path::Path;
+
+use crate::core::file_system::file_cache::FileCache;
 
 use crate::core::observability::logger;
 use crate::java::import::JavaImport;
@@ -51,11 +52,11 @@ impl JavaAnnotationUsage {
     pub(crate) fn new_from_java_node_unchecked(
         root_java_node: &JavaNode,
         file_imports: &JavaFileImports,
-        input_java_file: &Path,
+        java_file_cache: &FileCache,
     ) -> Result<JavaAnnotationUsage, String> {
         let id_node = Self::get_annotation_id_node(root_java_node).expect("Expected id");
         let explicit_import =
-            file_imports.get_explicit_import_from_identifier(id_node, input_java_file)?;
+            file_imports.get_explicit_import_from_identifier(id_node, java_file_cache)?;
 
         Ok(JavaAnnotationUsage { explicit_import })
     }

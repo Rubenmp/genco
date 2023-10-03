@@ -1,3 +1,4 @@
+use crate::core::file_system::file_cache::FileCache;
 use std::path::{Path, PathBuf};
 
 use crate::core::file_system::file_edition::file_editor;
@@ -76,15 +77,14 @@ impl JavaFile {
     }
 
     fn from_user_input_path_internal(java_file_path: &Path) -> Result<JavaFile, String> {
-        let base_java_project_dir_opt = java_package_scanner::get_base_package(java_file_path);
-        if let Some(base_java_project_dir) = base_java_project_dir_opt {
+        if let Some(base_java_project_dir) = java_package_scanner::get_base_package(java_file_path)
+        {
             java_dependency_scanner::recursive_scan_dir_unchecked(&base_java_project_dir);
         } else {
-            return Err(format!(
-                "Invalid java project file:\n\"{}\"\n",
-                path_helper::try_to_absolute_path(java_file_path)
-            ));
+            return Err(Self::get_invalid_java_project_file_error(java_file_path));
         }
+
+        let file_cache = FileCache::from(java_file_path);
 
         let root_java_node = JavaNode::new(java_file_path)?;
         let mut imports = JavaFileImports::new();
@@ -94,31 +94,42 @@ impl JavaFile {
         for child in root_java_node.get_children() {
             if let Some(node_type) = child.get_node_type() {
                 if JavaNodeType::ImportDecl == node_type {
-                    match JavaNode::get_import_decl_content(child.to_owned()) {
+                    match JavaNode::get_import_decl_content(child.to_owned(), &file_cache) {
                         Ok(import_route) => imports.insert(
-                            JavaImport::from_file_import_decl(import_route, java_file_path),
+                            JavaImport::from_file_import_decl(import_route, &file_cache),
                             child.get_end_byte(),
                         ),
                         Err(err) => log_invalid_import(java_file_path, err),
                     };
                 } else if JavaNodeType::PackageDecl == node_type {
-                    Self::check_package_def(&java_file_import, child);
+                    Self::check_package_def(&java_file_import, child, &file_cache);
                 } else if node_type.is_structure() {
-                    let structure = JavaStructure::new(child, &imports, java_file_path)?;
+                    let structure = JavaStructure::new(child, &imports, &file_cache)?;
                     structure_opt = Some(structure);
                 }
             }
         }
 
         Self::check_existence(&structure_opt, java_file_path)?;
-        let structure = structure_opt.ok_or(
-            format!(
-                "Java internal structure not found in file:\n\t\"{}\"\n",
-                path_helper::try_to_absolute_path(java_file_path)
-            )
-            .as_str(),
-        )?;
+        let structure = structure_opt.ok_or(Self::get_structure_not_found_error(java_file_path))?;
+        Self::log_java_file_package_mismatch_if_needed(
+            &java_file_path,
+            java_file_import,
+            &structure,
+        );
 
+        Ok(JavaFile {
+            file: java_file_path.to_path_buf(),
+            imports,
+            structure,
+        })
+    }
+
+    fn log_java_file_package_mismatch_if_needed(
+        java_file_path: &&Path,
+        java_file_import: JavaImport,
+        structure: &JavaStructure,
+    ) {
         if !java_file_import.match_type_id(structure.get_name()) {
             logger::log_warning(&format!(
                 "Mismatch between the identifier \"{}\" and its java file:\n\t\"{}\"\n",
@@ -126,12 +137,20 @@ impl JavaFile {
                 path_helper::try_to_absolute_path(java_file_path)
             ));
         }
+    }
 
-        Ok(JavaFile {
-            file: java_file_path.to_path_buf(),
-            imports,
-            structure,
-        })
+    fn get_structure_not_found_error(java_file_path: &Path) -> String {
+        format!(
+            "Java internal structure not found in file:\n\t\"{}\"\n",
+            path_helper::try_to_absolute_path(java_file_path)
+        )
+    }
+
+    fn get_invalid_java_project_file_error(java_file_path: &Path) -> String {
+        format!(
+            "Invalid java project file:\n\"{}\"\n",
+            path_helper::try_to_absolute_path(java_file_path)
+        )
     }
 
     fn copy_to_output_folder_internal(
@@ -170,10 +189,10 @@ impl JavaFile {
         Self::from_user_input_path(&output_file)
     }
 
-    fn check_package_def(java_file_import: &JavaImport, child: &JavaNode) {
+    fn check_package_def(java_file_import: &JavaImport, child: &JavaNode, file_cache: &FileCache) {
         let expected_package = java_file_import.get_package_route();
         let expected_package_decl = format!("package {};", expected_package);
-        let found_package_decl = child.get_content();
+        let found_package_decl = child.get_content_from_cache(file_cache);
         // TODO: improve this comparison to be spaces independent (using new method in string_helper)
         if found_package_decl != expected_package_decl {
             logger::log_warning(

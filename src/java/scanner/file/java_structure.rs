@@ -1,3 +1,4 @@
+use crate::core::file_system::file_cache::FileCache;
 use std::path::Path;
 
 use crate::core::file_system::path_helper::try_to_absolute_path;
@@ -53,9 +54,9 @@ impl JavaStructure {
     pub(crate) fn new(
         root_struct_decl_node: &JavaNode,
         file_imports: &JavaFileImports,
-        input_java_file: &Path,
+        file_cache: &FileCache,
     ) -> Result<Self, String> {
-        new_structure_internal(root_struct_decl_node, file_imports, input_java_file)
+        new_structure_internal(root_struct_decl_node, file_imports, file_cache)
     }
 
     pub(crate) fn get_type(&self) -> JavaStructureType {
@@ -277,7 +278,7 @@ impl JavaStructure {
 fn new_structure_internal(
     root_node: &JavaNode,
     file_imports: &JavaFileImports,
-    input_java_file: &Path,
+    java_file_cache: &FileCache,
 ) -> Result<JavaStructure, String> {
     let structure_type_opt: Option<JavaStructureType> =
         get_java_structure_type(root_node.get_node_type());
@@ -294,6 +295,7 @@ fn new_structure_internal(
     let mut substructures = Vec::new();
     let mut struct_body_start_byte_opt: Option<usize> = None;
     let mut struct_body_end_byte_opt: Option<usize> = None;
+    let input_java_file = java_file_cache.get_path();
 
     for child_node in root_node.get_children() {
         if let Some(structure_node_type) = child_node.get_node_type() {
@@ -304,7 +306,7 @@ fn new_structure_internal(
                             match JavaAnnotationUsage::new_from_java_node_unchecked(
                                 modifier,
                                 file_imports,
-                                input_java_file,
+                                java_file_cache,
                             ) {
                                 Ok(annotation) => annotations.push(annotation),
                                 Err(err) => logger::log_warning(&err),
@@ -321,21 +323,21 @@ fn new_structure_internal(
                     }
                 }
             } else if JavaNodeType::Id == structure_node_type {
-                name_opt = Some(child_node.get_content());
+                name_opt = Some(child_node.get_content_from_cache(java_file_cache));
             } else if JavaNodeType::Superclass == structure_node_type {
-                if let Some(import) = extract_super_class(file_imports, input_java_file, child_node)
+                if let Some(import) = extract_super_class(file_imports, java_file_cache, child_node)
                 {
                     extended_class.push(import);
                 }
             } else if JavaNodeType::SuperInterfaces == structure_node_type {
-                for import in extract_interfaces(child_node, file_imports, input_java_file) {
+                for import in extract_interfaces(child_node, file_imports, java_file_cache) {
                     implemented_interfaces.push(import);
                 }
             } else if is_structure_body(&structure_node_type) {
                 for body_child in child_node.get_children() {
                     if let Some(body_node_type) = body_child.get_node_type() {
                         if JavaNodeType::FieldDeclaration == body_node_type {
-                            match JavaField::new(body_child, file_imports, input_java_file) {
+                            match JavaField::new(body_child, file_imports, java_file_cache) {
                                 Ok(field) => fields.push(field),
                                 Err(err) => logger::log_warning(&err),
                             };
@@ -343,7 +345,7 @@ fn new_structure_internal(
                             match JavaMethod::new_from_node(
                                 body_child,
                                 file_imports,
-                                input_java_file,
+                                java_file_cache,
                             ) {
                                 Ok(method) => methods.push(method),
                                 Err(err) => log_invalid_method_decl(input_java_file, err),
@@ -357,7 +359,7 @@ fn new_structure_internal(
                     }
                 }
             } else if is_java_structure_type(Some(structure_node_type)) {
-                match new_structure_internal(child_node, file_imports, input_java_file) {
+                match new_structure_internal(child_node, file_imports, java_file_cache) {
                     Ok(new_substructure) => substructures.push(new_substructure),
                     Err(err) => logger::log_warning(&err),
                 }
@@ -390,12 +392,12 @@ fn new_structure_internal(
 
 fn extract_super_class(
     file_imports: &JavaFileImports,
-    input_java_file: &Path,
+    input_java_file_cache: &FileCache,
     child_node: &JavaNode,
 ) -> Option<JavaImport> {
     let children = child_node.get_children();
     if !is_second_child_an_extended_class_id(children) {
-        log_unrecognized_super_class(child_node, input_java_file);
+        log_unrecognized_super_class(child_node, input_java_file_cache);
         return None;
     }
 
@@ -405,13 +407,13 @@ fn extract_super_class(
     match JavaDataType::from_data_type_identifier_with_import(
         second_child_with_extended_class_type,
         file_imports,
-        input_java_file,
+        input_java_file_cache,
     ) {
         Ok(data_type) => {
             if let JavaDataType::FromImport(import) = data_type {
                 return Some(import);
             }
-            log_unrecognized_super_class_type_id_import(child_node, input_java_file);
+            log_unrecognized_super_class_type_id_import(child_node, input_java_file_cache);
             None
         }
         Err(err) => {
@@ -593,21 +595,21 @@ impl JavaStructureBuilder {
 
 fn log_unrecognized_super_class_type_id_import(
     super_class_node: &JavaNode,
-    input_java_file: &Path,
+    java_file_cache: &FileCache,
 ) {
     let log = format!(
         "Unrecognized superclass type id \"{}\" in file:\n{}\n",
-        super_class_node.get_content(),
-        try_to_absolute_path(input_java_file)
+        super_class_node.get_content_from_cache(java_file_cache),
+        try_to_absolute_path(java_file_cache.get_path())
     );
     logger::log_warning(&log);
 }
 
-fn log_unrecognized_super_class(super_class_node: &JavaNode, input_java_file: &Path) {
+fn log_unrecognized_super_class(super_class_node: &JavaNode, java_file_cache: &FileCache) {
     let log = format!(
         "Unrecognized superclass \"{}\" in file:\n{}\n",
-        super_class_node.get_content(),
-        try_to_absolute_path(input_java_file)
+        super_class_node.get_content_from_cache(java_file_cache),
+        try_to_absolute_path(java_file_cache.get_path())
     );
     logger::log_warning(&log);
 }
@@ -622,7 +624,7 @@ fn is_second_child_an_extended_class_id(children: &[JavaNode]) -> bool {
 fn extract_interfaces(
     super_interfaces_node: &JavaNode,
     file_imports: &JavaFileImports,
-    input_java_file: &Path,
+    input_java_file_cache: &FileCache,
 ) -> Vec<JavaImport> {
     let mut result = Vec::new();
     let children = super_interfaces_node.get_children();
@@ -637,15 +639,15 @@ fn extract_interfaces(
             let data_type = JavaDataType::from_data_type_identifier_with_import(
                 interface_type,
                 file_imports,
-                input_java_file,
+                input_java_file_cache,
             );
             if let Ok(JavaDataType::FromImport(import)) = data_type {
                 result.push(import);
             } else {
                 let log = format!(
                     "Unrecognized interface type id \"{}\" in file:\n{}\n",
-                    interface_type.get_content(),
-                    try_to_absolute_path(input_java_file)
+                    interface_type.get_content_from_cache(input_java_file_cache),
+                    try_to_absolute_path(input_java_file_cache.get_path())
                 );
                 logger::log_warning(&log);
             }
@@ -655,8 +657,8 @@ fn extract_interfaces(
 
     let log = format!(
         "Unrecognized interfaces \"{}\" in file:\n{}\n",
-        super_interfaces_node.get_content(),
-        try_to_absolute_path(input_java_file)
+        super_interfaces_node.get_content_from_cache(input_java_file_cache),
+        try_to_absolute_path(input_java_file_cache.get_path())
     );
     logger::log_warning(&log);
     Vec::new()

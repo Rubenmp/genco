@@ -1,3 +1,4 @@
+use crate::core::file_system::file_cache::FileCache;
 use std::fmt::{Display, Write};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
@@ -96,10 +97,12 @@ pub(crate) trait ParserNode<NodeType: Display + PartialEq + Copy>: Sized {
 
     fn is_composed_node_printable(&self) -> bool;
 
-    /// WARN: this method is really slow because it gets the content from a file
+    /// WARN: this method is really slow because it gets the content from a file.
     /// It is mostly used during file parsing analysis, an improvement for this
     /// would read the whole file into a buffer, get_content_from_buffer and then
-    /// free the buffer, to do only one read to file, not hundred/thousand smaller ones
+    /// free the buffer, to do only one read to file, not hundred/thousand smaller ones.
+    ///
+    /// Migrate to get_content_from_cache method
     fn get_content(&self) -> String {
         let buffer = file_reader::read_bytes(
             self.get_file_path(),
@@ -108,6 +111,10 @@ pub(crate) trait ParserNode<NodeType: Display + PartialEq + Copy>: Sized {
         );
 
         string_helper::to_str(&buffer)
+    }
+
+    fn get_content_from_cache(&self, file_cache: &FileCache) -> String {
+        file_cache.get_content(self.get_start_byte(), self.get_end_byte())
     }
 
     fn get_content_bytes_with_previous_empty_space(&self) -> String {
