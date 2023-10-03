@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::path::Path;
 
 use crate::core::file_system::file_overwriting::file_overwriter::FileOverwriting;
@@ -10,8 +11,8 @@ use crate::java::parser::java_node_type::JavaNodeType;
 
 #[derive(Debug)]
 pub(crate) struct JavaFileImports {
-    explicit_imports: Vec<JavaFileImport>,
     wildcard_imports: Vec<JavaFileImport>,
+    last_node_to_import: HashMap<String, JavaFileImport>,
 }
 
 #[derive(Debug)]
@@ -33,13 +34,13 @@ impl JavaFileImport {
 impl JavaFileImports {
     pub(crate) fn new() -> Self {
         JavaFileImports {
-            explicit_imports: Vec::new(),
             wildcard_imports: Vec::new(),
+            last_node_to_import: Default::default(),
         }
     }
 
     pub(crate) fn is_empty(&self) -> bool {
-        self.explicit_imports.is_empty() && self.wildcard_imports.is_empty()
+        self.last_node_to_import.is_empty() && self.wildcard_imports.is_empty()
     }
 
     pub(crate) fn get_explicit_import_from_identifier(
@@ -51,7 +52,9 @@ impl JavaFileImports {
             .get_node_type()
             .ok_or("Unexpected java node without node type".to_string())?;
         if node_type == JavaNodeType::Id || node_type == JavaNodeType::TypeIdentifier {
-            return self.get_explicit_import(&type_id_node.get_content());
+            return self
+                .get_explicit_import(&type_id_node.get_content())
+                .cloned();
         } else if node_type == JavaNodeType::ScopedIdentifier
             || node_type == JavaNodeType::ScopedTypeIdentifier
         {
@@ -65,7 +68,12 @@ impl JavaFileImports {
         // Never happens (Haha)
     }
 
-    pub(crate) fn get_explicit_import(&self, type_id: &str) -> Result<JavaImport, String> {
+    pub(crate) fn get_explicit_import(&self, type_id: &str) -> Result<&JavaImport, String> {
+        match self.last_node_to_import.get(type_id) {
+            Some(explicit_import) => Ok(&explicit_import.import),
+            None => Err(format!("Import for \"{}\" not found.", type_id)),
+        }
+        /*
         // TODO: optimize this
         for explicit_import in &self.get_explicit_imports() {
             if explicit_import.match_type_id(type_id) {
@@ -74,13 +82,14 @@ impl JavaFileImports {
         }
 
         let error = format!("Import for \"{}\" not found.", type_id);
-        Err(error)
+        Err(error)*/
     }
 
     pub(crate) fn insert(&mut self, import: JavaImport, import_end_byte: usize) {
         if import.is_explicit_import() {
-            self.explicit_imports
-                .push(JavaFileImport::new(import, import_end_byte));
+            let last_node = import.get_last_node().clone();
+            let java_file_import = JavaFileImport::new(import, import_end_byte);
+            self.last_node_to_import.insert(last_node, java_file_import);
         } else if import.is_wildcard_import() {
             logger::log_unrecoverable_error(
                 format!("Wildcard imports are not supported yet\n\"{}\"", import).as_str(),
@@ -144,19 +153,13 @@ impl JavaFileImports {
 
 // Private methods
 impl JavaFileImports {
-    fn get_explicit_imports(&self) -> Vec<JavaImport> {
-        self.explicit_imports
-            .iter()
-            .map(|file_import| file_import.import.to_owned())
-            .collect()
-    }
-
     fn get_last_import_end_byte(&self) -> Option<usize> {
         let mut result = None;
 
         for import in self
-            .explicit_imports
+            .last_node_to_import
             .iter()
+            .map(|ik| ik.1)
             .chain(self.wildcard_imports.iter())
         {
             if let Some(current_result) = result {
@@ -181,7 +184,7 @@ impl JavaFileImports {
     // Test specific methods
     #[cfg(test)]
     pub(crate) fn count(&self) -> usize {
-        self.explicit_imports.len() + self.wildcard_imports.len()
+        self.last_node_to_import.len() + self.wildcard_imports.len()
     }
 }
 
