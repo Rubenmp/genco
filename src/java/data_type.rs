@@ -32,10 +32,10 @@ impl JavaDataType {
 // Public crate methods
 impl JavaDataType {
     // Crate or private methods
-    pub(crate) fn get_import(&self) -> Option<JavaImport> {
+    pub(crate) fn get_import(&self) -> Option<&JavaImport> {
         match &self {
             JavaDataType::Basic(_) => None,
-            JavaDataType::FromImport(import) => Some(import.to_owned()),
+            JavaDataType::FromImport(import) => Some(import),
         }
     }
 

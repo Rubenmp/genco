@@ -132,7 +132,7 @@ pub(in crate::core::file_system) fn create_ancestor_dirs(
         if i < last_path_index && !dir_to_create.exists() {
             fs::create_dir(dir_to_create).map_err(|e| e.to_string())?;
             if highest_created_dir_opt.is_none() {
-                highest_created_dir_opt = Some(dir_to_create.to_owned())
+                highest_created_dir_opt = Some(dir_to_create.clone())
             }
         }
     }

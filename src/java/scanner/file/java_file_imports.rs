@@ -223,7 +223,7 @@ mod tests {
     fn insert_imports(import_scan: &mut JavaFileImports, imports: &Vec<JavaImport>) {
         for import in imports {
             let irrelevant_import_end_byte_for_test_stub = 0;
-            import_scan.insert(import.to_owned(), irrelevant_import_end_byte_for_test_stub);
+            import_scan.insert(import.clone(), irrelevant_import_end_byte_for_test_stub);
         }
     }
 }

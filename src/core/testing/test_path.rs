@@ -42,11 +42,11 @@ pub(crate) fn get_non_existing_test_file(current_file: PathBuf, name: &str) -> P
 
 // Java
 pub(crate) fn get_java_test_file(
-    current_dir: PathBuf,
+    current_file: PathBuf,
     test_folder: &str,
     java_file_name: &str,
 ) -> PathBuf {
-    let mut path = get_java_project_test_folder(current_dir, test_folder);
+    let mut path = get_java_project_test_folder(current_file, test_folder);
     path.join(java_file_name)
 }
 

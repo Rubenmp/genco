@@ -73,10 +73,7 @@ impl ParserNode<JsonNodeType> for JsonNode {
     }
 
     fn get_node_type(&self) -> Option<JsonNodeType> {
-        if let Some(node_type) = &self.node_type {
-            return Some(node_type.to_owned());
-        }
-        None
+        self.node_type
     }
 
     fn is_composed_node_printable(&self) -> bool {

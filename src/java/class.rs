@@ -220,8 +220,8 @@ pub struct JavaClassBuilder {
     is_final: bool,
     is_abstract: bool,
 
-    extended_class: Vec<JavaImport>,
-    implemented_interfaces: Vec<JavaImport>,
+    extended_class: Vec<JavaImport>, // TODO: use JavaClass instead, do not expose JavaImport
+    implemented_interfaces: Vec<JavaImport>, // TODO: use JavaInterface instead, do not expose JavaImport
 
     name: Option<String>,
     fields: Vec<JavaField>,
@@ -246,7 +246,7 @@ impl JavaClassBuilder {
     }
 
     pub fn folder(&mut self, input: &Path) -> &mut Self {
-        self.folder = Some(input.to_owned());
+        self.folder = Some(input.to_path_buf());
         self
     }
 
@@ -308,7 +308,7 @@ impl JavaClassBuilder {
                 minimal_build_usage
             ));
         }
-        let name = self.name.to_owned().expect("Java class name is mandatory");
+        let name = self.name.clone().expect("Java class name is mandatory");
         if self.folder.is_none() {
             return Err(format!(
                 "Invalid java class build, folder is mandatory. Example:\n{}\n",
@@ -329,16 +329,16 @@ impl JavaClassBuilder {
         let file = folder.join(format!("{}.java", name));
         return match JavaStructure::builder()
             .structure_type(JavaStructureType::Class)
-            .annotations(self.annotations.to_owned())
+            .annotations(self.annotations.clone())
             .visibility(self.visibility)
             .is_static(self.is_static)
             .is_final(self.is_final)
             .is_abstract(self.is_abstract)
-            .extended_classes(self.extended_class.to_owned())
-            .implemented_interfaces(self.implemented_interfaces.to_owned())
+            .extended_classes(self.extended_class.clone())
+            .implemented_interfaces(self.implemented_interfaces.clone())
             .name(&name)
-            .fields(self.fields.to_owned())
-            .methods(self.methods.to_owned())
+            .fields(self.fields.clone())
+            .methods(self.methods.clone())
             .build()
         {
             Ok(structure) => Ok(JavaClass::write(&file, structure)?),

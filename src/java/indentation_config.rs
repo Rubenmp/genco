@@ -48,7 +48,7 @@ impl JavaIndentationBuilder {
     }
     pub fn build(&mut self) -> JavaIndentation {
         JavaIndentation {
-            base_indentation: self.base_indentation.to_owned(),
+            base_indentation: self.base_indentation.clone(),
             current_level: self.current_level,
         }
     }

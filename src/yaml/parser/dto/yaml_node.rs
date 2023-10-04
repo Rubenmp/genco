@@ -100,10 +100,7 @@ impl ParserNode<YamlNodeType> for YamlNode {
     }
 
     fn get_node_type(&self) -> Option<YamlNodeType> {
-        if let Some(node_type) = &self.node_type {
-            return Some(node_type.to_owned());
-        }
-        None
+        self.node_type
     }
 
     fn get_tree_str(&self) -> String {

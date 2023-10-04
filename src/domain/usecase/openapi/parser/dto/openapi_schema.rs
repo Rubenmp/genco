@@ -235,12 +235,12 @@ fn write_ref(fmt: &mut Formatter, depth: usize, object_name: String) {
 fn get_object_name_schema(schema: &OpenapiSchema) -> Option<OpenapiDataType> {
     if let Some(schema_type) = &schema.get_schema_type() {
         if let OpenapiDataType::ObjectName(_) = schema_type {
-            return Some(schema_type.to_owned());
+            return Some(schema_type.clone());
         } else if let OpenapiDataType::Array(subtypes) = schema_type {
             let subtypes_without_null = get_sub_types_without_null(subtypes);
             if subtypes_without_null.len() == 1 {
                 if let Some(&subtype) = subtypes_without_null.get(0) {
-                    return Some(subtype.to_owned());
+                    return Some(subtype.clone());
                 }
             }
 

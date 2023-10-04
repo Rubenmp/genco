@@ -99,7 +99,7 @@ impl JavaVariable {
             .build()
     }
 
-    pub(crate) fn get_import(&self) -> Option<JavaImport> {
+    pub(crate) fn get_import(&self) -> Option<&JavaImport> {
         self.data_type.get_import()
     }
 }
@@ -134,7 +134,7 @@ impl JavaVariableBuilder {
         self
     }
     pub fn data_type(&mut self, input: JavaDataType) -> &mut Self {
-        self.data_type = Some(input.to_owned());
+        self.data_type = Some(input);
         self
     }
     pub fn name(&mut self, input: &str) -> &mut Self {
@@ -146,11 +146,11 @@ impl JavaVariableBuilder {
             is_final: self.is_final,
             data_type: self
                 .data_type
-                .to_owned()
+                .clone()
                 .ok_or("Java data type is mandatory to create a JavaVariable")?,
             name: self
                 .name
-                .to_owned()
+                .clone()
                 .ok_or("Java variable name is mandatory to create a JavaVariable")?,
         })
     }

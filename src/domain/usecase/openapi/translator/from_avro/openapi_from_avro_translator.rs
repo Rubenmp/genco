@@ -93,7 +93,7 @@ pub fn to_data_type(avro_item_type: &AvroItemType) -> OpenapiDataType {
     } else if let AvroItemType::Bytes = avro_item_type {
         return OpenapiDataType::Bytes;
     } else if let AvroItemType::RecordName(record_name) = avro_item_type {
-        return OpenapiDataType::ObjectName(record_name.to_owned());
+        return OpenapiDataType::ObjectName(record_name.clone());
     } else if let AvroItemType::Array(subtypes) = avro_item_type {
         let mut translated_types = Vec::new();
         for subtype in subtypes {

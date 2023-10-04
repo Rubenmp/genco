@@ -26,7 +26,7 @@ impl JavaNode {
     }
 
     pub(crate) fn get_import_decl_content(
-        import_decl_node: JavaNode,
+        import_decl_node: &JavaNode,
         java_file_cache: &FileCache,
     ) -> Result<String, String> {
         if Some(JavaNodeType::ImportDecl) != import_decl_node.get_node_type() {
@@ -101,7 +101,7 @@ impl ParserNode<JavaNodeType> for JavaNode {
     }
 
     fn get_node_type(&self) -> Option<JavaNodeType> {
-        self.node_type.to_owned()
+        self.node_type
     }
 
     fn is_composed_node_printable(&self) -> bool {

@@ -79,7 +79,7 @@ impl JavaImport {
     fn new_explicit_import_from_file_internal(file_path: &&Path) -> Result<JavaImport, String> {
         check_file_for_new_explicit_import(file_path)?;
 
-        let mut dir_path = file_path.to_owned().to_path_buf();
+        let mut dir_path = file_path.to_path_buf();
         dir_path.pop();
         if get_package_nodes_vec_from_dir(&dir_path).is_empty() {
             return Err(invalid_explicit_import_msg(file_path));
@@ -88,7 +88,7 @@ impl JavaImport {
 
         Ok(JavaImport {
             fake_non_checked_route: "".to_string(),
-            folder_path: Some(dir_path.to_owned()),
+            folder_path: Some(dir_path),
             nodes: vec![file_browser::remove_java_extension(last_node)],
         })
     }
@@ -134,7 +134,7 @@ impl JavaImport {
             ));
         }
 
-        if let Some(folder) = self.folder_path.to_owned() {
+        if let Some(folder) = self.folder_path.clone() {
             if let Some(first_node) = self.nodes.get(0) {
                 return Ok(folder.join(format!("{}.java", first_node)));
             }
@@ -169,7 +169,7 @@ impl JavaImport {
 
     fn get_nodes_within_file(&self) -> Vec<String> {
         if self.folder_path.is_some() {
-            return self.nodes.to_owned();
+            return self.nodes.clone();
         }
 
         self.get_all_fake_nodes()
@@ -201,7 +201,7 @@ impl JavaImport {
     }
 
     pub(crate) fn get_package_nodes_vec(&self) -> Vec<String> {
-        get_package_nodes_vec_from_dir(&self.folder_path.to_owned().unwrap())
+        get_package_nodes_vec_from_dir(&self.folder_path.clone().expect("Package nodes expected"))
     }
 
     /// TODO: The signature of this method prevents its validity
@@ -209,7 +209,7 @@ impl JavaImport {
     /// since the type could be a substructure JavaClass.JavaSubclass, JavaClass.method...
     /// The only valid way to validate this match is to check all self.nodes with the type_id(s)
     pub(crate) fn match_type_id(&self, type_id: &str) -> bool {
-        let all_nodes = self.get_all_nodes().to_owned();
+        let all_nodes = self.get_all_nodes();
         if let Some(last_node) = all_nodes.last() {
             return last_node == type_id;
         }
@@ -491,7 +491,7 @@ mod tests {
 
         let return_type = &method
             .get_return_type()
-            .to_owned()
+            .clone()
             .expect("Expected return type");
         let route = return_type
             .get_import()

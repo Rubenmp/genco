@@ -69,8 +69,7 @@ impl UserInput {
             if let Some(match_usage) = self.variables.get_mut(&var_id) {
                 match_usage.merge(&var_usage);
             } else {
-                self.variables
-                    .insert(var_id.to_owned(), var_usage.to_owned());
+                self.variables.insert(var_id.clone(), var_usage.clone());
             }
         }
     }
@@ -111,7 +110,7 @@ impl VariableUsage {
     }
 
     pub fn get_variable_id(&self) -> String {
-        self.var_id.to_owned()
+        self.var_id.clone()
     }
 
     fn add_instantiation(&mut self, instantiation: &VariableInstantiation) {
@@ -126,10 +125,10 @@ impl VariableUsage {
 
     pub fn get_value(&self) -> Option<String> {
         if let Some(override_value) = &self.override_value {
-            return Some(override_value.to_owned());
+            return Some(override_value.clone());
         }
 
-        self.raw_user_input_value.to_owned()
+        self.raw_user_input_value.clone()
     }
 
     pub fn get_instantiations(&self) -> &Vec<VariableInstantiation> {
@@ -153,7 +152,7 @@ impl VariableInstantiation {
     pub fn new(file_path: &Path, bytes: (usize, usize)) -> Self {
         Self::check_var_instantiation(file_path, bytes);
         VariableInstantiation {
-            file: file_path.to_owned(),
+            file: file_path.to_path_buf(),
             bytes,
         }
     }
@@ -205,7 +204,7 @@ fn get_internal_string_from_var_pattern(pattern: &str) -> String {
     let start_index = get_start_variable_pattern().as_bytes().len();
     let end_index = pattern.len() - get_end_variable_pattern().as_bytes().len();
 
-    pattern[start_index..end_index].to_owned()
+    pattern[start_index..end_index].to_string()
 }
 
 fn get_variables(file: &Path) -> HashMap<String, VariableUsage> {
@@ -284,7 +283,7 @@ mod tests {
         let usages = user_var.get_variables();
         assert_eq!(1, usages.len());
         for (var_id, var_usage) in usages.iter() {
-            assert_eq!("input_var_id".to_string(), var_id.to_owned());
+            assert_eq!("input_var_id".to_string(), var_id.clone());
             let instantiations = var_usage.get_instantiations();
             assert_eq!(1, instantiations.len());
             if let Some(instantiation) = instantiations.get(0) {
@@ -297,12 +296,10 @@ mod tests {
     #[ignore = "User input not yet mocked"]
     fn user_input_merge_same_variable() {
         let current_file_path = get_current_file_path();
-        let first_test_file = get_test_file(
-            current_file_path.to_owned(),
-            "user_input_var_input_var_id.txt",
-        );
+        let first_test_file =
+            get_test_file(current_file_path.clone(), "user_input_var_input_var_id.txt");
         let second_test_file = get_test_file(
-            current_file_path.to_owned(),
+            current_file_path.clone(),
             "user_input_var_input_var_id_copy.txt",
         );
 
@@ -312,7 +309,7 @@ mod tests {
         let usages = user_var.get_variables();
         assert_eq!(1, usages.len());
         for (var_id, var_usage) in usages.iter() {
-            assert_eq!("input_var_id".to_string(), var_id.to_owned());
+            assert_eq!("input_var_id".to_string(), var_id.clone());
             let instantiations = var_usage.get_instantiations();
             assert_eq!(2, instantiations.len());
             if let Some(instantiation) = instantiations.get(0) {
@@ -328,14 +325,10 @@ mod tests {
     #[ignore = "User input not yet mocked"]
     fn user_input_merge_different_variable() {
         let current_file_path = get_current_file_path();
-        let first_test_file = get_test_file(
-            current_file_path.to_owned(),
-            "user_input_var_input_var_id.txt",
-        );
-        let second_test_file = get_test_file(
-            current_file_path.to_owned(),
-            "user_input_var_new_var_id.txt",
-        );
+        let first_test_file =
+            get_test_file(current_file_path.clone(), "user_input_var_input_var_id.txt");
+        let second_test_file =
+            get_test_file(current_file_path.clone(), "user_input_var_new_var_id.txt");
 
         let mut user_var = UserInput::new(&first_test_file);
         user_var.add_variables_from(&second_test_file);

@@ -36,7 +36,7 @@ pub(crate) fn by_base_package_and_route(
         )
         .expect("Database statement preparation failed (\"by_base_package_and_route\")");
 
-    stmt.query_map([base_package_str, import_route.to_owned()], |row| {
+    stmt.query_map([base_package_str, import_route.to_string()], |row| {
         Ok(JavaImportRouteEntity::from_row(row))
     })
     .expect("Search JavaImportRoute by_base_package_and_route query failed")

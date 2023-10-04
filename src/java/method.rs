@@ -9,7 +9,7 @@ use crate::java::indentation_config::JavaIndentation;
 use crate::java::parser::java_node::JavaNode;
 use crate::java::parser::java_node_type::JavaNodeType;
 use crate::java::scanner::file::java_file_imports::JavaFileImports;
-use crate::java::steps_generator::JavaStepsGenerator;
+use crate::java::statement::JavaStatement;
 use crate::java::variable::JavaVariable;
 use crate::java::visibility::JavaVisibility;
 use crate::java::{annotation_usage, visibility};
@@ -22,7 +22,7 @@ pub struct JavaMethod {
     return_type: Option<JavaDataType>,
     name: String,
     parameters: Vec<JavaVariable>,
-    body: Option<JavaStepsGenerator>,
+    statements: Vec<JavaStatement>,
 }
 
 // Public methods
@@ -50,7 +50,7 @@ impl JavaMethod {
     /// # get_visibility
     /// Get the java visibility of the method
     pub fn get_visibility(&self) -> JavaVisibility {
-        self.visibility.to_owned()
+        self.visibility
     }
 
     /// # is_static
@@ -75,12 +75,6 @@ impl JavaMethod {
     /// Get the method parameters sorted from the first one to the last one.
     pub fn get_parameters(&self) -> &Vec<JavaVariable> {
         &self.parameters
-    }
-
-    /// # get_body
-    /// It returns the method expressions.
-    pub fn get_body(&self) -> &Option<JavaStepsGenerator> {
-        &self.body
     }
 }
 
@@ -110,9 +104,7 @@ impl JavaMethod {
                                     file_imports,
                                     java_file_cache,
                                 ) {
-                                    Ok(annotation) => {
-                                        annotations.push(annotation);
-                                    }
+                                    Ok(annotation) => annotations.push(annotation),
                                     Err(err) => logger::log_warning(&err),
                                 };
                             } else if visibility::is_visibility_node_type(&node_type) {
@@ -160,7 +152,7 @@ impl JavaMethod {
             is_static,
             name: name_opt.ok_or("Java method name not detected.")?,
             parameters,
-            body: None,
+            statements: Vec::new(),
         })
     }
 
@@ -178,7 +170,7 @@ impl JavaMethod {
     pub(crate) fn get_imports(&self) -> Vec<JavaImport> {
         let mut imports = Vec::new();
         for import in self.get_annotation_imports() {
-            imports.push(import)
+            imports.push(import.clone())
         }
 
         if let Some(import) = self
@@ -186,24 +178,24 @@ impl JavaMethod {
             .as_ref()
             .and_then(|rt| rt.get_import())
         {
-            imports.push(import)
+            imports.push(import.clone())
         }
 
         for import in self.get_param_imports() {
-            imports.push(import);
+            imports.push(import.clone());
         }
 
         imports
     }
 
-    fn get_annotation_imports(&self) -> Vec<JavaImport> {
+    fn get_annotation_imports(&self) -> Vec<&JavaImport> {
         self.get_annotations()
             .iter()
             .flat_map(|annotation| annotation.get_imports())
             .collect()
     }
 
-    fn get_param_imports(&self) -> Vec<JavaImport> {
+    fn get_param_imports(&self) -> Vec<&JavaImport> {
         self.get_parameters()
             .iter()
             .filter_map(|param| param.get_import())
@@ -250,7 +242,6 @@ pub struct JavaMethodBuilder {
     return_type: Option<JavaDataType>,
     name: Option<String>,
     parameters: Vec<JavaVariable>,
-    body: Option<JavaStepsGenerator>,
 }
 
 impl JavaMethodBuilder {
@@ -262,15 +253,14 @@ impl JavaMethodBuilder {
             return_type: None,
             name: None,
             parameters: vec![],
-            body: None,
         }
     }
     pub fn annotations(&mut self, input: Vec<JavaAnnotationUsage>) -> &mut Self {
-        self.annotations = input.to_owned();
+        self.annotations = input.clone();
         self
     }
     pub fn visibility(&mut self, input: JavaVisibility) -> &mut Self {
-        self.visibility = input.to_owned();
+        self.visibility = input;
         self
     }
     pub fn is_static(&mut self, input: bool) -> &mut Self {
@@ -278,7 +268,7 @@ impl JavaMethodBuilder {
         self
     }
     pub fn return_type(&mut self, input: JavaDataType) -> &mut Self {
-        self.return_type = Some(input.to_owned());
+        self.return_type = Some(input.clone());
         self
     }
     pub fn name(&mut self, input: &str) -> &mut Self {
@@ -286,25 +276,24 @@ impl JavaMethodBuilder {
         self
     }
     pub fn parameters(&mut self, input: Vec<JavaVariable>) -> &mut Self {
-        self.parameters = input.to_owned();
+        self.parameters = input.clone();
         self
     }
-    pub fn body(&mut self, input: JavaStepsGenerator) -> &mut Self {
-        self.body = Some(input.to_owned());
-        self
-    }
+
+    // TODO: possibility to add statements and expressions here
+
     pub fn build(&mut self) -> Result<JavaMethod, String> {
         Ok(JavaMethod {
-            annotations: self.annotations.to_owned(),
+            annotations: self.annotations.clone(),
             visibility: self.visibility,
             is_static: self.is_static,
-            return_type: self.return_type.to_owned(),
+            return_type: self.return_type.clone(),
             name: self
                 .name
-                .to_owned()
+                .clone()
                 .ok_or("Missing mandatory name to build JavaMethod")?,
-            parameters: self.parameters.to_owned(),
-            body: self.body.to_owned(),
+            parameters: self.parameters.clone(),
+            statements: vec![],
         })
     }
 }

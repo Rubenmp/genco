@@ -21,7 +21,7 @@ use crate::java::visibility::JavaVisibility;
 use crate::java::{annotation_usage, visibility};
 
 #[allow(unused)]
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub(crate) struct JavaStructure {
     // Metadata
     structure_type: JavaStructureType,
@@ -72,7 +72,7 @@ impl JavaStructure {
     }
 
     pub(crate) fn get_visibility(&self) -> JavaVisibility {
-        self.visibility.to_owned()
+        self.visibility
     }
     pub(crate) fn is_static(&self) -> bool {
         self.is_static
@@ -142,11 +142,11 @@ impl JavaStructure {
     pub(crate) fn get_imports(&self) -> Vec<JavaImport> {
         let mut imports = Vec::new();
         for import in self.get_annotation_imports() {
-            imports.push(import);
+            imports.push(import.clone());
         }
 
         if let Some(extended_class) = self.get_extended_class() {
-            imports.push(extended_class.get_self_import());
+            imports.push(extended_class.get_self_import().clone());
         }
 
         for import in self.get_implemented_interfaces_imports() {
@@ -189,7 +189,7 @@ impl JavaStructure {
             .collect()
     }
 
-    fn get_annotation_imports(&self) -> Vec<JavaImport> {
+    fn get_annotation_imports(&self) -> Vec<&JavaImport> {
         self.get_annotations()
             .iter()
             .flat_map(|annotation| annotation.get_imports())
@@ -489,11 +489,11 @@ impl JavaStructureBuilder {
         }
     }
     pub fn structure_type(&mut self, input: JavaStructureType) -> &mut Self {
-        self.structure_type = Some(input.to_owned());
+        self.structure_type = Some(input);
         self
     }
     pub fn annotations(&mut self, input: Vec<JavaAnnotationUsage>) -> &mut Self {
-        self.annotations = input.to_owned();
+        self.annotations = input.clone();
         self
     }
     pub fn visibility(&mut self, input: JavaVisibility) -> &mut Self {
@@ -535,7 +535,7 @@ impl JavaStructureBuilder {
         self
     }
 
-    pub fn build(&mut self) -> Result<JavaStructure, String> {
+    pub fn build(&self) -> Result<JavaStructure, String> {
         let name = self.get_name()?;
 
         // There is a better way to avoid this mapping to JavaImport
@@ -560,36 +560,36 @@ impl JavaStructureBuilder {
             structure_type: self.structure_type.ok_or("Structure type is mandatory")?,
             struct_body_start_byte: 0,
             struct_body_end_byte: 0,
-            annotations: self.annotations.to_owned(),
+            annotations: self.annotations.clone(),
             visibility: self.visibility,
             is_static: self.is_static,
             is_final: self.is_final,
             is_abstract: self.is_abstract,
-            extended_class: classes,
-            implemented_interfaces,
+            extended_class: classes.clone(),
+            implemented_interfaces: implemented_interfaces.clone(),
             name,
-            fields: self.fields.to_owned(),
-            methods: self.methods.to_owned(),
+            fields: self.fields.clone(),
+            methods: self.methods.clone(),
             substructures: vec![],
         };
 
         Ok(structure)
     }
 
-    fn get_name(&mut self) -> Result<String, String> {
+    fn get_name(&self) -> Result<String, String> {
         Ok(self
             .name
-            .to_owned()
+            .clone()
             .ok_or("Structure name is mandatory")?
             .to_string())
     }
 
-    fn get_extended_class_imports(&mut self) -> Vec<JavaImport> {
-        self.extended_class.to_owned()
+    fn get_extended_class_imports(&self) -> &Vec<JavaImport> {
+        &self.extended_class
     }
 
-    fn get_interfaces_imports(&mut self) -> Vec<JavaImport> {
-        self.implemented_interfaces.to_owned()
+    fn get_interfaces_imports(&self) -> &Vec<JavaImport> {
+        &self.implemented_interfaces
     }
 }
 

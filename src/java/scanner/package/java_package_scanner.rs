@@ -101,9 +101,8 @@ fn contains_base_java_project_build_file(path: &Path) -> bool {
 
 fn get_package_route(dir_path: &Path, ancestor: &Path) -> String {
     let bytes = ancestor.to_string_lossy().as_bytes().len();
-    let mut package_route = dir_path.to_string_lossy().to_string()[bytes..]
-        .to_owned()
-        .replace(['/', '\\'], ".");
+    let mut package_route =
+        dir_path.to_string_lossy().to_string()[bytes..].replace(['/', '\\'], ".");
     package_route.remove(0);
     package_route
 }

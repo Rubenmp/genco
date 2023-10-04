@@ -94,7 +94,7 @@ impl UserInputFunction {
     }
 
     pub fn get_function_name(&self) -> String {
-        self.function_name.to_owned()
+        self.function_name.clone()
     }
 
     pub fn get_function_reference(&self) -> fn(String) -> String {

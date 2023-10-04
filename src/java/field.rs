@@ -30,11 +30,11 @@ impl JavaField {
     pub fn builder() -> JavaFieldBuilder {
         JavaFieldBuilder::new_builder()
     }
-    pub fn get_annotations(&self) -> Vec<JavaAnnotationUsage> {
-        self.annotations.to_owned()
+    pub fn get_annotations(&self) -> &Vec<JavaAnnotationUsage> {
+        &self.annotations
     }
     pub fn get_visibility(&self) -> JavaVisibility {
-        self.visibility.to_owned()
+        self.visibility
     }
 
     pub fn is_static(&self) -> bool {
@@ -45,8 +45,8 @@ impl JavaField {
         self.is_final
     }
 
-    pub fn get_data_type(&self) -> JavaDataType {
-        self.data_type.to_owned()
+    pub fn get_data_type(&self) -> &JavaDataType {
+        &self.data_type
     }
     pub fn get_name(&self) -> &str {
         &self.name
@@ -164,17 +164,17 @@ impl JavaField {
         let mut imports = Vec::new();
 
         for import in self.get_annotation_imports() {
-            imports.push(import);
+            imports.push(import.clone());
         }
 
         if let Some(type_import) = self.get_data_type().get_import() {
-            imports.push(type_import.to_owned());
+            imports.push(type_import.clone());
         }
 
         imports
     }
 
-    fn get_annotation_imports(&self) -> Vec<JavaImport> {
+    fn get_annotation_imports(&self) -> Vec<&JavaImport> {
         self.get_annotations()
             .iter()
             .flat_map(|annotation| annotation.get_imports())
@@ -235,19 +235,19 @@ impl JavaFieldBuilder {
 
     pub fn build(&mut self) -> Result<JavaField, String> {
         Ok(JavaField {
-            annotations: self.annotations.to_owned(),
+            annotations: self.annotations.clone(),
             visibility: self.visibility,
             is_static: self.is_static,
             is_final: self.is_final,
             data_type: self
                 .data_type
-                .to_owned()
+                .clone()
                 .ok_or("Missing mandatory \"data_type\" to build java field")?,
             name: self
                 .name
-                .to_owned()
+                .clone()
                 .ok_or("Missing mandatory \"name\" to build java field")?,
-            value: self.value,
+            value: self.value.clone(),
         })
     }
 }

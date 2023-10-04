@@ -22,7 +22,7 @@ pub(crate) fn read_dir(path: &Path) -> Vec<PathBuf> {
 pub(crate) fn get_dir_of_file(input_path: &Path) -> PathBuf {
     let mut path = input_path.to_path_buf();
     path.pop();
-    path.to_owned()
+    path
 }
 
 fn get_dir_ending_with(input_path: &Path, ending: &str) -> Option<PathBuf> {

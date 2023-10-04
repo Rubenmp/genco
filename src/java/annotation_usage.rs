@@ -22,7 +22,7 @@ impl JavaAnnotationUsage {
     }
 
     pub fn get_name(&self) -> String {
-        self.get_self_import().get_last_node().to_owned()
+        self.get_self_import().get_last_node().clone()
     }
 }
 
@@ -36,8 +36,8 @@ impl JavaAnnotationUsage {
         )
     }
 
-    pub(crate) fn get_imports(&self) -> Vec<JavaImport> {
-        vec![self.get_self_import().to_owned()]
+    pub(crate) fn get_imports(&self) -> Vec<&JavaImport> {
+        vec![self.get_self_import()]
     }
 
     pub(crate) fn get_self_import(&self) -> &JavaImport {

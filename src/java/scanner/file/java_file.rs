@@ -49,7 +49,7 @@ impl JavaFile {
     }
 
     pub(crate) fn get_main_structure_type(&self) -> JavaStructureType {
-        self.get_structure().get_type().to_owned()
+        self.get_structure().get_type()
     }
 
     pub(crate) fn get_self_import(&self) -> JavaImport {
@@ -85,8 +85,8 @@ impl JavaFile {
         }
 
         let file_cache = FileCache::from(java_file_path);
-
         let root_java_node = JavaNode::new(java_file_path)?;
+
         let mut imports = JavaFileImports::new();
         let mut structure_opt: Option<JavaStructure> = None;
         let java_file_import = JavaImport::new_explicit_import_from_file(java_file_path)?;
@@ -94,7 +94,7 @@ impl JavaFile {
         for child in root_java_node.get_children() {
             if let Some(node_type) = child.get_node_type() {
                 if JavaNodeType::ImportDecl == node_type {
-                    match JavaNode::get_import_decl_content(child.to_owned(), &file_cache) {
+                    match JavaNode::get_import_decl_content(child, &file_cache) {
                         Ok(import_route) => imports.insert(
                             JavaImport::from_file_import_decl(import_route, &file_cache),
                             child.get_end_byte(),

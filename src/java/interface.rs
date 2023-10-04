@@ -162,7 +162,7 @@ impl JavaInterfaceBuilder {
     }
 
     pub fn folder(&mut self, input: &Path) -> &mut Self {
-        self.folder = Some(input.to_owned());
+        self.folder = Some(input.to_path_buf());
         self
     }
 
@@ -203,7 +203,7 @@ impl JavaInterfaceBuilder {
             ));
         }
 
-        let name = self.name.to_owned().expect("Class name is mandatory");
+        let name = self.name.clone().expect("Class name is mandatory");
         if self.folder.is_none() {
             return Err(format!(
                 "Invalid java interface build, folder is mandatory. Example:\n{}\n",
@@ -222,14 +222,14 @@ impl JavaInterfaceBuilder {
         let file = folder.join(format!("{}.java", name));
         return match JavaStructure::builder()
             .structure_type(JavaStructureType::Interface)
-            .annotations(self.annotations.to_owned())
+            .annotations(self.annotations.clone())
             .visibility(self.visibility)
             //.is_static(self.is_static)
             //.is_abstract(self.is_abstract)
             //.extended_interfaces(self.extended_interfaces.to_owned())
             .name(&name)
-            .fields(self.fields.to_owned())
-            .methods(self.methods.to_owned())
+            .fields(self.fields.clone())
+            .methods(self.methods.clone())
             .build()
         {
             Ok(structure) => Ok(JavaInterface::from_structure(&file, structure)?),

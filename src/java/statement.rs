@@ -1,11 +1,11 @@
 use crate::java::parser::java_node::JavaNode;
 
 #[derive(Debug, Clone)]
-pub struct JavaExpression {}
+pub struct JavaStatement {}
 
-impl JavaExpression {
+impl JavaStatement {
     pub(crate) fn new(_node: &JavaNode) -> Self {
-        JavaExpression {}
+        JavaStatement {}
     }
 }
 
@@ -18,7 +18,7 @@ mod tests {
     use crate::java::scanner::file::java_file::JavaFile;
 
     #[test]
-    fn arithmetic() {
+    fn get_imports_empty() {
         let java_file = get_java_test_file(
             get_current_file_path(),
             "java_expression",

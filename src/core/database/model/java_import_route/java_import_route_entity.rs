@@ -19,13 +19,13 @@ impl JavaImportRouteEntity {
         self.id
     }
     pub(crate) fn get_base_package(&self) -> String {
-        self.base_package.to_owned()
+        self.base_package.clone()
     }
     pub(crate) fn get_route(&self) -> String {
-        self.route.to_owned()
+        self.route.clone()
     }
     pub(crate) fn get_last_type_id(&self) -> String {
-        self.last_type_id.to_owned()
+        self.last_type_id.clone()
     }
 
     pub(crate) fn to_file_path(&self) -> PathBuf {
@@ -81,7 +81,7 @@ impl JavaImportRouteCreate {
     }
 
     fn get_dir_path(file_path: &Path) -> PathBuf {
-        let mut dir_path = file_path.to_owned();
+        let mut dir_path = file_path.to_path_buf();
         dir_path.pop();
         dir_path
     }
