@@ -355,7 +355,7 @@ mod tests {
     use crate::core::testing::test_assert::{assert_fail, assert_same_file};
     use crate::core::testing::test_path;
     use crate::java::class::JavaClass;
-    use crate::java::data_type::{JavaBasicDataType, JavaDataType};
+    use crate::java::data_type::JavaDataType;
     use crate::java::dependency::java::time::java_time_factory;
     use crate::java::dependency::org::springframework::spring_context::java_spring_context_factory;
     use crate::java::field::JavaField;
@@ -509,7 +509,7 @@ mod tests {
 
     fn get_new_method() -> JavaMethod {
         JavaMethod::builder()
-            .return_type(JavaDataType::Basic(JavaBasicDataType::Int))
+            .return_type(JavaDataType::int())
             .name("newMethod")
             .build()
             .expect("newMethod is expected to be valid")
@@ -518,7 +518,7 @@ mod tests {
     fn get_private_field() -> JavaField {
         JavaField::builder()
             .visibility(JavaVisibility::Private)
-            .data_type(JavaDataType::Basic(JavaBasicDataType::Boolean))
+            .data_type(JavaDataType::boolean())
             .name("field")
             .build()
             .expect("field is expected to be valid")

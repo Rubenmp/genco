@@ -94,7 +94,7 @@ impl JavaAnnotationUsageBuilder {
         Self { import: None }
     }
 
-    pub fn import(&mut self, input: JavaImport) -> &mut Self {
+    pub(crate) fn import(&mut self, input: JavaImport) -> &mut Self {
         if !input.is_explicit_import() {
             let error = format!("Trying to create invalid JavaAnnotationUsage.\n\tExpected: explicit import (ex. \"import javax.persistence.Entity\")\n\tFound: \"{}\"", input.get_route());
             logger::log_unrecoverable_error(&error);

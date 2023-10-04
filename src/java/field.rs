@@ -1,5 +1,4 @@
 use crate::core::file_system::file_cache::FileCache;
-
 use crate::core::file_system::path_helper::try_to_absolute_path;
 use crate::core::observability::logger;
 use crate::core::parser::parser_node_trait::ParserNode;
@@ -167,7 +166,7 @@ impl JavaField {
             imports.push(import.clone());
         }
 
-        if let Some(type_import) = self.get_data_type().get_import() {
+        if let Some(type_import) = self.get_data_type().get_import_opt() {
             imports.push(type_import.clone());
         }
 
@@ -258,7 +257,7 @@ mod tests {
 
     use crate::core::testing::test_assert::{assert_fail, assert_same_as_file};
     use crate::core::testing::test_path::get_test_dir;
-    use crate::java::data_type::{JavaBasicDataType, JavaDataType};
+    use crate::java::data_type::JavaDataType;
     use crate::java::dependency::org::springframework::spring_beans::java_spring_beans_factory;
     use crate::java::field::JavaField;
     use crate::java::indentation_config::JavaIndentation;
@@ -275,7 +274,7 @@ mod tests {
             .visibility(JavaVisibility::Private)
             .is_static(true)
             .is_final(true)
-            .data_type(JavaDataType::Basic(JavaBasicDataType::String))
+            .data_type(JavaDataType::string())
             .name("field")
             .build()
         {
@@ -290,13 +289,11 @@ mod tests {
     #[test]
     fn get_imports_empty() {
         match JavaField::builder()
-            .data_type(JavaDataType::Basic(JavaBasicDataType::String))
+            .data_type(JavaDataType::string())
             .name("field")
             .build()
         {
-            Ok(field) => {
-                assert!(field.get_imports().is_empty());
-            }
+            Ok(field) => assert!(field.get_imports().is_empty()),
             Err(err) => assert_fail(&err),
         }
     }

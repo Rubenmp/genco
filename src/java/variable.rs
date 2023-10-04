@@ -4,8 +4,7 @@ use crate::core::file_system::file_cache::FileCache;
 
 use crate::core::observability::logger;
 use crate::core::parser::parser_node_trait::ParserNode;
-use crate::java::data_type::JavaDataType::Basic;
-use crate::java::data_type::{JavaBasicDataType, JavaDataType};
+use crate::java::data_type::JavaDataType;
 use crate::java::import::JavaImport;
 use crate::java::parser::java_node::JavaNode;
 use crate::java::parser::java_node_type::JavaNodeType;
@@ -27,7 +26,7 @@ impl JavaVariable {
     pub fn new_final_int(var_name: &str) -> Self {
         Self::builder()
             .is_final(true)
-            .data_type(Basic(JavaBasicDataType::Int))
+            .data_type(JavaDataType::int())
             .name(var_name)
             .build()
             .unwrap()
@@ -35,7 +34,7 @@ impl JavaVariable {
     pub fn new_final_string(var_name: &str) -> Self {
         Self::builder()
             .is_final(true)
-            .data_type(Basic(JavaBasicDataType::String))
+            .data_type(JavaDataType::string())
             .name(var_name)
             .build()
             .unwrap()
@@ -99,8 +98,8 @@ impl JavaVariable {
             .build()
     }
 
-    pub(crate) fn get_import(&self) -> Option<&JavaImport> {
-        self.data_type.get_import()
+    pub(crate) fn get_import(&self) -> Option<JavaImport> {
+        self.data_type.get_import_opt()
     }
 }
 
@@ -159,14 +158,14 @@ impl JavaVariableBuilder {
 #[cfg(test)]
 mod tests {
     use crate::core::testing::test_assert::assert_fail;
-    use crate::java::data_type::{JavaBasicDataType, JavaDataType};
+    use crate::java::data_type::JavaDataType;
     use crate::java::variable::JavaVariable;
 
     #[test]
     fn builder() {
         match JavaVariable::builder()
             .is_final(true)
-            .data_type(JavaDataType::Basic(JavaBasicDataType::Int))
+            .data_type(JavaDataType::int())
             .name("id")
             .build()
         {

@@ -330,8 +330,9 @@ fn new_structure_internal(
                     extended_class.push(import);
                 }
             } else if JavaNodeType::SuperInterfaces == structure_node_type {
-                for import in extract_interfaces(child_node, file_imports, java_file_cache) {
-                    implemented_interfaces.push(import);
+                match extract_interfaces(child_node, file_imports, java_file_cache) {
+                    Ok(result) => implemented_interfaces = result,
+                    Err(err) => logger::log_warning(&err),
                 }
             } else if is_structure_body(&structure_node_type) {
                 for body_child in child_node.get_children() {
@@ -410,7 +411,8 @@ fn extract_super_class(
         input_java_file_cache,
     ) {
         Ok(data_type) => {
-            if let JavaDataType::FromImport(import) = data_type {
+            // TODO: filter here that the import is from an interface
+            if let Some(import) = data_type.get_import_opt() {
                 return Some(import);
             }
             log_unrecognized_super_class_type_id_import(child_node, input_java_file_cache);
@@ -625,7 +627,7 @@ fn extract_interfaces(
     super_interfaces_node: &JavaNode,
     file_imports: &JavaFileImports,
     input_java_file_cache: &FileCache,
-) -> Vec<JavaImport> {
+) -> Result<Vec<JavaImport>, String> {
     let mut result = Vec::new();
     let children = super_interfaces_node.get_children();
     if is_first_child_of_type(children, JavaNodeType::Implements)
@@ -640,8 +642,9 @@ fn extract_interfaces(
                 interface_type,
                 file_imports,
                 input_java_file_cache,
-            );
-            if let Ok(JavaDataType::FromImport(import)) = data_type {
+            )
+            .expect("Interface definition must be ok");
+            if let Some(import) = data_type.get_import_opt() {
                 result.push(import);
             } else {
                 let log = format!(
@@ -652,7 +655,8 @@ fn extract_interfaces(
                 logger::log_warning(&log);
             }
         }
-        return result;
+
+        return Ok(result);
     }
 
     let log = format!(
@@ -661,7 +665,7 @@ fn extract_interfaces(
         try_to_absolute_path(input_java_file_cache.get_path())
     );
     logger::log_warning(&log);
-    Vec::new()
+    Ok(Vec::new())
 }
 
 fn is_first_child_of_type(children: &[JavaNode], node_type: JavaNodeType) -> bool {

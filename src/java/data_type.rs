@@ -1,7 +1,7 @@
-use crate::core::file_system::file_cache::FileCache;
 use std::fmt;
 use std::path::Path;
 
+use crate::core::file_system::file_cache::FileCache;
 use crate::core::file_system::path_helper::try_to_absolute_path;
 use crate::core::parser::parser_node_trait::ParserNode;
 use crate::java::import::JavaImport;
@@ -11,32 +11,79 @@ use crate::java::scanner::file::java_file::JavaFile;
 use crate::java::scanner::file::java_file_imports::JavaFileImports;
 
 #[derive(Debug, Clone)]
-pub enum JavaDataType {
-    Basic(JavaBasicDataType),
-    //Class(JavaImport),
-    //Interface(JavaImport),
-    //Enum(JavaImport),
-    FromImport(JavaImport),
+pub struct JavaDataType {
+    primitive: Option<JavaPrimitiveDataType>,
+    non_primitive: Option<JavaNonPrimitiveDataType>,
 }
 
 // Public methods
 impl JavaDataType {
-    pub fn new_from_path(java_file_path: &Path) -> JavaDataType {
+    pub fn from_path(java_file_path: &Path) -> Self {
         let java_file = JavaFile::from_user_input_path(java_file_path).unwrap();
         let import = java_file.get_self_import();
+        let result = JavaNonPrimitiveDataType::from_explicit_import(import);
 
-        JavaDataType::FromImport(import)
+        Self::from_non_primitive(result)
+    }
+
+    pub fn int() -> Self {
+        Self::from_primitive(JavaPrimitiveDataType::Int)
+    }
+
+    pub fn long() -> Self {
+        Self::from_primitive(JavaPrimitiveDataType::Long)
+    }
+
+    pub fn float() -> Self {
+        Self::from_primitive(JavaPrimitiveDataType::Float)
+    }
+
+    pub fn double() -> Self {
+        Self::from_primitive(JavaPrimitiveDataType::Double)
+    }
+
+    pub fn boolean() -> Self {
+        Self::from_primitive(JavaPrimitiveDataType::Boolean)
+    }
+
+    pub fn string() -> Self {
+        let non_primitive =
+            JavaNonPrimitiveDataType::without_import(JavaNonPrimitiveDataTypeWithoutImport::String);
+        Self::from_non_primitive(non_primitive)
+    }
+
+    pub fn char() -> Self {
+        Self::from_primitive(JavaPrimitiveDataType::Char)
+    }
+
+    pub fn byte() -> Self {
+        Self::from_primitive(JavaPrimitiveDataType::Byte)
+    }
+
+    pub fn short() -> Self {
+        Self::from_primitive(JavaPrimitiveDataType::Short)
+    }
+
+    fn get_primitive(&self) -> &Option<JavaPrimitiveDataType> {
+        &self.primitive
+    }
+
+    fn get_non_primitive(&self) -> &Option<JavaNonPrimitiveDataType> {
+        &self.non_primitive
     }
 }
 
 // Public crate methods
 impl JavaDataType {
-    // Crate or private methods
-    pub(crate) fn get_import(&self) -> Option<&JavaImport> {
-        match &self {
-            JavaDataType::Basic(_) => None,
-            JavaDataType::FromImport(import) => Some(import),
+    pub(crate) fn from_import(import: JavaImport) -> Self {
+        Self::from_non_primitive(JavaNonPrimitiveDataType::from_explicit_import(import))
+    }
+    pub(crate) fn get_import_opt(&self) -> Option<JavaImport> {
+        if let Some(non_primitive) = self.non_primitive.to_owned() {
+            return non_primitive.get_import();
         }
+
+        None
     }
 
     pub(crate) fn get_data_type(
@@ -54,7 +101,7 @@ impl JavaDataType {
                 java_file_cache,
             );
         } else if JavaNodeType::Boolean == node_type {
-            return Ok(JavaDataType::Basic(JavaBasicDataType::Boolean));
+            return Ok(JavaDataType::boolean());
         } else if JavaNodeType::IntegralType == node_type {
             return Self::get_data_type_from_integral_type(data_type_node, java_file_cache);
         } else if JavaNodeType::FloatingPointType == node_type {
@@ -77,23 +124,70 @@ impl JavaDataType {
     ) -> Result<JavaDataType, String> {
         let explicit_import =
             file_imports.get_explicit_import_from_identifier(type_id_node, java_file_cache)?;
-        let result = JavaDataType::FromImport(explicit_import);
+        let result = JavaDataType::from_import(explicit_import);
 
         Ok(result)
+    }
+
+    pub(crate) fn new_basic_data_type(basic_type: &str) -> Option<Self> {
+        if let Some(primitive) = match basic_type {
+            "int" => Some(JavaPrimitiveDataType::Int),
+            "long" => Some(JavaPrimitiveDataType::Long),
+            "float" => Some(JavaPrimitiveDataType::Float),
+            "double" => Some(JavaPrimitiveDataType::Double),
+            "char" => Some(JavaPrimitiveDataType::Char),
+            "boolean" => Some(JavaPrimitiveDataType::Boolean),
+            "byte" => Some(JavaPrimitiveDataType::Byte),
+            "short" => Some(JavaPrimitiveDataType::Short),
+            _ => None,
+        } {
+            return Some(Self::from_primitive(primitive));
+        }
+
+        if let Some(non_primitive) = match basic_type {
+            "Integer" => Some(JavaNonPrimitiveDataTypeWithoutImport::IntClass),
+            "Long" => Some(JavaNonPrimitiveDataTypeWithoutImport::LongClass),
+            "Float" => Some(JavaNonPrimitiveDataTypeWithoutImport::FloatClass),
+            "Double" => Some(JavaNonPrimitiveDataTypeWithoutImport::DoubleClass),
+            "Boolean" => Some(JavaNonPrimitiveDataTypeWithoutImport::BooleanClass),
+            "String" => Some(JavaNonPrimitiveDataTypeWithoutImport::String),
+            "Byte" => Some(JavaNonPrimitiveDataTypeWithoutImport::ByteClass),
+            "Short" => Some(JavaNonPrimitiveDataTypeWithoutImport::ShortClass),
+            _ => None,
+        } {
+            let result_non_primitive = JavaNonPrimitiveDataType::without_import(non_primitive);
+            return Some(Self::from_non_primitive(result_non_primitive));
+        }
+
+        None
     }
 }
 
 // Private methods
 impl JavaDataType {
+    fn from_non_primitive(result: JavaNonPrimitiveDataType) -> JavaDataType {
+        Self {
+            primitive: None,
+            non_primitive: Some(result),
+        }
+    }
+
+    fn from_primitive(primitive: JavaPrimitiveDataType) -> JavaDataType {
+        Self {
+            primitive: Some(primitive),
+            non_primitive: None,
+        }
+    }
+
     fn from_data_type_identifier_including_basic_data_type(
         type_id_node: &JavaNode,
         file_imports: &JavaFileImports,
         java_file_cache: &FileCache,
     ) -> Result<JavaDataType, String> {
         let type_id = type_id_node.get_content_from_cache(java_file_cache);
-        let basic_data_type = new_basic_data_type(&type_id);
+        let basic_data_type = Self::new_basic_data_type(&type_id);
         if let Some(data_type) = basic_data_type {
-            return Ok(JavaDataType::Basic(data_type));
+            return Ok(data_type);
         }
 
         Self::from_data_type_identifier_with_import(type_id_node, file_imports, java_file_cache)
@@ -112,9 +206,9 @@ impl JavaDataType {
             .expect("First java child node type expected");
 
         if JavaNodeType::Float == child_node_type {
-            Ok(JavaDataType::Basic(JavaBasicDataType::Float))
+            Ok(JavaDataType::float())
         } else if JavaNodeType::Double == child_node_type {
-            Ok(JavaDataType::Basic(JavaBasicDataType::Double))
+            Ok(JavaDataType::double())
         } else {
             Err(format!(
                 "Unrecognized FloatingPointType JavaNodeType parsing \"{}\" in file:\n{}\n",
@@ -142,15 +236,15 @@ impl JavaDataType {
         ))?;
 
         if JavaNodeType::Int == child_node_type {
-            Ok(JavaDataType::Basic(JavaBasicDataType::Int))
+            Ok(JavaDataType::int())
         } else if JavaNodeType::Long == child_node_type {
-            Ok(JavaDataType::Basic(JavaBasicDataType::Long))
+            Ok(JavaDataType::long())
         } else if JavaNodeType::Byte == child_node_type {
-            Ok(JavaDataType::Basic(JavaBasicDataType::Byte))
+            Ok(JavaDataType::byte())
         } else if JavaNodeType::Short == child_node_type {
-            Ok(JavaDataType::Basic(JavaBasicDataType::Short))
+            Ok(JavaDataType::short())
         } else if JavaNodeType::Char == child_node_type {
-            Ok(JavaDataType::Basic(JavaBasicDataType::Char))
+            Ok(JavaDataType::char())
         } else {
             Err(format!(
                 "Unrecognized Integral JavaNodeType parsing \"{}\" in file:\n{}\n",
@@ -163,59 +257,84 @@ impl JavaDataType {
     }
 }
 
-#[derive(Debug, Copy, Clone)]
-pub enum JavaBasicDataType {
+#[derive(Debug, Clone)]
+pub(crate) enum JavaPrimitiveDataType {
     Byte,
-    // byte
-    ByteClass,
-    // Byte
     Short,
-    // short
-    ShortClass,
-    // Short
     Int,
-    // int
-    IntClass,
-    // Integer
     Long,
-    // long
-    LongClass,
-    // Long
     Float,
-    // float
-    FloatClass,
-    // Float
     Double,
-    // double
-    DoubleClass,
-    // Double
     Char,
     Boolean,
-    // boolean
+}
+
+#[derive(Debug, Clone)]
+pub(crate) enum JavaNonPrimitiveDataTypeWithoutImport {
+    ByteClass,
+    ShortClass,
+    IntClass,
+    LongClass,
+    FloatClass,
+    DoubleClass,
     BooleanClass,
-    // Boolean
     String,
 }
 
-impl fmt::Display for JavaBasicDataType {
+#[derive(Debug, Clone)]
+pub(crate) struct JavaNonPrimitiveDataType {
+    without_import_opt: Option<JavaNonPrimitiveDataTypeWithoutImport>,
+    java_import_opt: Option<JavaImport>,
+}
+
+impl JavaNonPrimitiveDataType {
+    fn get_import(&self) -> Option<JavaImport> {
+        if let Some(java_import) = self.java_import_opt.clone() {
+            return Some(java_import);
+        }
+
+        None
+    }
+    fn from_explicit_import(import: JavaImport) -> Self {
+        Self {
+            without_import_opt: None,
+            java_import_opt: Some(import),
+        }
+    }
+
+    fn without_import(input_type: JavaNonPrimitiveDataTypeWithoutImport) -> Self {
+        Self {
+            without_import_opt: Some(input_type),
+            java_import_opt: None,
+        }
+    }
+}
+
+impl fmt::Display for JavaDataType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        if let Some(primitive) = self.get_primitive() {
+            write!(f, "{}", primitive)?;
+        }
+
+        if let Some(non_primitive) = self.get_non_primitive() {
+            write!(f, "{}", non_primitive)?;
+        }
+
+        Ok(())
+    }
+}
+
+impl fmt::Display for JavaPrimitiveDataType {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         let string = match self {
-            JavaBasicDataType::Byte => "byte".to_string(),
-            JavaBasicDataType::ByteClass => "Byte".to_string(),
-            JavaBasicDataType::Short => "short".to_string(),
-            JavaBasicDataType::ShortClass => "Short".to_string(),
-            JavaBasicDataType::Int => "int".to_string(),
-            JavaBasicDataType::IntClass => "Integer".to_string(),
-            JavaBasicDataType::Long => "long".to_string(),
-            JavaBasicDataType::LongClass => "Long".to_string(),
-            JavaBasicDataType::Float => "float".to_string(),
-            JavaBasicDataType::FloatClass => "Float".to_string(),
-            JavaBasicDataType::Double => "double".to_string(),
-            JavaBasicDataType::DoubleClass => "Double".to_string(),
-            JavaBasicDataType::Char => "char".to_string(),
-            JavaBasicDataType::Boolean => "boolean".to_string(),
-            JavaBasicDataType::BooleanClass => "Boolean".to_string(),
-            JavaBasicDataType::String => "String".to_string(),
+            JavaPrimitiveDataType::Byte => "byte".to_string(),
+            JavaPrimitiveDataType::Short => "short".to_string(),
+            JavaPrimitiveDataType::Int => "int".to_string(),
+            JavaPrimitiveDataType::Long => "long".to_string(),
+            JavaPrimitiveDataType::Float => "float".to_string(),
+            JavaPrimitiveDataType::Double => "double".to_string(),
+            JavaPrimitiveDataType::Char => "char".to_string(),
+            JavaPrimitiveDataType::Boolean => "boolean".to_string(),
         };
 
         write!(fmt, "{}", string)?;
@@ -223,38 +342,34 @@ impl fmt::Display for JavaBasicDataType {
     }
 }
 
-fn new_basic_data_type(java_node_content: &str) -> Option<JavaBasicDataType> {
-    match java_node_content {
-        "int" => Some(JavaBasicDataType::Int),
-        "Integer" => Some(JavaBasicDataType::IntClass),
-        "long" => Some(JavaBasicDataType::Long),
-        "Long" => Some(JavaBasicDataType::LongClass),
-        "float" => Some(JavaBasicDataType::Float),
-        "Float" => Some(JavaBasicDataType::FloatClass),
-        "double" => Some(JavaBasicDataType::Double),
-        "Double" => Some(JavaBasicDataType::DoubleClass),
-        "char" => Some(JavaBasicDataType::Char),
-        "boolean" => Some(JavaBasicDataType::Boolean),
-        "Boolean" => Some(JavaBasicDataType::BooleanClass),
-        "String" => Some(JavaBasicDataType::String),
-        "byte" => Some(JavaBasicDataType::Byte),
-        "Byte" => Some(JavaBasicDataType::ByteClass),
-        "short" => Some(JavaBasicDataType::Short),
-        "Short" => Some(JavaBasicDataType::ShortClass),
-        _ => None,
+impl fmt::Display for JavaNonPrimitiveDataType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        if let Some(without_import) = self.without_import_opt.clone() {
+            write!(f, "{}", without_import)?;
+        }
+        if let Some(with_import) = self.java_import_opt.clone() {
+            write!(f, "{}", with_import.get_last_node())?;
+        }
+
+        Ok(())
     }
 }
 
-impl fmt::Display for JavaDataType {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut string = String::new();
-        if let JavaDataType::Basic(basic_data_type) = self {
-            string += basic_data_type.to_string().as_str();
-        } else if let JavaDataType::FromImport(java_import) = self {
-            string += java_import.get_last_node().as_str();
-        }
+impl fmt::Display for JavaNonPrimitiveDataTypeWithoutImport {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        let string = match self {
+            JavaNonPrimitiveDataTypeWithoutImport::ByteClass => "Byte".to_string(),
+            JavaNonPrimitiveDataTypeWithoutImport::ShortClass => "Short".to_string(),
+            JavaNonPrimitiveDataTypeWithoutImport::IntClass => "Integer".to_string(),
+            JavaNonPrimitiveDataTypeWithoutImport::LongClass => "Long".to_string(),
+            JavaNonPrimitiveDataTypeWithoutImport::FloatClass => "Float".to_string(),
+            JavaNonPrimitiveDataTypeWithoutImport::DoubleClass => "Double".to_string(),
+            JavaNonPrimitiveDataTypeWithoutImport::BooleanClass => "Boolean".to_string(),
+            JavaNonPrimitiveDataTypeWithoutImport::String => "String".to_string(),
+        };
 
-        write!(f, "{}", string)
+        write!(fmt, "{}", string)?;
+        Ok(())
     }
 }
 
@@ -264,7 +379,7 @@ mod tests {
 
     use crate::core::testing::test_assert::assert_fail;
     use crate::core::testing::test_path::get_java_test_file;
-    use crate::java::data_type::{JavaBasicDataType, JavaDataType};
+    use crate::java::data_type::JavaDataType;
 
     #[test]
     fn new_class() {
@@ -274,10 +389,9 @@ mod tests {
             "JavaDataTypeClass.java",
         );
 
-        let returned_type = JavaDataType::new_from_path(&file_path);
+        let returned_type = JavaDataType::from_path(&file_path);
 
-        if let JavaDataType::FromImport(import) = returned_type {
-            assert!(import.is_explicit_import());
+        if let Some(import) = returned_type.get_import_opt() {
             assert_eq!("org.test.JavaDataTypeClass", import.get_route());
         } else {
             assert_fail("Expected class data type");
@@ -292,10 +406,9 @@ mod tests {
             "JavaDataTypeEnum.java",
         );
 
-        let returned_type = JavaDataType::new_from_path(&file_path);
+        let returned_type = JavaDataType::from_path(&file_path);
 
-        if let JavaDataType::FromImport(import) = returned_type {
-            assert!(import.is_explicit_import());
+        if let Some(import) = returned_type.get_import_opt() {
             assert_eq!("org.test.JavaDataTypeEnum", import.get_route());
         } else {
             assert_fail("Expected enum data type");
@@ -310,10 +423,9 @@ mod tests {
             "JavaDataTypeInterface.java",
         );
 
-        let returned_type = JavaDataType::new_from_path(&file_path);
+        let returned_type = JavaDataType::from_path(&file_path);
 
-        if let JavaDataType::FromImport(import) = returned_type {
-            assert!(import.is_explicit_import());
+        if let Some(import) = returned_type.get_import_opt() {
             assert_eq!("org.test.JavaDataTypeInterface", import.get_route());
         } else {
             assert_fail("Expected interface data type");
@@ -322,23 +434,17 @@ mod tests {
 
     #[test]
     fn java_get_imports_trait() {
-        let java_type = JavaDataType::Basic(JavaBasicDataType::Int);
+        let java_type = JavaDataType::int();
 
-        let import_opt = java_type.get_import();
+        let import_opt = java_type.get_import_opt();
 
         assert!(import_opt.is_none())
     }
 
     #[test]
     fn to_string_basic_data_type() {
-        assert_eq!(
-            "int",
-            JavaDataType::Basic(JavaBasicDataType::Int).to_string()
-        );
-        assert_eq!(
-            "String",
-            JavaDataType::Basic(JavaBasicDataType::String).to_string()
-        );
+        assert_eq!("int", JavaDataType::int().to_string());
+        assert_eq!("String", JavaDataType::string().to_string());
     }
 
     pub fn get_current_file_path() -> PathBuf {

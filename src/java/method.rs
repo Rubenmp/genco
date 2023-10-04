@@ -22,7 +22,7 @@ pub struct JavaMethod {
     return_type: Option<JavaDataType>,
     name: String,
     parameters: Vec<JavaVariable>,
-    statements: Vec<JavaStatement>,
+    _statements: Vec<JavaStatement>,
 }
 
 // Public methods
@@ -152,7 +152,7 @@ impl JavaMethod {
             is_static,
             name: name_opt.ok_or("Java method name not detected.")?,
             parameters,
-            statements: Vec::new(),
+            _statements: Vec::new(),
         })
     }
 
@@ -176,7 +176,7 @@ impl JavaMethod {
         if let Some(import) = self
             .get_return_type()
             .as_ref()
-            .and_then(|rt| rt.get_import())
+            .and_then(|rt| rt.get_import_opt())
         {
             imports.push(import.clone())
         }
@@ -195,7 +195,7 @@ impl JavaMethod {
             .collect()
     }
 
-    fn get_param_imports(&self) -> Vec<&JavaImport> {
+    fn get_param_imports(&self) -> Vec<JavaImport> {
         self.get_parameters()
             .iter()
             .filter_map(|param| param.get_import())
@@ -293,7 +293,7 @@ impl JavaMethodBuilder {
                 .clone()
                 .ok_or("Missing mandatory name to build JavaMethod")?,
             parameters: self.parameters.clone(),
-            statements: vec![],
+            _statements: vec![],
         })
     }
 }

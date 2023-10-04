@@ -14,7 +14,7 @@ use crate::java::scanner::package::java_dependency_scanner;
 /// Class methods and substructures are not supported yet.
 #[allow(unused)]
 #[derive(Debug, Clone)]
-pub struct JavaImport {
+pub(crate) struct JavaImport {
     /// Case 1: hard coded imports without explicit file references
     /// (i.e. "org.test.JavaClassFrom")
     ///
@@ -73,6 +73,72 @@ impl JavaImport {
         Self::check_if_explicit_import(&import)?;
         Ok(import)
     }
+
+    pub(crate) fn get_specific_file(&self) -> Result<PathBuf, String> {
+        if !self.is_explicit_import() {
+            return Err(format!(
+                "Java import \"{}\" must be explicit to the its specific file.",
+                self
+            ));
+        }
+
+        if let Some(folder) = self.folder_path.clone() {
+            if let Some(first_node) = self.nodes.get(0) {
+                return Ok(folder.join(format!("{}.java", first_node)));
+            }
+        }
+
+        Err(format!("Specific file not found for import \"{}\"", self))
+    }
+
+    pub(crate) fn is_explicit_import(&self) -> bool {
+        if self.folder_path.is_some() {
+            return !self.nodes.is_empty();
+        }
+
+        if let Some(last_node) = self.get_nodes_within_file().last() {
+            return !last_node.eq("*");
+        }
+        false
+    }
+
+    pub(crate) fn is_wildcard_import(&self) -> bool {
+        if self.folder_path.is_some() {
+            return self.nodes.is_empty();
+        }
+
+        if let Some(last_node) = self.get_nodes_within_file().last() {
+            return last_node.eq("*");
+        }
+        false
+    }
+
+    /// TODO: The signature of this method prevents its validity
+    /// It is not possible to fully recognize an import with type_id
+    /// since the type could be a substructure JavaClass.JavaSubclass, JavaClass.method...
+    /// The only valid way to validate this match is to check all self.nodes with the type_id(s)
+    pub(crate) fn match_type_id(&self, type_id: &str) -> bool {
+        let all_nodes = self.get_all_nodes();
+        if let Some(last_node) = all_nodes.last() {
+            return last_node == type_id;
+        }
+        false
+    }
+
+    pub(crate) fn get_last_node(&self) -> String {
+        self.get_all_nodes()
+            .last()
+            .expect("Last node must exist in java import")
+            .to_string()
+    }
+
+    pub(crate) fn get_package_route(&self) -> String {
+        self.get_route_internal(true)
+    }
+
+    pub(crate) fn get_route(&self) -> String {
+        self.get_route_internal(false)
+    }
 }
 
 impl JavaImport {
@@ -126,34 +192,6 @@ impl JavaImport {
         Ok(())
     }
 
-    pub(crate) fn get_specific_file(&self) -> Result<PathBuf, String> {
-        if !self.is_explicit_import() {
-            return Err(format!(
-                "Java import \"{}\" must be explicit to the its specific file.",
-                self
-            ));
-        }
-
-        if let Some(folder) = self.folder_path.clone() {
-            if let Some(first_node) = self.nodes.get(0) {
-                return Ok(folder.join(format!("{}.java", first_node)));
-            }
-        }
-
-        Err(format!("Specific file not found for import \"{}\"", self))
-    }
-
-    pub(crate) fn is_explicit_import(&self) -> bool {
-        if self.folder_path.is_some() {
-            return !self.nodes.is_empty();
-        }
-
-        if let Some(last_node) = self.get_nodes_within_file().last() {
-            return !last_node.eq("*");
-        }
-        false
-    }
-
     fn get_all_nodes(&self) -> Vec<String> {
         if self.folder_path.is_some() {
             let mut all_nodes = self.get_package_nodes_vec();
@@ -175,17 +213,6 @@ impl JavaImport {
         self.get_all_fake_nodes()
     }
 
-    pub(crate) fn is_wildcard_import(&self) -> bool {
-        if self.folder_path.is_some() {
-            return self.nodes.is_empty();
-        }
-
-        if let Some(last_node) = self.get_nodes_within_file().last() {
-            return last_node.eq("*");
-        }
-        false
-    }
-
     fn new_from_route(route: &str) -> JavaImport {
         if split_to_nodes(route).is_empty() {
             logger::log_unrecoverable_error(&format!(
@@ -200,42 +227,15 @@ impl JavaImport {
         }
     }
 
-    pub(crate) fn get_package_nodes_vec(&self) -> Vec<String> {
+    fn get_package_nodes_vec(&self) -> Vec<String> {
         get_package_nodes_vec_from_dir(&self.folder_path.clone().expect("Package nodes expected"))
-    }
-
-    /// TODO: The signature of this method prevents its validity
-    /// It is not possible to fully recognize an import with type_id
-    /// since the type could be a substructure JavaClass.JavaSubclass, JavaClass.method...
-    /// The only valid way to validate this match is to check all self.nodes with the type_id(s)
-    pub(crate) fn match_type_id(&self, type_id: &str) -> bool {
-        let all_nodes = self.get_all_nodes();
-        if let Some(last_node) = all_nodes.last() {
-            return last_node == type_id;
-        }
-        false
-    }
-
-    pub(crate) fn get_last_node(&self) -> String {
-        self.get_all_nodes()
-            .last()
-            .expect("Last node must exist in java import")
-            .to_string()
     }
 
     fn get_all_fake_nodes(&self) -> Vec<String> {
         split_to_nodes(&self.fake_non_checked_route)
     }
 
-    pub(crate) fn get_package_route(&self) -> String {
-        self.get_route_internal(true)
-    }
-
-    pub(crate) fn get_route(&self) -> String {
-        self.get_route_internal(false)
-    }
-
-    pub(crate) fn get_route_internal(&self, just_package_route: bool) -> String {
+    fn get_route_internal(&self, just_package_route: bool) -> String {
         if self.folder_path.is_none() {
             // TODO: fix this when just_package_route=true (it does not recognize folder+typeIds division)
             return self.fake_non_checked_route.to_string();
@@ -494,7 +494,7 @@ mod tests {
             .clone()
             .expect("Expected return type");
         let route = return_type
-            .get_import()
+            .get_import_opt()
             .expect("Return type import expected")
             .get_route();
         assert_eq!("jakarta.persistence.Entity", route);
