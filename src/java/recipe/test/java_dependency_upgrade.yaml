@@ -1,0 +1,13 @@
+genco: 0.1.0
+type: java
+precondition:
+  java: "[17,18["
+  dependency:
+    org.springframework.boot:spring-boot: "[2,3["
+run:
+  - replaceImport:
+      from: "javax.sql.datasource"
+      to: "jakarta.sql.datasource"
+  - replaceFunctionCall:
+      fromFileRoute: "com.group.artifact.File"
+      functionRoute: "<substructure(s)>.functionName"

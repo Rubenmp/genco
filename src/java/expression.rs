@@ -21,7 +21,7 @@ mod tests {
     fn arithmetic() {
         let java_file = get_java_test_file(
             get_current_file_path(),
-            "java_expression",
+            "expression",
             "JavaExpressionArithmetic.java",
         );
 

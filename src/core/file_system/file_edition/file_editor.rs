@@ -178,7 +178,8 @@ mod tests {
 
     #[test]
     fn create_if_not_exists_test() {
-        let mut file_path = get_test_dir_raw(get_current_file_path());
+        let current_file_path = &get_current_file_path();
+        let mut file_path = get_test_dir_raw(current_file_path);
         file_path.push("new_folder");
         let file_path_copy = file_path.clone();
         file_path.push("new_file.rs");
@@ -192,7 +193,7 @@ mod tests {
 
     #[test]
     fn copy_test() {
-        let input_file = get_test_file(get_current_file_path(), "create_file_with_content.txt");
+        let input_file = get_test_file(&get_current_file_path(), "create_file_with_content.txt");
         let mut output_file = input_file.clone();
         output_file.pop();
         output_file.push("create_file_with_content_output.txt");

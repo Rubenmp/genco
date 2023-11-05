@@ -1,0 +1,4 @@
+genco: 0.1.0
+type: java
+run:
+  - invalidStep:

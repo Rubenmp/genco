@@ -206,10 +206,9 @@ mod tests {
     }
 
     fn get_java_imports_scan_with(input_route: &str) -> JavaFileImports {
-        let imports_vec = vec![
-            JavaImport::new_explicit_import_requiring_m2_repo_scan(input_route)
-                .expect("Java explicit import is valid"),
-        ];
+        let imports_vec =
+            vec![JavaImport::new_explicit_import(input_route)
+                .expect("Java explicit import is valid")];
 
         let mut imports = JavaFileImports::new();
         assert!(imports.is_empty());

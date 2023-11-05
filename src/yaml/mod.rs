@@ -1,1 +1,1 @@
-mod parser;
+pub(crate) mod parser;

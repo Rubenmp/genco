@@ -89,8 +89,8 @@ impl JavaImportRouteCreate {
 
 /// This method never return a None due to the preconditions applied by the caller to the parameters.
 /// Input examples:
-/// - base_package_path: "/home/<user>/genco/src/java/dto/test/java_class"
-/// - file_path: "/home/<user>/genco/src/java/dto/test/java_class/src/main/java/org/test/JavaClassFrom.java"
+/// - base_package_path: "/home/<user>/genco/src/java/dto/test/class"
+/// - file_path: "/home/<user>/genco/src/java/dto/test/class/src/main/java/org/test/JavaClassFrom.java"
 ///
 /// Expected result: "org.test.JavaClassFrom"
 fn get_import_route(base_package_path: &str, file_path: &str) -> Option<String> {
@@ -134,8 +134,9 @@ mod tests {
 
     #[test]
     fn get_import_route_test() {
-        let base_package_path = "/home/<user>/genco/src/java/dto/test/java_class";
-        let file_path = "/home/<user>/genco/src/java/dto/test/java_class/src/main/java/org/test/JavaClassFrom.java";
+        let base_package_path = "/home/<user>/genco/src/java/dto/test/class";
+        let file_path =
+            "/home/<user>/genco/src/java/dto/test/class/src/main/java/org/test/JavaClassFrom.java";
 
         let result = java_import_route_entity::get_import_route(base_package_path, file_path);
 

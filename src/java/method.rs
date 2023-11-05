@@ -351,7 +351,7 @@ mod tests {
     }
 
     fn get_test_folder() -> PathBuf {
-        test_path::get_java_project_test_folder(get_current_file_path(), "java_method")
+        test_path::get_java_project_test_folder(get_current_file_path(), "method")
     }
 
     fn get_current_file_path() -> PathBuf {

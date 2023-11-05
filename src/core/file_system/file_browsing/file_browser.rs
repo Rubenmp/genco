@@ -18,7 +18,7 @@ pub fn get_first_file_from_dir_if_exists(path: &Path, filenames: Vec<&str>) -> O
         );
         return None;
     }
-    let paths_result = fs::read_dir(path).unwrap();
+    let paths_result = fs::read_dir(path).expect("Not able to read dir");
 
     for dir_entry_result in paths_result {
         match dir_entry_result {
@@ -55,7 +55,12 @@ pub fn get_file_map(path: &Path) -> HashMap<String, PathBuf> {
 }
 
 pub fn do_last_element_in_path_ends_with(path: &Path, ending: &str) -> bool {
-    let file_name = path.iter().last().unwrap().to_string_lossy().to_string();
+    let file_name = path
+        .iter()
+        .last()
+        .expect("Last item in path must exists")
+        .to_string_lossy()
+        .to_string();
     file_name.ends_with(ending)
 }
 

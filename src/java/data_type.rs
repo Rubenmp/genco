@@ -18,12 +18,12 @@ pub struct JavaDataType {
 
 // Public methods
 impl JavaDataType {
-    pub fn from_path(java_file_path: &Path) -> Self {
-        let java_file = JavaFile::from_user_input_path(java_file_path).unwrap();
+    pub fn from_path(java_file_path: &Path) -> Result<Self, String> {
+        let java_file = JavaFile::from_user_input_path(java_file_path)?;
         let import = java_file.get_self_import();
         let result = JavaNonPrimitiveDataType::from_explicit_import(import);
 
-        Self::from_non_primitive(result)
+        Ok(Self::from_non_primitive(result))
     }
 
     pub fn int() -> Self {
@@ -385,11 +385,11 @@ mod tests {
     fn new_class() {
         let file_path = get_java_test_file(
             get_current_file_path(),
-            "java_data_type",
+            "data_type",
             "JavaDataTypeClass.java",
         );
 
-        let returned_type = JavaDataType::from_path(&file_path);
+        let returned_type = JavaDataType::from_path(&file_path).expect("Return type exists");
 
         if let Some(import) = returned_type.get_import_opt() {
             assert_eq!("org.test.JavaDataTypeClass", import.get_route());
@@ -402,11 +402,11 @@ mod tests {
     fn new_enum() {
         let file_path = get_java_test_file(
             get_current_file_path(),
-            "java_data_type",
+            "data_type",
             "JavaDataTypeEnum.java",
         );
 
-        let returned_type = JavaDataType::from_path(&file_path);
+        let returned_type = JavaDataType::from_path(&file_path).expect("Return type exists");
 
         if let Some(import) = returned_type.get_import_opt() {
             assert_eq!("org.test.JavaDataTypeEnum", import.get_route());
@@ -419,11 +419,11 @@ mod tests {
     fn new_interface() {
         let file_path = get_java_test_file(
             get_current_file_path(),
-            "java_data_type",
+            "data_type",
             "JavaDataTypeInterface.java",
         );
 
-        let returned_type = JavaDataType::from_path(&file_path);
+        let returned_type = JavaDataType::from_path(&file_path).expect("Return type exists");
 
         if let Some(import) = returned_type.get_import_opt() {
             assert_eq!("org.test.JavaDataTypeInterface", import.get_route());

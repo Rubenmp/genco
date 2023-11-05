@@ -85,7 +85,7 @@ impl JavaFile {
         }
 
         let file_cache = FileCache::from(java_file_path);
-        let root_java_node = JavaNode::new(java_file_path)?;
+        let root_java_node = JavaNode::from_path(java_file_path)?;
 
         let mut imports = JavaFileImports::new();
         let mut structure_opt: Option<JavaStructure> = None;
@@ -281,7 +281,7 @@ impl JavaFile {
     }
     fn get_byte_to_insert_first_import(&self) -> Result<usize, String> {
         let java_file_path = self.get_file_path();
-        let root_java_node = JavaNode::new(java_file_path)?;
+        let root_java_node = JavaNode::from_path(java_file_path)?;
 
         for child in root_java_node.get_children() {
             if let Some(node_type) = child.get_node_type() {

@@ -12,5 +12,6 @@ pub mod visibility;
 
 mod dependency;
 mod parser;
+pub(crate) mod recipe;
 pub(crate) mod scanner;
-pub mod statement;
+pub(crate) mod statement;

@@ -29,7 +29,7 @@ pub fn to_component_schema(avro_item: &AvroItem) -> OpenapiSchema {
     if let AvroItemType::Enum = avro_item.get_item_type() {
         if let Some(symbols) = avro_item.get_symbols() {
             return OpenapiSchema::new_enum(
-                &avro_item.get_name().unwrap(),
+                &avro_item.get_name().expect("Avro name expected"),
                 avro_item.get_doc(),
                 symbols,
             );
@@ -126,25 +126,25 @@ mod tests {
 
     #[test]
     fn avro_to_openapi_str_enum() {
-        let file_path = get_test_file(get_current_file_path(), "enum.avsc");
+        let file_path = get_test_file(&get_current_file_path(), "enum.avsc");
         let avro_items = avro_parser::parse(&file_path);
 
         let openapi_str = avro_to_openapi_str(&avro_items);
 
         let expect_result_file_path =
-            get_test_file(get_current_file_path(), "enum_translated.yaml");
+            get_test_file(&get_current_file_path(), "enum_translated.yaml");
         assert_same_as_file(&expect_result_file_path, &openapi_str)
     }
 
     #[test]
     fn avro_to_openapi_str_basic_fields() {
-        let file_path = get_test_file(get_current_file_path(), "avro_basic_fields.avsc");
+        let file_path = get_test_file(&get_current_file_path(), "avro_basic_fields.avsc");
         let avro_items = avro_parser::parse(&file_path);
 
         let openapi_str = avro_to_openapi_str(&avro_items);
 
         let expect_result_file_path = get_test_file(
-            get_current_file_path(),
+            &get_current_file_path(),
             "avro_basic_fields_translated_to_openapi.yaml",
         );
         assert_same_as_file(&expect_result_file_path, &openapi_str)
@@ -152,13 +152,14 @@ mod tests {
 
     #[test]
     fn avro_to_openapi_str_array_fields() {
-        let file_path = get_test_file(get_current_file_path(), "avro_array_fields.avsc");
+        let current_file_path = get_current_file_path();
+        let file_path = get_test_file(&current_file_path, "avro_array_fields.avsc");
         let avro_items = avro_parser::parse(&file_path);
 
         let openapi_str = avro_to_openapi_str(&avro_items);
 
         let expect_result_file_path = get_test_file(
-            get_current_file_path(),
+            &current_file_path,
             "avro_array_fields_translated_to_openapi.yaml",
         );
         assert_same_as_file(&expect_result_file_path, &openapi_str)
@@ -167,13 +168,14 @@ mod tests {
     #[test]
     #[ignore]
     fn test() {
-        let file_path = get_test_file(get_current_file_path(), "test.avsc");
+        let current_file_path = get_current_file_path();
+        let file_path = get_test_file(&current_file_path, "test.avsc");
         let avro_items = avro_parser::parse(&file_path);
 
         let openapi_str = avro_to_openapi_str(&avro_items);
 
         let result_file_path =
-            get_non_existing_test_file(get_current_file_path(), "test_translated_to_openapi.yaml");
+            get_non_existing_test_file(&current_file_path, "test_translated_to_openapi.yaml");
 
         file_editor::create_or_replace_file_with_bytes(&result_file_path, &openapi_str.as_bytes())
             .expect("File creation must succeed");

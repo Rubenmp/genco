@@ -7,7 +7,7 @@ pub(crate) fn read_dir(path: &Path) -> Vec<PathBuf> {
         panic!("Error: expecting directory in {:?}", path);
     }
     let mut result = Vec::new();
-    let paths_result = fs::read_dir(path).unwrap();
+    let paths_result = fs::read_dir(path).expect("Not able to read dir");
 
     for dir_entry_result in paths_result {
         match dir_entry_result {
@@ -26,7 +26,7 @@ pub(crate) fn get_dir_of_file(input_path: &Path) -> PathBuf {
 }
 
 fn get_dir_ending_with(input_path: &Path, ending: &str) -> Option<PathBuf> {
-    let paths_result = fs::read_dir(input_path).unwrap();
+    let paths_result = fs::read_dir(input_path).expect("Not able to read dir");
 
     for dir_entry_result in paths_result {
         match dir_entry_result {
@@ -89,8 +89,7 @@ mod tests {
     #[test]
     fn get_dir_ending_in_boot() {
         let test_dir = get_test_dir(get_current_file_path(), "get_dir_ending_in_boot");
-        let mut expected_test_dir = test_dir.clone();
-        expected_test_dir.push("app-boot");
+        let expected_test_dir = test_dir.join("app-boot");
 
         let boot_dir = get_dir_ending_with(&test_dir, "boot");
 
@@ -104,12 +103,11 @@ mod tests {
     #[test]
     fn get_dir_code() {
         let test_dir = get_test_dir(get_current_file_path(), "get_dir");
-        let mut expected_test_dir = test_dir.clone();
-        expected_test_dir.push("code");
 
         let boot_dir = get_dir(&test_dir, "code");
 
         if let Some(dir) = boot_dir {
+            let expected_test_dir = test_dir.join("code");
             assert_eq!(expected_test_dir.to_string_lossy(), dir.to_string_lossy());
         } else {
             assert_fail("code directory not found");
@@ -119,8 +117,6 @@ mod tests {
     #[test]
     fn get_dir_map_dir_with_files() {
         let test_dir = get_test_dir(get_current_file_path(), "get_dir_map");
-        let mut expected_test_dir = test_dir.clone();
-        expected_test_dir.push("code");
 
         let dir_map = get_dir_map(&test_dir);
 

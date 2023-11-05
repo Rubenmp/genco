@@ -82,15 +82,15 @@ pub(crate) fn should_scan_dir(dir_path: &Path) -> bool {
 pub(crate) fn find_package_start_end_bytes(
     input_java_file: &Path,
 ) -> Result<(usize, usize), String> {
-    let package_search = JavaNode::new(input_java_file)?
-        .depth_first_search_first_with_type(JavaNodeType::ScopedIdentifier);
+    let package_search_bytes_opt: Option<(usize, usize)> = JavaNode::from_path(input_java_file)?
+        .depth_first_search_bytes(JavaNodeType::ScopedIdentifier);
 
-    let java_node = package_search.ok_or(format!(
+    let package_search_bytes = package_search_bytes_opt.ok_or(format!(
         "Package not found for java file:\n\"{}\"\n",
         path_helper::try_to_absolute_path(input_java_file)
     ))?;
 
-    Ok((java_node.get_start_byte(), java_node.get_end_byte()))
+    Ok(package_search_bytes)
 }
 
 fn contains_base_java_project_build_file(path: &Path) -> bool {

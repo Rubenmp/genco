@@ -59,9 +59,7 @@ impl JavaImport {
     /// It is used to create well-known imports like "org.springframework.stereotype.Service"
     /// but should not be used in real code.
     #[allow(dead_code)]
-    pub(crate) fn new_explicit_import_requiring_m2_repo_scan(
-        route: &str,
-    ) -> Result<JavaImport, String> {
+    pub(crate) fn new_explicit_import(route: &str) -> Result<JavaImport, String> {
         Self::new_explicit_import_without_m2_repo_scan(route)
     }
 
@@ -195,7 +193,7 @@ impl JavaImport {
     fn get_all_nodes(&self) -> Vec<String> {
         if self.folder_path.is_some() {
             let mut all_nodes = self.get_package_nodes_vec();
-            for node in self.nodes.iter().clone() {
+            for node in self.nodes.iter() {
                 all_nodes.push(node.to_string());
             }
 
@@ -378,8 +376,8 @@ mod tests {
     /// Tests with hard coded imports
     #[test]
     fn new_explicit_import() {
-        let import = JavaImport::new_explicit_import_requiring_m2_repo_scan("org.test")
-            .expect("Java explicit import is valid");
+        let import =
+            JavaImport::new_explicit_import("org.test").expect("Java explicit import is valid");
 
         assert!(import.is_explicit_import());
         assert!(!import.is_wildcard_import());
@@ -397,9 +395,8 @@ mod tests {
 
     #[test]
     fn get_last_node() {
-        let import =
-            JavaImport::new_explicit_import_requiring_m2_repo_scan("org.test.LastNodeClass")
-                .expect("Java explicit import is valid");
+        let import = JavaImport::new_explicit_import("org.test.LastNodeClass")
+            .expect("Java explicit import is valid");
 
         assert!(import.is_explicit_import());
         assert!(!import.is_wildcard_import());
@@ -409,7 +406,7 @@ mod tests {
 
     #[test]
     fn to_string_hardcoded_import() {
-        let import = JavaImport::new_explicit_import_requiring_m2_repo_scan("org.test.Class")
+        let import = JavaImport::new_explicit_import("org.test.Class")
             .expect("Java explicit import is valid");
 
         assert_eq!("import org.test.Class;", import.to_string());
@@ -510,7 +507,7 @@ mod tests {
     }
 
     fn get_test_folder() -> PathBuf {
-        get_java_project_test_folder(get_current_file_path(), "java_import")
+        get_java_project_test_folder(get_current_file_path(), "import")
     }
 
     fn get_current_file_path() -> PathBuf {

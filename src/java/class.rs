@@ -47,7 +47,7 @@ impl JavaClass {
     /// use genco::java::class::JavaClass;
     ///
     /// let existing_file = env::current_dir().unwrap().join("AnyClass.java");
-    /// // let java_class = JavaClass::from(&existing_file);
+    /// // let class = JavaClass::from(&existing_file);
     /// ```
     pub fn from(file_path: &Path) -> Result<Self, String> {
         let java_file = JavaFile::from_user_input_path(file_path)?;
@@ -315,7 +315,7 @@ impl JavaClassBuilder {
                 minimal_build_usage
             ));
         }
-        let folder = self.folder.as_ref().unwrap();
+        let folder = self.folder.as_ref().expect("Folder must exist");
         if !folder.is_dir() {
             return Err(format!(
                 "Invalid java class \"{}\" build, expected dir:\n{}\n",
@@ -538,7 +538,7 @@ mod tests {
     }
 
     fn get_java_class_root_test_folder() -> PathBuf {
-        test_path::get_java_project_test_folder(get_current_file_path(), "java_class")
+        test_path::get_java_project_test_folder(get_current_file_path(), "class")
     }
 
     fn get_current_file_path() -> PathBuf {

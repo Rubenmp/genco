@@ -133,11 +133,17 @@ fn get_avro_symbols(symbols: &HashMap<String, JsonNode>) -> Option<Vec<String>> 
 }
 
 fn get_value_node_from_pair(node: &JsonNode) -> JsonNode {
-    node.get_children().get(2).unwrap().clone()
+    node.get_children()
+        .get(2)
+        .expect("Third child expected")
+        .clone()
 }
 
 fn get_key_from_pair(node: &JsonNode) -> String {
-    node.get_children().get(0).unwrap().get_content()
+    node.get_children()
+        .get(0)
+        .expect("First child expected")
+        .get_content()
 }
 
 fn filter_json_nodes_first_level(root: &JsonNode, json_node_type: &JsonNodeType) -> Vec<JsonNode> {
@@ -202,12 +208,12 @@ mod tests {
     #[test]
     #[ignore = "ArrayItems not yet implemented"]
     fn parse_basic() {
-        let file_path = get_test_file(get_current_file_path(), "avro.avsc");
+        let file_path = get_test_file(&get_current_file_path(), "avro.avsc");
 
         let avro_items = avro_parser::parse(&file_path);
 
         assert_eq!(2, avro_items.len());
-        let avro_item = avro_items.get(0).unwrap();
+        let avro_item = avro_items.get(0).expect("First item must exist");
         assert_eq!(Some("EnumExample".to_string()), avro_item.get_name());
         assert_eq!(Some("com.parser".to_string()), avro_item.get_namespace());
         assert_eq!(
@@ -225,16 +231,16 @@ mod tests {
         assert_eq!(None, avro_item.get_default());
         assert_eq!(None, avro_item.get_default());
 
-        let avro_item = avro_items.get(1).unwrap();
+        let avro_item = avro_items.get(1).expect("Second item must exist");
         assert_eq!(Some("ComplexFields".to_string()), avro_item.get_name());
         assert_eq!(Some("com.parser".to_string()), avro_item.get_namespace());
         assert_eq!(Some("Docs".to_string()), avro_item.get_doc());
         assert_eq!(&AvroItemType::RecordSimple, avro_item.get_item_type());
         assert_eq!(None, avro_item.get_symbols());
         assert_eq!(None, avro_item.get_default());
-        let fields = avro_item.get_fields().as_ref().unwrap();
+        let fields = avro_item.get_fields().as_ref().expect("Fields expected");
         assert_eq!(2, fields.len());
-        let first_field = fields.get(0).unwrap();
+        let first_field = fields.get(0).expect("First field must exist");
         assert_eq!(Some("field1".to_string()), first_field.get_name());
         assert_eq!(None, first_field.get_namespace());
         assert_eq!(Some("Field 1".to_string()), first_field.get_doc());
@@ -266,7 +272,7 @@ mod tests {
         );
         assert_eq!(None, first_field.get_symbols());
         assert_eq!(Some("null".to_string()), first_field.get_default());
-        let second_field = fields.get(1).unwrap();
+        let second_field = fields.get(1).expect("Second field expected");
         assert_eq!(Some("enum_example".to_string()), second_field.get_name());
         assert_eq!(None, second_field.get_namespace());
         assert_eq!(Some("Enum example".to_string()), second_field.get_doc());

@@ -1,6 +1,6 @@
-use crate::core::file_system::file_edition::file_editor;
 use std::path::{Path, PathBuf};
 
+use crate::core::file_system::file_edition::file_editor;
 use crate::core::file_system::file_reader;
 use crate::core::file_system::path_helper::try_to_absolute_path;
 
@@ -207,7 +207,11 @@ impl FileOverwriting {
             .cloned()
             .collect::<Vec<FileOverwritingItem>>();
 
-        to_write.sort_by(|x, y| x.start_byte.unwrap().cmp(&y.start_byte.unwrap()));
+        to_write.sort_by(|x, y| {
+            x.start_byte
+                .expect("Start byte checked")
+                .cmp(&y.start_byte.expect("End byte checked"))
+        });
 
         to_write
     }
@@ -225,11 +229,18 @@ impl FileOverwriting {
         }
 
         if !items.is_empty() {
-            let mut current_start_byte = items.get(0).unwrap().get_start_byte().unwrap();
-            let mut current_end_byte = items.get(0).unwrap().get_end_byte().unwrap();
+            let first_item = items.get(0).expect("First item exists");
+            let mut current_start_byte = first_item
+                .get_start_byte()
+                .expect("First item start byte exists");
+            let mut current_end_byte = first_item
+                .get_end_byte()
+                .expect("First item end byte exists");
             for item in items.iter().skip(1) {
-                let start_byte = item.get_start_byte().unwrap();
-                let end_byte = item.get_end_byte().unwrap();
+                let start_byte = item
+                    .get_start_byte()
+                    .expect("Second item start byte exists");
+                let end_byte = item.get_end_byte().expect("Second item end byte exists");
                 if start_byte < current_end_byte {
                     let err = format!("Error: can not overwrite resource, bytes [{}, {}] intersect with [{}, {}] at resource \"{}\"", start_byte, end_byte, current_start_byte, current_end_byte, self.get_input_file().to_string_lossy());
                     return Err(err);
@@ -386,7 +397,8 @@ mod tests {
 
     #[test]
     fn file_overwriting_new_nonexistent_file_panics() {
-        let file_path = get_non_existing_test_file(get_current_file_path(), "nonexistent_file.txt");
+        let file_path =
+            get_non_existing_test_file(&get_current_file_path(), "nonexistent_file.txt");
 
         let result = FileOverwriting::from_path(&file_path);
         assert!(result.is_err());
@@ -396,7 +408,7 @@ mod tests {
 
     #[test]
     fn file_overwriting_empty_file_error_writing_invalid_bytes() {
-        let file_path = get_test_file(get_current_file_path(), "empty_file.txt");
+        let file_path = get_test_file(&get_current_file_path(), "empty_file.txt");
 
         let mut overwriting =
             FileOverwriting::from_path(&file_path).expect("FileOverwriting must be created");
@@ -412,7 +424,7 @@ mod tests {
 
     #[test]
     fn file_overwriting_error_writing_overlapping_intervals() {
-        let file_path = get_test_file(get_current_file_path(), "non_empty_file.txt");
+        let file_path = get_test_file(&get_current_file_path(), "non_empty_file.txt");
 
         let mut overwriting =
             FileOverwriting::from_path(&file_path).expect("FileOverwriting must be created");
@@ -431,9 +443,9 @@ mod tests {
 
     #[test]
     fn file_overwriting_valid_scenario_non_empty_file() {
-        let file_path = get_test_file(get_current_file_path(), "non_empty_file.txt");
+        let file_path = get_test_file(&get_current_file_path(), "non_empty_file.txt");
         let expected_file_path =
-            get_test_file(get_current_file_path(), "non_empty_file_expected.txt");
+            get_test_file(&get_current_file_path(), "non_empty_file_expected.txt");
 
         let mut overwriting =
             FileOverwriting::from_path(&file_path).expect("FileOverwriting must be created");
@@ -456,9 +468,9 @@ mod tests {
 
     #[test]
     fn file_overwriting_valid_scenario_file_reduction() {
-        let file_path = get_test_file(get_current_file_path(), "file_reduction.txt");
+        let file_path = get_test_file(&get_current_file_path(), "file_reduction.txt");
         let expected_file_path =
-            get_test_file(get_current_file_path(), "file_reduction_expected.txt");
+            get_test_file(&get_current_file_path(), "file_reduction_expected.txt");
 
         let mut overwriting =
             FileOverwriting::from_path(&file_path).expect("FileOverwriting must be created");

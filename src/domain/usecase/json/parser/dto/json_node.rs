@@ -38,8 +38,8 @@ impl JsonNode {
 }
 
 impl ParserNode<JsonNodeType> for JsonNode {
-    fn new(file_path: &Path) -> Result<Self, String> {
-        let file_path_str = file_path.to_str().unwrap();
+    fn from_path(file_path: &Path) -> Result<Self, String> {
+        let file_path_str = file_path.to_str().expect("File path must exist");
         let file_content = fs::read_to_string(file_path_str).unwrap_or_else(|_| {
             panic!(
                 "File path \"{}\" should exists to parse json node",
@@ -64,12 +64,8 @@ impl ParserNode<JsonNodeType> for JsonNode {
         self.file_path.as_path()
     }
 
-    fn get_children(&self) -> Vec<Box<JsonNode>> {
-        let mut node_refs = Vec::new();
-        for child in self.children.clone() {
-            node_refs.push(Box::new(child.clone()));
-        }
-        node_refs
+    fn get_children(&self) -> &Vec<JsonNode> {
+        &self.children
     }
 
     fn get_node_type(&self) -> Option<JsonNodeType> {
@@ -111,7 +107,7 @@ fn parse_json(code: &str) -> Tree {
     parser
         .set_language(tree_sitter_json::language())
         .expect("Error loading json grammar");
-    parser.parse(code, None).unwrap()
+    parser.parse(code, None).expect("Parsing json")
 }
 
 #[cfg(test)]
@@ -125,11 +121,12 @@ mod tests {
 
     #[test]
     fn parse_single_file_recognizes_all_tokens() {
-        let file_path = get_test_file(get_current_file_path(), "basic.json");
+        let file_path = get_test_file(&get_current_file_path(), "basic.json");
         let expect_result_file_path =
-            get_test_file(get_current_file_path(), "basic-expected_node_tree.json");
+            get_test_file(&get_current_file_path(), "basic-expected_node_tree.json");
 
-        let root_node = JsonNode::new(&file_path).expect("Json node should be parsed correctly");
+        let root_node =
+            JsonNode::from_path(&file_path).expect("Json node should be parsed correctly");
 
         let tree_str = root_node.get_tree_str();
         assert_same_as_file(&expect_result_file_path, &tree_str)

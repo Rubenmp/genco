@@ -44,7 +44,7 @@ impl JavaInterface {
     /// use genco::java::interface::JavaInterface;
     ///
     /// let existing_file = env::current_dir().unwrap().join("AnyInterface.java");
-    /// // let java_interface = JavaInterface::from(&existing_file);
+    /// // let interface = JavaInterface::from(&existing_file);
     /// ```
     pub fn from(file_path: &Path) -> Result<Self, String> {
         let java_file = JavaFile::from_user_input_path(file_path)?;
@@ -210,7 +210,10 @@ impl JavaInterfaceBuilder {
                 minimal_build_usage
             ));
         }
-        let folder = self.folder.as_ref().unwrap();
+        let folder = self
+            .folder
+            .as_ref()
+            .expect("Folder was previously checked to exist");
         if !folder.is_dir() {
             return Err(format!(
                 "Invalid java interface \"{}\" build, expected dir:\n{}\n",
@@ -292,7 +295,7 @@ mod tests {
     }
 
     fn get_test_folder() -> PathBuf {
-        test_path::get_java_project_test_folder(get_current_file_path(), "java_interface")
+        test_path::get_java_project_test_folder(get_current_file_path(), "interface")
     }
 
     fn get_current_file_path() -> PathBuf {

@@ -85,7 +85,8 @@ impl JavaField {
                             Err(err) => logger::log_warning(&err),
                         };
                     } else if java_node_type::is_visibility(&modifier_type_opt) {
-                        visibility = visibility::new(&modifier_type_opt.unwrap());
+                        visibility =
+                            visibility::new(&modifier_type_opt.expect("Modifier expected"));
                     } else if let Some(JavaNodeType::Static) = modifier_type_opt {
                         is_static = true;
                     } else if let Some(JavaNodeType::Final) = modifier_type_opt {
@@ -265,7 +266,7 @@ mod tests {
 
     #[test]
     fn get_str_autowired_private_static_final() {
-        let expected_str_file_path = get_test_dir(get_current_file_path(), "java_field")
+        let expected_str_file_path = get_test_dir(get_current_file_path(), "field")
             .join("ExpectedAutowiredPrivateStaticField.java");
         match JavaField::builder()
             .annotations(vec![

@@ -1,13 +1,8 @@
 use crate::java::annotation_usage::JavaAnnotationUsage;
-use crate::java::import::JavaImport;
 
-pub fn _create_service_annotation_usage() -> JavaAnnotationUsage {
+pub(crate) fn _create_service_annotation_usage() -> JavaAnnotationUsage {
     JavaAnnotationUsage::builder()
-        .import(
-            JavaImport::new_explicit_import_requiring_m2_repo_scan(
-                "org.springframework.stereotype.Service",
-            )
-            .expect("Java explicit import is valid"),
-        )
+        .import("org.springframework.stereotype.Service")
         .build()
+        .expect("Valid annotation")
 }

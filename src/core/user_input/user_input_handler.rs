@@ -64,9 +64,9 @@ impl UserInput {
         &self.variables
     }
 
-    fn merge(&mut self, var_usgaes: &HashMap<String, VariableUsage>) {
-        for (var_id, var_usage) in var_usgaes.clone() {
-            if let Some(match_usage) = self.variables.get_mut(&var_id) {
+    fn merge(&mut self, var_usages: &HashMap<String, VariableUsage>) {
+        for (var_id, var_usage) in var_usages {
+            if let Some(match_usage) = self.variables.get_mut(var_id) {
                 match_usage.merge(&var_usage);
             } else {
                 self.variables.insert(var_id.clone(), var_usage.clone());
@@ -276,7 +276,7 @@ mod tests {
     #[test]
     #[ignore = "User input not yet mocked"]
     fn user_input_new() {
-        let test_file = get_test_file(get_current_file_path(), "user_input_var_input_var_id.txt");
+        let test_file = get_test_file(&get_current_file_path(), "user_input_var_input_var_id.txt");
 
         let user_var = UserInput::new(&test_file);
 
@@ -296,12 +296,9 @@ mod tests {
     #[ignore = "User input not yet mocked"]
     fn user_input_merge_same_variable() {
         let current_file_path = get_current_file_path();
-        let first_test_file =
-            get_test_file(current_file_path.clone(), "user_input_var_input_var_id.txt");
-        let second_test_file = get_test_file(
-            current_file_path.clone(),
-            "user_input_var_input_var_id_copy.txt",
-        );
+        let first_test_file = get_test_file(&current_file_path, "user_input_var_input_var_id.txt");
+        let second_test_file =
+            get_test_file(&current_file_path, "user_input_var_input_var_id_copy.txt");
 
         let mut user_var = UserInput::new(&first_test_file);
         user_var.add_variables_from(&second_test_file);
@@ -325,10 +322,8 @@ mod tests {
     #[ignore = "User input not yet mocked"]
     fn user_input_merge_different_variable() {
         let current_file_path = get_current_file_path();
-        let first_test_file =
-            get_test_file(current_file_path.clone(), "user_input_var_input_var_id.txt");
-        let second_test_file =
-            get_test_file(current_file_path.clone(), "user_input_var_new_var_id.txt");
+        let first_test_file = get_test_file(&current_file_path, "user_input_var_input_var_id.txt");
+        let second_test_file = get_test_file(&current_file_path, "user_input_var_new_var_id.txt");
 
         let mut user_var = UserInput::new(&first_test_file);
         user_var.add_variables_from(&second_test_file);

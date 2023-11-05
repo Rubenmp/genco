@@ -26,16 +26,21 @@ pub fn overwrite(original_yaml_file: &Path, to_add_yaml_file: &Path) {
         .expect("Yaml file was not overwritten");
 
     let yaml_original =
-        YamlNode::new(original_yaml_file).expect("original_yaml_file must be parseable");
-    let yaml_to_add = YamlNode::new(to_add_yaml_file).expect("to_add_yaml_file must be parseable");
+        YamlNode::from_path(original_yaml_file).expect("original_yaml_file must be parseable");
+    let yaml_to_add =
+        YamlNode::from_path(to_add_yaml_file).expect("to_add_yaml_file must be parseable");
 
-    let mut overwriting =
-        get_yaml_overwriting(&yaml_original, &yaml_to_add).expect("yaml_overwriting must succeed");
+    let mut overwriting = get_yaml_overwriting(&original_yaml_file, &yaml_original, &yaml_to_add)
+        .expect("yaml_overwriting must succeed");
     overwriting.write_all().expect("Yaml must be written");
 }
 
-fn get_yaml_overwriting(original: &YamlNode, to_add: &YamlNode) -> Result<FileOverwriting, String> {
-    let mut overwriting = FileOverwriting::from_path(original.get_file_path())?;
+fn get_yaml_overwriting(
+    original_yaml_file: &Path,
+    original: &YamlNode,
+    to_add: &YamlNode,
+) -> Result<FileOverwriting, String> {
+    let mut overwriting = FileOverwriting::from_path(original_yaml_file)?;
     include_nodes_to_overwrite(&mut overwriting, original, to_add, 0)?;
     Ok(overwriting)
 }
@@ -111,7 +116,7 @@ fn filter_sequence_items_to_add<'a>(
                 find_missing(current_sequence_items, result_sequence_items);
 
             if !missing_nodes.is_empty() {
-                result.insert(result_content_with_sequence_item.0.clone(), missing_nodes);
+                result.insert(result_content_with_sequence_item.0, missing_nodes);
             }
         }
     }
@@ -318,18 +323,21 @@ fn get_key_from_block_mapping_pair(mapping_pair_node: &YamlNode) -> String {
     return mapping_pair_node
         .get_children()
         .get(0)
-        .unwrap()
+        .expect("First children")
         .get_children()
         .get(0)
-        .unwrap()
+        .expect("Second children")
         .get_children()
         .get(0)
-        .unwrap()
+        .expect("Third children")
         .get_content();
 }
 
 fn get_mapped_value_from_block_mapping_pair(mapping_pair_node: &YamlNode) -> &YamlNode {
-    return mapping_pair_node.get_children().get(2).unwrap();
+    return mapping_pair_node
+        .get_children()
+        .get(2)
+        .expect("Third children");
 }
 
 #[cfg(test)]
@@ -384,6 +392,6 @@ mod tests {
     }
 
     fn get_yaml_test_file(file_name: &str) -> PathBuf {
-        get_non_existing_test_file(get_current_file_path(), file_name)
+        get_non_existing_test_file(&get_current_file_path(), file_name)
     }
 }

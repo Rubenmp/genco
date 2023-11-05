@@ -4,7 +4,7 @@ use crate::java::parser::java_node::JavaNode;
 pub struct JavaStatement {}
 
 impl JavaStatement {
-    pub(crate) fn new(_node: &JavaNode) -> Self {
+    pub(crate) fn _new(_node: &JavaNode) -> Self {
         JavaStatement {}
     }
 }
@@ -21,7 +21,7 @@ mod tests {
     fn get_imports_empty() {
         let java_file = get_java_test_file(
             get_current_file_path(),
-            "java_expression",
+            "expression",
             "JavaExpressionArithmetic.java",
         );
 

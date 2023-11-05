@@ -1,7 +1,6 @@
 use std::fmt;
 
 use crate::core::file_system::file_cache::FileCache;
-
 use crate::core::observability::logger;
 use crate::core::parser::parser_node_trait::ParserNode;
 use crate::java::data_type::JavaDataType;
@@ -29,7 +28,7 @@ impl JavaVariable {
             .data_type(JavaDataType::int())
             .name(var_name)
             .build()
-            .unwrap()
+            .expect("Final int variable always succeed")
     }
     pub fn new_final_string(var_name: &str) -> Self {
         Self::builder()
@@ -37,7 +36,7 @@ impl JavaVariable {
             .data_type(JavaDataType::string())
             .name(var_name)
             .build()
-            .unwrap()
+            .expect("Final String variable always succeed")
     }
 }
 

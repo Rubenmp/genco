@@ -1,13 +1,8 @@
 use crate::java::annotation_usage::JavaAnnotationUsage;
-use crate::java::import::JavaImport;
 
-pub fn _create_autowired_annotation_usage() -> JavaAnnotationUsage {
+pub(crate) fn _create_autowired_annotation_usage() -> JavaAnnotationUsage {
     JavaAnnotationUsage::builder()
-        .import(
-            JavaImport::new_explicit_import_requiring_m2_repo_scan(
-                "org.springframework.beans.factory.annotation.Autowired",
-            )
-            .expect("Java explicit import is valid"),
-        )
+        .import("org.springframework.beans.factory.annotation.Autowired")
         .build()
+        .expect("Valid annotation")
 }

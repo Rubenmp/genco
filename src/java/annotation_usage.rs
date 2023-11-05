@@ -1,8 +1,6 @@
 use std::fmt;
 
 use crate::core::file_system::file_cache::FileCache;
-
-use crate::core::observability::logger;
 use crate::java::import::JavaImport;
 use crate::java::indentation_config::JavaIndentation;
 use crate::java::parser::java_node::JavaNode;
@@ -44,10 +42,6 @@ impl JavaAnnotationUsage {
         &self.explicit_import
     }
 
-    pub(crate) fn new(explicit_import: JavaImport) -> JavaAnnotationUsage {
-        JavaAnnotationUsage { explicit_import }
-    }
-
     /// TODO: add annotation parameters analysis
     pub(crate) fn new_from_java_node_unchecked(
         root_java_node: &JavaNode,
@@ -63,6 +57,10 @@ impl JavaAnnotationUsage {
 
     fn get_annotation_id_node(node: &JavaNode) -> Option<&JavaNode> {
         node.get_children().get(1)
+    }
+
+    fn new(explicit_import: JavaImport) -> JavaAnnotationUsage {
+        JavaAnnotationUsage { explicit_import }
     }
 }
 
@@ -86,39 +84,40 @@ impl fmt::Display for JavaAnnotationUsage {
 }
 
 pub struct JavaAnnotationUsageBuilder {
-    import: Option<JavaImport>,
+    import_raw: Option<String>,
 }
 
 impl JavaAnnotationUsageBuilder {
     fn new_builder() -> Self {
-        Self { import: None }
+        Self { import_raw: None }
     }
 
-    pub(crate) fn import(&mut self, input: JavaImport) -> &mut Self {
-        if !input.is_explicit_import() {
-            let error = format!("Trying to create invalid JavaAnnotationUsage.\n\tExpected: explicit import (ex. \"import javax.persistence.Entity\")\n\tFound: \"{}\"", input.get_route());
-            logger::log_unrecoverable_error(&error);
-        }
-        self.import = Some(input);
+    pub(crate) fn import(&mut self, input: &str) -> &mut Self {
+        self.import_raw = Some(input.to_string());
         self
     }
-    pub fn build(&mut self) -> JavaAnnotationUsage {
-        JavaAnnotationUsage::new(self.import.clone().unwrap())
+
+    pub fn build(&mut self) -> Result<JavaAnnotationUsage, String> {
+        let import_str = self
+            .import_raw
+            .clone()
+            .ok_or("Missing java annotation explicit import")?;
+        let import = JavaImport::new_explicit_import(&import_str)?;
+
+        Ok(JavaAnnotationUsage::new(import))
     }
 }
 
 #[cfg(test)]
 mod tests {
     use crate::java::annotation_usage::JavaAnnotationUsage;
-    use crate::java::import::JavaImport;
 
     #[test]
     fn to_string() {
-        let import = JavaImport::new_explicit_import_requiring_m2_repo_scan(
-            "org.springframework.stereotype.Service",
-        )
-        .expect("Java explicit import is valid");
-        let annotation = JavaAnnotationUsage::builder().import(import).build();
+        let annotation = JavaAnnotationUsage::builder()
+            .import("org.springframework.stereotype.Service")
+            .build()
+            .expect("Annotation must be created");
 
         assert_eq!("@Service", annotation.to_string());
     }
@@ -127,11 +126,9 @@ mod tests {
     fn get_imports() {
         let import_package = "org.springframework.stereotype.Service";
         let annotation = JavaAnnotationUsage::builder()
-            .import(
-                JavaImport::new_explicit_import_requiring_m2_repo_scan(import_package)
-                    .expect("Java explicit import is valid"),
-            )
-            .build();
+            .import(import_package)
+            .build()
+            .expect("Annotation must be created");
 
         let result_imports = annotation.get_imports();
 

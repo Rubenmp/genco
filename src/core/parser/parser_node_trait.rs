@@ -1,20 +1,20 @@
-use crate::core::file_system::file_cache::FileCache;
 use std::fmt::{Display, Write};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::Path;
 
+use crate::core::file_system::file_cache::FileCache;
 use crate::core::file_system::file_reader;
 use crate::core::parser::string_helper;
 use crate::core::parser::string_helper::escape_str_for_json;
 
 pub(crate) trait ParserNode<NodeType: Display + PartialEq + Copy>: Sized {
-    fn new(file_path: &Path) -> Result<Self, String>;
+    fn from_path(file_path: &Path) -> Result<Self, String>;
 
     fn get_start_byte(&self) -> usize;
     fn get_end_byte(&self) -> usize;
     fn get_file_path(&self) -> &Path;
-    fn get_children(&self) -> Vec<Box<Self>>;
+    fn get_children(&self) -> &Vec<Self>;
     fn get_node_type(&self) -> Option<NodeType>;
 
     #[allow(unused)]
@@ -56,9 +56,10 @@ pub(crate) trait ParserNode<NodeType: Display + PartialEq + Copy>: Sized {
                 self.get_start_byte(),
                 self.get_end_byte()
             )
-            .unwrap();
+            .expect("Writing parser node showing bytes");
         } else {
-            write!(tree_str, "\"{}. {}\"", current_child_index, type_str).unwrap();
+            write!(tree_str, "\"{}. {}\"", current_child_index, type_str)
+                .expect("Writing parser node");
         }
 
         let children = self.get_children();
@@ -103,6 +104,7 @@ pub(crate) trait ParserNode<NodeType: Display + PartialEq + Copy>: Sized {
     /// free the buffer, to do only one read to file, not hundred/thousand smaller ones.
     ///
     /// Migrate to get_content_from_cache method
+    #[deprecated(note = "please use `get_content_from_cache` instead")]
     fn get_content(&self) -> String {
         let buffer = file_reader::read_bytes(
             self.get_file_path(),
@@ -149,14 +151,14 @@ pub(crate) trait ParserNode<NodeType: Display + PartialEq + Copy>: Sized {
     }
 
     /// Depth First Search
-    fn depth_first_search_first_with_type(self, node_type: NodeType) -> Option<Box<Self>> {
+    fn depth_first_search_bytes(&self, node_type: NodeType) -> Option<(usize, usize)> {
         if Some(node_type) == self.get_node_type() {
-            return Some(Box::new(self));
+            return Some((self.get_start_byte(), self.get_end_byte()));
         }
 
         for child in self.get_children() {
-            if let Some(sub_node_search) = child.depth_first_search_first_with_type(node_type) {
-                return Some(sub_node_search);
+            if let Some(sub_node_search_bytes) = child.depth_first_search_bytes(node_type) {
+                return Some(sub_node_search_bytes);
             }
         }
 

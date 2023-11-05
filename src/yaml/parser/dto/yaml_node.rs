@@ -1,5 +1,6 @@
 #![allow(unused)]
 
+use std::collections::HashMap;
 use std::fmt::{format, Write};
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
@@ -18,6 +19,38 @@ pub(crate) struct YamlNode {
     end_byte: usize,
     children: Vec<YamlNode>,
     node_type: Option<YamlNodeType>,
+}
+
+impl YamlNode {
+    pub(crate) fn get_block_mapping_pair_strings(&self) -> Option<(String, String)> {
+        if Some(YamlNodeType::BlockMappingPair) != self.get_node_type() {
+            return None;
+        }
+
+        let children = self.get_children();
+        if let (Some(key), Some(_), Some(value)) =
+            (children.get(0), children.get(1), children.get(2))
+        {
+            return Some((key.get_content(), value.get_content()));
+        }
+
+        None
+    }
+
+    pub(crate) fn get_block_mapping_pair_string_to_block(&self) -> Option<(String, &Self)> {
+        if Some(YamlNodeType::BlockMappingPair) != self.get_node_type() {
+            return None;
+        }
+
+        let children = self.get_children();
+        if let (Some(key), Some(_), Some(value)) =
+            (children.get(0), children.get(1), children.get(2))
+        {
+            return Some((key.get_content(), value));
+        }
+
+        None
+    }
 }
 
 impl YamlNode {
@@ -41,38 +74,30 @@ impl YamlNode {
                                         node.end_byte(),
                                     );
                                     panic!(
-                                        "Not possible to parse YamlNode \"{}\": {:?}",
-                                        node.kind(),
-                                        e
-                                    )
-                                    return None;
+                                        "Not possible to parse YamlNode \"{}\"",
+                                        node.kind()
+                                    );
                                 }*/
             },
         }
     }
-
-    pub fn get_children(&self) -> &Vec<YamlNode> {
-        &self.children
-    }
-
-    pub fn get_node_type(&self) -> Option<YamlNodeType> {
-        self.node_type
-    }
-
-    pub fn get_tree_with_bytes_str(&self) -> String {
-        self.get_tree_str_internal(0, 1, true)
-    }
 }
 
 impl ParserNode<YamlNodeType> for YamlNode {
-    fn new(file_path: &Path) -> Result<Self, String> {
-        let file_path_str = file_path.to_str().unwrap();
-        let file_content = fs::read_to_string(file_path_str).unwrap_or_else(|_| {
-            panic!(
-                "File path \"{}\" should exists to parse yaml node",
-                file_path_str
-            )
-        });
+    fn from_path(file_path: &Path) -> Result<Self, String> {
+        let file_content = match fs::read_to_string(file_path) {
+            Ok(content) => Ok(content),
+            Err(err) => {
+                let file_path_str = file_path
+                    .to_str()
+                    .expect("Not able to convert file to string");
+                let result_str = format!(
+                    "File path \"{}\" should exists to parse yaml node",
+                    file_path_str
+                );
+                Err(result_str)
+            }
+        }?;
 
         let _tree = parse_yaml(file_content.as_str());
         let new_yaml_node = YamlNode::new_internal(_tree.root_node(), file_path);
@@ -91,12 +116,8 @@ impl ParserNode<YamlNodeType> for YamlNode {
         self.file_path.as_path()
     }
 
-    fn get_children(&self) -> Vec<Box<Self>> {
-        let mut node_refs = Vec::new();
-        for child in self.children.clone() {
-            node_refs.push(Box::new(child.clone()));
-        }
-        node_refs
+    fn get_children(&self) -> &Vec<Self> {
+        &self.children
     }
 
     fn get_node_type(&self) -> Option<YamlNodeType> {
@@ -142,11 +163,13 @@ mod tests {
 
     #[test]
     fn parse_single_file_recognizes_all_tokens() {
-        let file_path = get_test_file(get_current_file_path(), "basic.yaml");
+        let current_file_path = get_current_file_path();
+        let file_path = get_test_file(&current_file_path, "basic.yaml");
         let expect_result_file_path =
-            get_test_file(get_current_file_path(), "basic-yaml-expected-result.json");
+            get_test_file(&current_file_path, "basic-yaml-expected-result.json");
 
-        let root_node = YamlNode::new(&file_path).expect("Yaml node should be parsed correctly");
+        let root_node =
+            YamlNode::from_path(&file_path).expect("Yaml node should be parsed correctly");
 
         let tree_str = root_node.get_tree_str();
         assert_same_as_file(&expect_result_file_path, &tree_str)

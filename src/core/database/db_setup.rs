@@ -26,8 +26,8 @@ fn db_initial_migration() {
     let paths = fs::read_dir("./src/core/database/migrations")
         .expect("Database migrations path must exist");
 
-    for path in paths {
-        let file_path = path.unwrap().path();
+    for dir_entry_result in paths {
+        let file_path = dir_entry_result.expect("Dir entry must exist").path();
         if file_path.exists() && file_path.is_file() {
             let filename = file_path
                 .file_name()

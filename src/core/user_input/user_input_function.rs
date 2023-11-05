@@ -1,5 +1,3 @@
-use std::string::ParseError;
-
 use regex::{Match, Regex};
 
 use crate::core::parser::string_helper;
@@ -65,10 +63,13 @@ fn find_word_matches(upper_camel_case_str: &str) -> Vec<Match> {
 }
 
 impl UserInputFunction {
-    pub fn parse(raw_function_pattern: String) -> Result<Self, ParseError> {
+    pub fn parse(raw_function_pattern: String) -> Result<Self, String> {
         let mut split_function = raw_function_pattern.split('(');
         if split_function.clone().count() != 2_usize {
-            panic!("Invalid UserInputFunction \"{}\"", raw_function_pattern);
+            return Err(format!(
+                "Invalid UserInputFunction \"{}\"",
+                raw_function_pattern
+            ));
         }
 
         if let Some(function_name_str) = split_function.next() {
@@ -175,6 +176,7 @@ mod tests {
             Err(e) => panic!("Error: {}", e),
         };
     }
+
     #[test]
     #[ignore = "User input not yet mocked"]
     fn to_lowercase_space_separated_test() {

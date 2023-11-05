@@ -2,9 +2,9 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
-use crate::core::file_system::file_cache::FileCache;
 use tree_sitter::{Node, Parser};
 
+use crate::core::file_system::file_cache::FileCache;
 use crate::core::file_system::file_reader;
 use crate::core::file_system::path_helper::try_to_absolute_path;
 use crate::core::observability::logger;
@@ -54,7 +54,7 @@ impl JavaNode {
 }
 
 impl ParserNode<JavaNodeType> for JavaNode {
-    fn new(file_path: &Path) -> Result<Self, String> {
+    fn from_path(file_path: &Path) -> Result<Self, String> {
         let file_path_str = file_path
             .to_str()
             .expect("ParserNode::new expect a valid file_path input parameter");
@@ -92,12 +92,8 @@ impl ParserNode<JavaNodeType> for JavaNode {
         self.file_path.as_path()
     }
 
-    fn get_children(&self) -> Vec<Box<Self>> {
-        let mut node_refs = Vec::new();
-        for child in self.children.clone() {
-            node_refs.push(Box::new(child.clone()));
-        }
-        node_refs
+    fn get_children(&self) -> &Vec<Self> {
+        &self.children
     }
 
     fn get_node_type(&self) -> Option<JavaNodeType> {
@@ -167,7 +163,7 @@ mod tests {
         let file_path = get_local_java_project_test_folder().join("JavaParserTest.java");
         let expected_node_tree = get_expected_file("ExpectedJavaParserTestNodeTree.json");
 
-        match JavaNode::new(&file_path) {
+        match JavaNode::from_path(&file_path) {
             Ok(node) => {
                 let node_tree = node.get_tree_str();
                 assert_same_as_file(&expected_node_tree, &node_tree);
@@ -180,7 +176,7 @@ mod tests {
     fn parse_database_entity() {
         let file_path = get_local_java_project_test_folder().join("JavaParserDatabaseEntity.java");
 
-        if let Err(error) = JavaNode::new(&file_path) {
+        if let Err(error) = JavaNode::from_path(&file_path) {
             assert_fail(&error);
         }
     }

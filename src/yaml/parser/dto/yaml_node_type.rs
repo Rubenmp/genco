@@ -4,7 +4,8 @@ use std::str::FromStr;
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub enum YamlNodeType {
     FlowNode,
-    Hyphen, // -
+    Hyphen,
+    // -
     BlockMappingPair,
     BlockMapping,
     Document,
@@ -13,17 +14,21 @@ pub enum YamlNodeType {
     Comment,
     PlainScalar,
     BlockScalar,
-    Colon, // :
+    Colon,
+    // :
     BlockNode,
-    ThreeHyphen, // ---
+    ThreeHyphen,
+    // ---
     IntegerScalar,
     StringScalar,
     BooleanScalar,
     BlockSequence,
     BlockSequenceItem,
-    Apostrophe, // '
+    Apostrophe,
+    // '
     SingleQuoteScalar,
-    QuotationMark, // "
+    QuotationMark,
+    // "
     DoubleQuoteScalar,
 }
 
