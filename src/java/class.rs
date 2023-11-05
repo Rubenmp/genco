@@ -220,8 +220,8 @@ pub struct JavaClassBuilder {
     is_final: bool,
     is_abstract: bool,
 
-    extended_class: Vec<JavaImport>, // TODO: use JavaClass instead, do not expose JavaImport
-    implemented_interfaces: Vec<JavaImport>, // TODO: use JavaInterface instead, do not expose JavaImport
+    extended_class: Vec<JavaImport>,
+    implemented_interfaces: Vec<JavaImport>,
 
     name: Option<String>,
     fields: Vec<JavaField>,
@@ -273,16 +273,13 @@ impl JavaClassBuilder {
         self.is_abstract = input;
         self
     }
-    pub fn extended_class(&mut self, input: JavaClass) -> &mut Self {
-        self.extended_class = vec![input.get_self_import()];
+    pub fn extends(&mut self, input: JavaClass) -> &mut Self {
+        self.extended_class.push(input.get_self_import());
         self
     }
 
-    pub fn implemented_interfaces(&mut self, input: Vec<JavaInterface>) -> &mut Self {
-        self.implemented_interfaces = input
-            .iter()
-            .map(|interface| interface.get_self_import())
-            .collect();
+    pub fn implements(&mut self, input: JavaInterface) -> &mut Self {
+        self.implemented_interfaces.push(input.get_self_import());
         self
     }
 
@@ -417,8 +414,8 @@ mod tests {
             .name("FullJavaServiceFromBuilder")
             .fields(vec![field])
             .methods(vec![method])
-            .extended_class(extended_class)
-            .implemented_interfaces(vec![java_interface])
+            .extends(extended_class)
+            .implements(java_interface)
             .build()
         {
             Ok(java_class) => {
