@@ -1,6 +1,6 @@
-use crate::core::file_system::file_cache::FileCache;
 use std::path::Path;
 
+use crate::core::file_system::file_cache::FileCache;
 use crate::core::file_system::path_helper::try_to_absolute_path;
 use crate::core::observability::logger;
 use crate::core::parser::parser_node_trait::ParserNode;
@@ -246,6 +246,7 @@ impl JavaStructure {
             JavaStructureType::Class => *result += "class ",
             JavaStructureType::Interface => *result += "interface ",
             JavaStructureType::Enum => *result += "enum ",
+            JavaStructureType::Record => *result += "record ",
         }
     }
 
