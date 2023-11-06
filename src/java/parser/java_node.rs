@@ -57,12 +57,14 @@ impl ParserNode<JavaNodeType> for JavaNode {
     fn from_path(file_path: &Path) -> Result<Self, String> {
         let file_path_str = file_path
             .to_str()
-            .expect("ParserNode::new expect a valid file_path input parameter");
+            .ok_or("ParserNode::new expect a valid file_path input parameter")?;
 
         if let Ok(file_content) = fs::read_to_string(file_path_str) {
+            println!("File content: {}", file_content);
             let mut parser = build_parser();
-            let parsed = parser.parse(file_content, None);
-            let result: Result<Self, String> = if let Some(parsed_tree) = parsed {
+            let parsed = parser.parse(&file_content, None);
+            return if let Some(parsed_tree) = parsed {
+                let _exp = parsed_tree.root_node().to_sexp();
                 let node = JavaNode::new_internal(parsed_tree.root_node(), file_path);
                 Ok(node)
             } else {
@@ -71,7 +73,6 @@ impl ParserNode<JavaNodeType> for JavaNode {
                     file_path_str
                 ))
             };
-            return result;
         }
 
         Err(format!(
