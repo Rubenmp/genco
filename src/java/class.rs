@@ -144,16 +144,16 @@ impl JavaClass {
         self.get_structure().get_implemented_interfaces()
     }
 
-    /// # get_methods
-    /// Get the methods of the current JavaClass.
-    pub fn get_methods(&self) -> &Vec<JavaMethod> {
-        self.get_structure().get_methods()
-    }
-
     /// # get_fields
     /// Get the fields of the current JavaClass.
     pub fn get_fields(&self) -> &Vec<JavaField> {
         self.get_structure().get_fields()
+    }
+
+    /// # get_methods
+    /// Get the methods of the current JavaClass.
+    pub fn get_methods(&self) -> &Vec<JavaMethod> {
+        self.get_structure().get_methods()
     }
 }
 
@@ -385,10 +385,10 @@ mod tests {
                 assert!(!java_class.is_abstract());
                 assert_eq!("EmptyService", java_class.get_name());
                 assert!(java_class.get_extended_class().is_none());
+                assert_eq!(1, java_class.get_imports().len());
                 assert_eq!(0, java_class.get_implemented_interfaces().len());
                 assert_eq!(0, java_class.get_fields().len());
                 assert_eq!(0, java_class.get_methods().len());
-                assert_eq!(1, java_class.get_imports().len());
             }
             Err(err) => assert_fail(&err),
         }

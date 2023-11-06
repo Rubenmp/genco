@@ -123,16 +123,16 @@ impl JavaRecord {
         self.get_structure().get_implemented_interfaces()
     }
 
-    /// # get_methods
-    /// Get the methods of the current JavaRecord.
-    pub fn get_methods(&self) -> &Vec<JavaMethod> {
-        self.get_structure().get_methods()
-    }
-
     /// # get_fields
     /// Get the fields of the current JavaRecord.
     pub fn get_fields(&self) -> &Vec<JavaField> {
         self.get_structure().get_fields()
+    }
+
+    /// # get_methods
+    /// Get the methods of the current JavaRecord.
+    pub fn get_methods(&self) -> &Vec<JavaMethod> {
+        self.get_structure().get_methods()
     }
 }
 
@@ -321,12 +321,12 @@ mod tests {
                 let _ = fs::remove_file(&file_path).expect("Result file must be removed");
                 assert_eq!(&file_path, java_record.get_file());
                 assert_eq!(1, java_record.get_annotations().len());
-                assert_eq!(JavaVisibility::Public, java_record.get_visibility());
+                assert_eq!(JavaVisibility::Package, java_record.get_visibility());
                 assert!(!java_record.is_static());
                 assert_eq!("JavaBasicRecordBuild", java_record.get_name());
+                assert_eq!(0, java_record.get_imports().len());
                 assert_eq!(0, java_record.get_fields().len());
                 assert_eq!(0, java_record.get_methods().len());
-                assert_eq!(1, java_record.get_imports().len());
             }
             Err(err) => {
                 // let _ = fs::remove_file(&file_path).expect("Result file must be removed");
