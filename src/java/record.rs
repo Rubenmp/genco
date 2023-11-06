@@ -107,18 +107,6 @@ impl JavaRecord {
         self.get_structure().is_static()
     }
 
-    /// # is_abstract
-    /// It returns if the current JavaRecord is abstract.
-    pub fn is_abstract(&self) -> bool {
-        self.get_structure().is_abstract()
-    }
-
-    /// # is_final
-    /// It returns if the current JavaRecord is final.
-    pub fn is_final(&self) -> bool {
-        self.get_structure().is_final()
-    }
-
     /// # get_name
     /// It returns the current JavaRecord name.
     pub fn get_name(&self) -> &str {
@@ -298,14 +286,14 @@ mod tests {
     #[test]
     fn build_record_test() {
         let folder = get_java_record_root_test_folder();
-        let file_path = folder.join("EmptyService.java");
-        let expected_file_content = get_test_file("ExpectedEmptyService");
+        let file_path = folder.join("JavaRecordBuild.java");
+        let expected_file_content = get_expected_file("JavaRecordBuild");
 
         let annotations = vec![java_spring_context_factory::_create_service_annotation_usage()];
         match JavaRecord::builder()
             .folder(&folder)
             .visibility(JavaVisibility::Public)
-            .name("EmptyService")
+            .name("JavaRecordBuild")
             .annotations(annotations)
             .build()
         {
@@ -316,19 +304,20 @@ mod tests {
                 assert_eq!(1, java_record.get_annotations().len());
                 assert_eq!(JavaVisibility::Public, java_record.get_visibility());
                 assert!(!java_record.is_static());
-                assert!(!java_record.is_final());
-                assert!(!java_record.is_abstract());
-                assert_eq!("EmptyService", java_record.get_name());
+                assert_eq!("JavaRecordBuild", java_record.get_name());
                 assert_eq!(0, java_record.get_fields().len());
                 assert_eq!(0, java_record.get_methods().len());
                 assert_eq!(1, java_record.get_imports().len());
             }
-            Err(err) => assert_fail(&err),
+            Err(err) => {
+                // let _ = fs::remove_file(&file_path).expect("Result file must be removed");
+                assert_fail(&err);
+            }
         }
     }
 
     #[test]
-    fn new_from_path_class() {
+    fn new_record_from_path() {
         let file_path = get_test_file("JavaRecord");
 
         match JavaRecord::from(&file_path) {
@@ -337,6 +326,12 @@ mod tests {
             }
             Err(err) => assert_fail(&err),
         }
+    }
+
+    fn get_expected_file(structure_name: &str) -> PathBuf {
+        get_java_record_root_test_folder()
+            .join("expected")
+            .join(format!("{}.java", structure_name).as_str())
     }
 
     fn get_test_file(structure_name: &str) -> PathBuf {

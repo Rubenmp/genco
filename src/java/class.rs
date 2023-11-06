@@ -363,7 +363,7 @@ mod tests {
     #[test]
     fn build_class_empty_service() {
         let folder = get_java_class_root_test_folder();
-        let file_path = folder.join("EmptyService.java");
+        let file_path = folder.join("JavaRecordBuild.java");
         let expected_file_content = get_test_file("ExpectedEmptyService");
 
         let annotations = vec![java_spring_context_factory::_create_service_annotation_usage()];
