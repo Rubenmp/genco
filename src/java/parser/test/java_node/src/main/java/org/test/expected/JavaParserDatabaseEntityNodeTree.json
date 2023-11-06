@@ -1,0 +1,252 @@
+{
+  "1. Program": {
+    "1. PackageDecl": {
+      "1. Package": "package",
+      "2. ScopedIdentifier": {
+        "1. Id": "org",
+        "2. Dot": ".",
+        "3. Id": "test"
+      },
+      "3. Semicolon": ";"
+    },
+    "2. ImportDecl": {
+      "1. Import": "import",
+      "2. ScopedIdentifier": {
+        "1. ScopedIdentifier": {
+          "1. Id": "java",
+          "2. Dot": ".",
+          "3. Id": "time"
+        },
+        "2. Dot": ".",
+        "3. Id": "Instant"
+      },
+      "3. Semicolon": ";"
+    },
+    "3. ImportDecl": {
+      "1. Import": "import",
+      "2. ScopedIdentifier": {
+        "1. ScopedIdentifier": {
+          "1. Id": "javax",
+          "2. Dot": ".",
+          "3. Id": "persistence"
+        },
+        "2. Dot": ".",
+        "3. Id": "Column"
+      },
+      "3. Semicolon": ";"
+    },
+    "4. ImportDecl": {
+      "1. Import": "import",
+      "2. ScopedIdentifier": {
+        "1. ScopedIdentifier": {
+          "1. Id": "javax",
+          "2. Dot": ".",
+          "3. Id": "persistence"
+        },
+        "2. Dot": ".",
+        "3. Id": "Entity"
+      },
+      "3. Semicolon": ";"
+    },
+    "5. ImportDecl": {
+      "1. Import": "import",
+      "2. ScopedIdentifier": {
+        "1. ScopedIdentifier": {
+          "1. Id": "javax",
+          "2. Dot": ".",
+          "3. Id": "persistence"
+        },
+        "2. Dot": ".",
+        "3. Id": "Id"
+      },
+      "3. Semicolon": ";"
+    },
+    "6. ImportDecl": {
+      "1. Import": "import",
+      "2. ScopedIdentifier": {
+        "1. ScopedIdentifier": {
+          "1. Id": "javax",
+          "2. Dot": ".",
+          "3. Id": "persistence"
+        },
+        "2. Dot": ".",
+        "3. Id": "Table"
+      },
+      "3. Semicolon": ";"
+    },
+    "7. ImportDecl": {
+      "1. Import": "import",
+      "2. ScopedIdentifier": {
+        "1. Id": "lombok",
+        "2. Dot": ".",
+        "3. Id": "AllArgsConstructor"
+      },
+      "3. Semicolon": ";"
+    },
+    "8. ImportDecl": {
+      "1. Import": "import",
+      "2. ScopedIdentifier": {
+        "1. Id": "lombok",
+        "2. Dot": ".",
+        "3. Id": "Builder"
+      },
+      "3. Semicolon": ";"
+    },
+    "9. ImportDecl": {
+      "1. Import": "import",
+      "2. ScopedIdentifier": {
+        "1. Id": "lombok",
+        "2. Dot": ".",
+        "3. Id": "Getter"
+      },
+      "3. Semicolon": ";"
+    },
+    "10. ImportDecl": {
+      "1. Import": "import",
+      "2. ScopedIdentifier": {
+        "1. Id": "lombok",
+        "2. Dot": ".",
+        "3. Id": "NoArgsConstructor"
+      },
+      "3. Semicolon": ";"
+    },
+    "11. ImportDecl": {
+      "1. Import": "import",
+      "2. ScopedIdentifier": {
+        "1. Id": "lombok",
+        "2. Dot": ".",
+        "3. Id": "Setter"
+      },
+      "3. Semicolon": ";"
+    },
+    "12. ClassDecl": {
+      "1. Modifiers": {
+        "1. MarkerAnnotation": {
+          "1. At": "@",
+          "2. Id": "Entity"
+        },
+        "2. Annotation": {
+          "1. At": "@",
+          "2. Id": "Table",
+          "3. AnnotationArgumentList": {
+            "1. LParentheses": "(",
+            "2. ElementValuePair": {
+              "1. Id": "name",
+              "2. Equals": "=",
+              "3. StringLiteral": "\"table_name\""
+            },
+            "3. RParentheses": ")"
+          }
+        },
+        "3. MarkerAnnotation": {
+          "1. At": "@",
+          "2. Id": "NoArgsConstructor"
+        },
+        "4. MarkerAnnotation": {
+          "1. At": "@",
+          "2. Id": "AllArgsConstructor"
+        },
+        "5. MarkerAnnotation": {
+          "1. At": "@",
+          "2. Id": "Getter"
+        },
+        "6. MarkerAnnotation": {
+          "1. At": "@",
+          "2. Id": "Setter"
+        },
+        "7. MarkerAnnotation": {
+          "1. At": "@",
+          "2. Id": "Builder"
+        },
+        "8. Public": "public"
+      },
+      "2. Class": "class",
+      "3. Id": "DatabaseEntity",
+      "4. ClassBody": {
+        "1. LBrace": "{",
+        "2. FieldDeclaration": {
+          "1. Modifiers": {
+            "1. MarkerAnnotation": {
+              "1. At": "@",
+              "2. Id": "Id"
+            },
+            "2. Annotation": {
+              "1. At": "@",
+              "2. Id": "Column",
+              "3. AnnotationArgumentList": {
+                "1. LParentheses": "(",
+                "2. ElementValuePair": {
+                  "1. Id": "name",
+                  "2. Equals": "=",
+                  "3. StringLiteral": "\"entity_id\""
+                },
+                "3. RParentheses": ")"
+              }
+            },
+            "3. Private": "private"
+          },
+          "2. TypeIdentifier": "Long",
+          "3. VariableDeclarator": {
+            "1. Id": "id"
+          },
+          "4. Semicolon": ";"
+        },
+        "3. FieldDeclaration": {
+          "1. Modifiers": {
+            "1. Public": "public"
+          },
+          "2. TypeIdentifier": "String",
+          "3. VariableDeclarator": {
+            "1. Id": "name",
+            "2. Equals": "=",
+            "3. StringLiteral": "\"adfa\""
+          },
+          "4. Semicolon": ";"
+        },
+        "4. FieldDeclaration": {
+          "1. Modifiers": {
+            "1. Protected": "protected"
+          },
+          "2. TypeIdentifier": "Integer",
+          "3. VariableDeclarator": {
+            "1. Id": "total"
+          },
+          "4. Semicolon": ";"
+        },
+        "5. FieldDeclaration": {
+          "1. TypeIdentifier": "DatabaseEnum",
+          "2. VariableDeclarator": {
+            "1. Id": "status"
+          },
+          "3. Semicolon": ";"
+        },
+        "6. FieldDeclaration": {
+          "1. Modifiers": {
+            "1. Private": "private"
+          },
+          "2. TypeIdentifier": "Instant",
+          "3. VariableDeclarator": {
+            "1. Id": "lastModifiedAt"
+          },
+          "4. Semicolon": ";"
+        },
+        "7. MethodDecl": {
+          "1. Modifiers": {
+            "1. Private": "private"
+          },
+          "2. VoidType": "void",
+          "3. Id": "method",
+          "4. FormalParams": {
+            "1. LParentheses": "(",
+            "2. RParentheses": ")"
+          },
+          "5. Block": {
+            "1. LBrace": "{",
+            "2. RBrace": "}"
+          }
+        },
+        "8. RBrace": "}"
+      }
+    }
+  }
+}

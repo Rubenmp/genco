@@ -161,7 +161,7 @@ mod tests {
     #[test]
     fn parse_single_file_recognizes_all_tokens() {
         let file_path = get_local_java_project_test_folder().join("JavaParserTest.java");
-        let expected_node_tree = get_expected_file("ExpectedJavaParserTestNodeTree.json");
+        let expected_node_tree = get_expected_file("JavaParserTestNodeTree.json");
 
         match JavaNode::from_path(&file_path) {
             Ok(node) => {
@@ -175,9 +175,14 @@ mod tests {
     #[test]
     fn parse_database_entity() {
         let file_path = get_local_java_project_test_folder().join("JavaParserDatabaseEntity.java");
+        let expected_node_tree = get_expected_file("JavaParserDatabaseEntityNodeTree.json");
 
-        if let Err(error) = JavaNode::from_path(&file_path) {
-            assert_fail(&error);
+        match JavaNode::from_path(&file_path) {
+            Ok(node) => {
+                let node_tree = node.get_tree_str();
+                assert_same_as_file(&expected_node_tree, &node_tree);
+            }
+            Err(error) => assert_fail(&error),
         }
     }
 
