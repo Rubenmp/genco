@@ -12,11 +12,21 @@
     "2. LocalVarDecl": {
       "1. TypeIdentifier": "record",
       "2. VariableDeclarator": {
-        "1. Id": "EmptyService"
+        "1. Id": "JavaRecord"
       },
       "3. Semicolon": ""
     },
-    "3. Block": {
+    "3. ?": {
+      "1. FormalParams": {
+        "1. LParentheses": "(",
+        "2. FormalParam": {
+          "1. TypeIdentifier": "String",
+          "2. Id": "message"
+        },
+        "3. RParentheses": ")"
+      }
+    },
+    "4. Block": {
       "1. LBrace": "{",
       "2. RBrace": "}"
     }

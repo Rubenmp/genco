@@ -1,4 +1,4 @@
 package org.test;
 
-record EmptyService {
+record JavaRecord(String message) {
 }
