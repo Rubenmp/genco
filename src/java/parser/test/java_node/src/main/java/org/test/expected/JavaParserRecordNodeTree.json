@@ -1,0 +1,24 @@
+{
+  "1. Program": {
+    "1. PackageDecl": {
+      "1. Package": "package",
+      "2. ScopedIdentifier": {
+        "1. Id": "org",
+        "2. Dot": ".",
+        "3. Id": "test"
+      },
+      "3. Semicolon": ";"
+    },
+    "2. LocalVarDecl": {
+      "1. TypeIdentifier": "record",
+      "2. VariableDeclarator": {
+        "1. Id": "EmptyService"
+      },
+      "3. Semicolon": ""
+    },
+    "3. Block": {
+      "1. LBrace": "{",
+      "2. RBrace": "}"
+    }
+  }
+}

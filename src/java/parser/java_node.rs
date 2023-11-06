@@ -186,6 +186,20 @@ mod tests {
         }
     }
 
+    #[test]
+    fn parse_record() {
+        let file_path = get_local_java_project_test_folder().join("JavaParserRecord.java");
+        let expected_node_tree = get_expected_file("JavaParserRecordNodeTree.json");
+
+        match JavaNode::from_path(&file_path) {
+            Ok(node) => {
+                let node_tree = node.get_tree_str();
+                assert_same_as_file(&expected_node_tree, &node_tree);
+            }
+            Err(error) => assert_fail(&error),
+        }
+    }
+
     fn get_expected_file(file_name: &str) -> PathBuf {
         get_local_java_project_test_folder()
             .join("expected")
