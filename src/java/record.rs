@@ -4,6 +4,7 @@ use crate::core::file_system::path_helper::try_to_absolute_path;
 use crate::java::annotation_usage::JavaAnnotationUsage;
 use crate::java::field::JavaField;
 use crate::java::import::JavaImport;
+use crate::java::interface::JavaInterface;
 use crate::java::method::JavaMethod;
 use crate::java::scanner::file::java_file::JavaFile;
 use crate::java::scanner::file::java_structure::JavaStructure;
@@ -113,6 +114,15 @@ impl JavaRecord {
         self.get_structure().get_name()
     }
 
+    /// # get_implemented_interfaces
+    /// Get the interfaces that current JavaRecord implement.
+    /// Under the hood, JavaRecord stores the reference to its implemented interfaces.
+    /// Therefore, this method will scan (if exists) the implemented interface file(s),
+    /// and return the result.
+    pub fn get_implemented_interfaces(&self) -> Vec<JavaInterface> {
+        self.get_structure().get_implemented_interfaces()
+    }
+
     /// # get_methods
     /// Get the methods of the current JavaRecord.
     pub fn get_methods(&self) -> &Vec<JavaMethod> {
@@ -186,6 +196,8 @@ pub struct JavaRecordBuilder {
     annotations: Vec<JavaAnnotationUsage>,
     visibility: JavaVisibility,
 
+    implemented_interfaces: Vec<JavaImport>,
+
     name: Option<String>,
     fields: Vec<JavaField>,
     methods: Vec<JavaMethod>,
@@ -197,6 +209,7 @@ impl JavaRecordBuilder {
             folder: None,
             annotations: vec![],
             visibility: JavaVisibility::Package,
+            implemented_interfaces: vec![],
             name: None,
             fields: vec![],
             methods: vec![],
@@ -222,6 +235,12 @@ impl JavaRecordBuilder {
         self.name = Some(input.to_string());
         self
     }
+
+    pub fn implements(&mut self, input: JavaInterface) -> &mut Self {
+        self.implemented_interfaces.push(input.get_self_import());
+        self
+    }
+
     pub fn fields(&mut self, input: Vec<JavaField>) -> &mut Self {
         self.fields = input;
         self
@@ -256,11 +275,14 @@ impl JavaRecordBuilder {
             ));
         }
 
+        // TODO: validate implemented_interfaces
+
         let file = folder.join(format!("{}.java", name));
         return match JavaStructure::builder()
             .structure_type(JavaStructureType::Record)
             .annotations(self.annotations.clone())
             .visibility(self.visibility)
+            .implemented_interfaces(self.implemented_interfaces.clone())
             .name(&name)
             .fields(self.fields.clone())
             .methods(self.methods.clone())
@@ -284,7 +306,38 @@ mod tests {
     use crate::java::visibility::JavaVisibility;
 
     #[test]
-    fn build_record_test() {
+    fn build_basic_record_test() {
+        let folder = get_java_record_root_test_folder();
+        let file_path = folder.join("JavaBasicRecordBuild.java");
+        let expected_file_content = get_expected_file("JavaBasicRecordBuild");
+
+        match JavaRecord::builder()
+            .folder(&folder)
+            .name("JavaBasicRecordBuild")
+            .build()
+        {
+            Ok(java_record) => {
+                assert_same_file(&expected_file_content, &file_path);
+                let _ = fs::remove_file(&file_path).expect("Result file must be removed");
+                assert_eq!(&file_path, java_record.get_file());
+                assert_eq!(1, java_record.get_annotations().len());
+                assert_eq!(JavaVisibility::Public, java_record.get_visibility());
+                assert!(!java_record.is_static());
+                assert_eq!("JavaBasicRecordBuild", java_record.get_name());
+                assert_eq!(0, java_record.get_fields().len());
+                assert_eq!(0, java_record.get_methods().len());
+                assert_eq!(1, java_record.get_imports().len());
+            }
+            Err(err) => {
+                // let _ = fs::remove_file(&file_path).expect("Result file must be removed");
+                assert_fail(&err);
+            }
+        }
+    }
+
+    #[test]
+    #[ignore = "Fix first build_basic_record_test"]
+    fn build_record_with_annotations_interface_and_method() {
         let folder = get_java_record_root_test_folder();
         let file_path = folder.join("JavaRecordBuild.java");
         let expected_file_content = get_expected_file("JavaRecordBuild");

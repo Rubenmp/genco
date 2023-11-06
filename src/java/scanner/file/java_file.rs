@@ -1,6 +1,6 @@
-use crate::core::file_system::file_cache::FileCache;
 use std::path::{Path, PathBuf};
 
+use crate::core::file_system::file_cache::FileCache;
 use crate::core::file_system::file_edition::file_editor;
 use crate::core::file_system::file_overwriting::file_overwriter::FileOverwriting;
 use crate::core::file_system::path_helper;
@@ -86,7 +86,7 @@ impl JavaFile {
 
         let file_cache = FileCache::from(java_file_path);
         let root_java_node = JavaNode::from_path(java_file_path)?;
-
+        root_java_node.print_tree_and_panic();
         let mut imports = JavaFileImports::new();
         let mut structure_opt: Option<JavaStructure> = None;
         let java_file_import = JavaImport::new_explicit_import_from_file(java_file_path)?;
