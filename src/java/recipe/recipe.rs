@@ -45,7 +45,7 @@ mod tests {
 
     #[test]
     fn new_java_recipe() {
-        let file = get_local_test_file("java_dependency_upgrade_all.yaml");
+        let file = get_local_test_file("java_dependency_upgrade.yaml");
 
         match Recipe::new(&file) {
             Ok(recipe) => match recipe {
@@ -67,7 +67,9 @@ mod tests {
                     return;
                 }
             },
-            Err(errors) => assert_fail(&format!("Number of errors: {}", errors.len())),
+            Err(errors) => {
+                assert_fail(&format!("Number of errors: {}", errors.len()));
+            }
         };
     }
 
