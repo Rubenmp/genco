@@ -65,6 +65,8 @@ impl ParserNode<JavaNodeType> for JavaNode {
             let parsed = parser.parse(&file_content, None);
             return if let Some(parsed_tree) = parsed {
                 let _exp = parsed_tree.root_node().to_sexp();
+                println!("Expr:\n{}", _exp);
+
                 let node = JavaNode::new_internal(parsed_tree.root_node(), file_path);
                 Ok(node)
             } else {
@@ -189,7 +191,11 @@ mod tests {
 
     #[test]
     fn parse_record() {
-        let file_path = get_local_java_project_test_folder().join("JavaParserRecord.java");
+        let mut file = get_current_file_path();
+        file.pop();
+        let file_path = file.join("JavaParserRecord.java");
+
+        // let file_path = get_local_java_project_test_folder().join("JavaParserRecord.java");
         let expected_node_tree = get_expected_file("JavaParserRecordNodeTree.json");
 
         match JavaNode::from_path(&file_path) {
